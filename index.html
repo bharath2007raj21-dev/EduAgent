@@ -878,7 +878,7 @@ function fmtTime(){ return new Date().toLocaleTimeString([],{hour:'2-digit',minu
 function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 
 // ── PWA ──────────────────────────────────────────────────────────────
-if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
 </script>
 </body>
 </html>/;;;;;;;;;;;;;
