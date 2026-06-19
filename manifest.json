@@ -9,8 +9,8 @@
   "theme_color": "#3b82f6",
   "icons": [
     {
-      "src": "assets/eduagent.png.png",
-      "sizes": "1024x559",
+      "src": "assets/eduagent.png (1).png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }
