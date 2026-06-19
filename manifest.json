@@ -10,8 +10,8 @@
   "icons": [
     {
       "src": "assets/eduagent.png.png",
-      "sizes": "512x512",
-      "type": "image/jpeg",
+      "sizes": "1024x559",
+      "type": "image/png",
       "purpose": "any"
     }
   ],
@@ -19,14 +19,14 @@
     {
       "src": "assets/white-knights.png.png",
       "sizes": "1024x940",
-      "type": "image/jpeg",
+      "type": "image/png",
       "form_factor": "wide",
       "label": "EduAgent Desktop View"
     },
     {
       "src": "assets/nextlevel.png.png",
       "sizes": "340x433",
-      "type": "image/jpeg",
+      "type": "image/png",
       "form_factor": "narrow",
       "label": "EduAgent Mobile View"
     }
