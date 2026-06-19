@@ -2,9 +2,9 @@ const CACHE = 'eduagent-v1';
 const ASSETS = [
   '/index.html',
   '/manifest.json',
-  '/assets/eduagent.png.jpg',
-  '/assets/white-knights.png.jpg',
-  '/assets/nextlevel.png.jpg',
+  '/assets/eduagent.png.png',
+  '/assets/white-knights.png.png',
+  '/assets/nextlevel.png.png',
 ];
 
 self.addEventListener('install', e => {
