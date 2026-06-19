@@ -1,11 +1,10 @@
 const ASSETS = [
   './index.html',
   './manifest.json',
-  './assets/eduagent.png (1).png',
+  './logo-square.png',
   './assets/white-knights.png.png',
   './assets/nextlevel.png.png'
 ];
-
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE).then(c => c.addAll(ASSETS)).catch(() => {})
