@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduAgent — White Knights</title>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#6d28d9"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans:['Inter','system-ui','sans-serif'], mono:['JetBrains Mono','monospace'] },
+          animation: {
+            'glow-pulse': 'glowPulse 2.4s ease-in-out infinite',
+            'fade-up':    'fadeUp 0.35s cubic-bezier(0.16,1,0.3,1) forwards',
+            'ping-slow':  'ping 2s cubic-bezier(0,0,0.2,1) infinite',
+            'shimmer':    'shimmer 1.6s linear infinite',
+            'spin-slow':  'spin 0.7s linear infinite',
+          },
+          keyframes: {
+            glowPulse: { '0%,100%':{ boxShadow:'0 0 0 0 rgba(124,58,237,0)' },'50%':{ boxShadow:'0 0 16px 3px rgba(124,58,237,0.4)' } },
+            fadeUp:    { '0%':{ opacity:'0',transform:'translateY(12px)' },'100%':{ opacity:'1',transform:'translateY(0)' } },
+            shimmer:   { '0%':{ backgroundPosition:'200% 0' },'100%':{ backgroundPosition:'-200% 0' } },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    *{ -webkit-tap-highlight-color:transparent; box-sizing:border-box; }
+    body{
+      background:#07090f;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -5%, rgba(79,70,229,0.2) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 90% 90%, rgba(124,58,237,0.09) 0%, transparent 55%);
+      min-height:100vh;
+    }
+
+    /* ── PHONE SHELL ── */
+    .phone{
+      width:390px; height:844px;
+      border-radius:3rem;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.07),
+        0 0 0 8px #0f1320,
+        0 0 0 9px rgba(255,255,255,0.04),
+        0 32px 80px rgba(0,0,0,0.8),
+        0 0 80px rgba(79,70,229,0.12);
+    }
+    /* side buttons */
+    .phone::before{
+      content:''; position:absolute; left:-3px; top:120px;
+      width:3px; height:36px; background:rgba(255,255,255,0.09);
+      border-radius:2px 0 0 2px;
+      box-shadow:0 48px 0 rgba(255,255,255,0.09), 0 80px 0 rgba(255,255,255,0.09);
+    }
+    .phone::after{
+      content:''; position:absolute; right:-3px; top:160px;
+      width:3px; height:60px; background:rgba(255,255,255,0.09);
+      border-radius:0 2px 2px 0;
+    }
+
+    /* ── NOTCH ── */
+    .notch{
+      position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:120px; height:34px; background:#000;
+      border-radius:0 0 20px 20px; z-index:60;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .notch-cam{ width:10px; height:10px; border-radius:50%; background:#0d0d1a; border:1px solid rgba(255,255,255,0.08); }
+    .notch-pill{ width:48px; height:6px; border-radius:4px; background:#080810; }
+
+    /* ── SCREENS ── */
+    .screen{ position:absolute; inset:0; transition:opacity .35s ease, transform .35s cubic-bezier(0.16,1,0.3,1); }
+    .s-off{ opacity:0; pointer-events:none; transform:scale(0.97) translateY(8px); }
+    .s-on { opacity:1; pointer-events:auto; transform:scale(1) translateY(0); }
+
+    /* ── SCROLLBAR ── */
+    .thin-scroll::-webkit-scrollbar{ width:3px; }
+    .thin-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.1); border-radius:4px; }
+
+    /* ── GLASS ── */
+    .glass{ background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(16px); }
+
+    /* ── GRADIENT BUTTON ── */
+    .btn-v{ background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 4px 20px rgba(124,58,237,0.3); transition:filter .15s, transform .1s; }
+    .btn-v:hover{ filter:brightness(1.1); }
+    .btn-v:active{ transform:scale(0.96); }
+
+    /* ── INPUT ── */
+    .inp{ background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; outline:none; transition:border-color .2s, box-shadow .2s; }
+    .inp:focus{ border-color:rgba(124,58,237,0.6); box-shadow:0 0 0 3px rgba(124,58,237,0.14); }
+    .inp::placeholder{ color:rgba(255,255,255,0.18); }
+
+    /* ── SELECT DROPDOWN — force dark background, no white flash ── */
+    select.inp{ background:#111827; color:#fff; }
+    select.inp option{ background:#111827; color:#fff; }
+    select.inp:focus{ background:#111827; }
+
+    /* ── BUBBLES ── */
+    .bub-me   { background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 4px 14px rgba(124,58,237,0.25); }
+    .bub-peer { background:linear-gradient(135deg,rgba(30,40,70,0.95),rgba(18,24,42,0.95)); border:1px solid rgba(255,255,255,0.08); }
+
+    /* ── AI BUBBLE — brighter background so text is clearly readable ── */
+    .bub-ai {
+      background:linear-gradient(135deg,#111827,#0f172a);
+      border:1px solid rgba(124,58,237,0.25);
+      box-shadow:0 0 24px rgba(124,58,237,0.1);
+    }
+    /* Force all text inside AI bubble to be fully white */
+    .bub-ai p.ai-body{ color:#f1f5f9 !important; font-size:0.875rem; line-height:1.6; }
+    .bub-ai p.ai-label{ color:#a78bfa; font-size:0.625rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; }
+
+    /* ── HISTORY CARDS — readable contrast ── */
+    .hist-user  { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); color:#e2e8f0; }
+    .hist-agent { background:rgba(79,70,229,0.08);   border:1px solid rgba(79,70,229,0.2);   color:#c7d2fe; }
+
+    /* ── NAV ACTIVE ── */
+    .nav-on{ background:linear-gradient(135deg,rgba(79,70,229,0.18),rgba(124,58,237,0.14)); border-color:rgba(124,58,237,0.35) !important; color:#fff !important; }
+
+    /* ── SHIMMER ── */
+    .shimmer-line{ background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; animation:shimmer 1.6s linear infinite; border-radius:6px; }
+
+    /* ── DOTS TYPING ── */
+    @keyframes dot{ 0%,100%{opacity:.2;transform:translateY(0)} 50%{opacity:1;transform:translateY(-4px)} }
+    .dot{ display:inline-block; width:5px; height:5px; border-radius:50%; background:#7c3aed; }
+    .dot:nth-child(1){ animation:dot 1.4s ease-in-out 0s infinite; }
+    .dot:nth-child(2){ animation:dot 1.4s ease-in-out .2s infinite; }
+    .dot:nth-child(3){ animation:dot 1.4s ease-in-out .4s infinite; }
+
+    /* ── ROSTER SELECTED ── */
+    .row-sel{ background:rgba(124,58,237,0.12) !important; border-color:rgba(124,58,237,0.4) !important; }
+
+    /* ── PILL BADGES ── */
+    .pill-ok  { background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.3); color:#6ee7b7; }
+    .pill-warn{ background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.3); color:#fcd34d; }
+    .pill-err { background:rgba(244,63,94,0.14);  border:1px solid rgba(244,63,94,0.3);  color:#fda4af; }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-6 font-sans antialiased select-none">
+
+<!-- ═══════════════════════════════════ PHONE ═══════════════════════════════════ -->
+<div class="phone relative overflow-hidden bg-[#0b0e18]">
+
+  <div class="notch">
+    <div class="notch-cam"></div>
+    <div class="notch-pill"></div>
+    <div class="notch-cam"></div>
+  </div>
+
+  <!-- LIVE BANNER -->
+  <div id="live-banner" class="hidden absolute top-10 inset-x-3 z-50 animate-fade-up">
+    <div class="flex items-start gap-3 bg-gradient-to-r from-violet-950/95 to-indigo-950/95 border border-violet-500/30 backdrop-blur-xl rounded-2xl p-3.5 shadow-2xl">
+      <div class="w-8 h-8 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0 text-base">🔔</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[10px] font-black text-violet-300 uppercase tracking-widest">Faculty Notice</p>
+        <p id="banner-text" class="text-xs text-white/85 mt-0.5 leading-snug line-clamp-2"></p>
+      </div>
+      <button onclick="closeBanner()" class="text-white/30 hover:text-white/70 p-1 shrink-0">✕</button>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN: GATEWAY ════════ -->
+  <div id="s-gateway" class="screen s-on flex flex-col h-full pt-12 pb-10 px-7 justify-between">
+    <div class="text-center mt-6">
+      <!-- logo -->
+      <div class="flex justify-center mb-5">
+        <div class="relative">
+          <div class="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center shadow-[0_0_40px_rgba(124,58,237,0.4)]">
+            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+          </div>
+          <div class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-[#0b0e18] animate-ping-slow"></div>
+        </div>
+      </div>
+      <h1 class="text-[26px] font-black tracking-tight text-white">White Knights</h1>
+      <p class="text-[11px] text-white/30 mt-1 font-mono tracking-[4px] uppercase">EduAgent Platform</p>
+    </div>
+
+    <div class="space-y-3">
+      <p class="text-center text-[10px] font-bold text-white/25 uppercase tracking-[3px] mb-4">Choose your role</p>
+
+      <button onclick="goLogin('student')" class="group w-full glass rounded-2xl p-5 text-left transition-all duration-200 hover:border-indigo-500/40 active:scale-[0.98]">
+        <div class="flex items-center gap-4">
+          <div class="w-11 h-11 rounded-xl bg-indigo-500/12 border border-indigo-500/20 flex items-center justify-center text-xl shrink-0 group-hover:bg-indigo-500/22 transition-colors">🎓</div>
+          <div class="flex-1">
+            <p class="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">Student Portal</p>
+            <p class="text-[11px] text-white/30 mt-0.5">AI chat · Study rooms · Notes</p>
+          </div>
+          <svg class="w-4 h-4 text-white/20 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </div>
+      </button>
+
+      <button onclick="goLogin('faculty')" class="group w-full glass rounded-2xl p-5 text-left transition-all duration-200 hover:border-violet-500/40 active:scale-[0.98]">
+        <div class="flex items-center gap-4">
+          <div class="w-11 h-11 rounded-xl bg-violet-500/12 border border-violet-500/20 flex items-center justify-center text-xl shrink-0 group-hover:bg-violet-500/22 transition-colors">🏛️</div>
+          <div class="flex-1">
+            <p class="text-sm font-bold text-white group-hover:text-violet-300 transition-colors">Faculty Console</p>
+            <p class="text-[11px] text-white/30 mt-0.5">Attendance · Uploads · Broadcast</p>
+          </div>
+          <svg class="w-4 h-4 text-white/20 group-hover:text-violet-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </div>
+      </button>
+    </div>
+
+    <div class="text-center space-y-1">
+      <p class="text-[9px] text-white/20 uppercase tracking-[4px]">Powered by</p>
+      <p class="text-xs font-black text-white/40 tracking-[3px]">NEXT LEvEL</p>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN: LOGIN ════════ -->
+  <div id="s-login" class="screen s-off flex flex-col h-full pt-12 pb-8 px-6">
+    <button onclick="go('s-login','s-gateway')" class="self-start flex items-center gap-1.5 text-[11px] font-semibold text-white/40 hover:text-white glass px-3 py-2 rounded-xl transition-all mb-6 mt-2">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg> Back
+    </button>
+
+    <div class="text-center mb-7">
+      <div id="l-icon" class="w-14 h-14 rounded-2xl bg-indigo-500/12 border border-indigo-500/20 flex items-center justify-center text-2xl mx-auto mb-3">🎓</div>
+      <h2 id="l-title" class="text-xl font-extrabold text-white">Student Login</h2>
+      <p id="l-sub" class="text-xs text-white/30 mt-1">Enter your campus credentials</p>
+    </div>
+
+    <!-- sync status (shown after backend call) -->
+    <div id="sync-row" class="hidden mb-4 flex items-center gap-2">
+      <div id="sync-pill" class="pill-ok inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full">
+        <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        <span id="sync-txt">Synced</span>
+      </div>
+    </div>
+
+    <!-- low attendance warning (Brick 4) -->
+    <div id="att-box" class="hidden mb-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3.5 animate-fade-up">
+      <p class="text-[10px] font-black text-amber-300 uppercase tracking-widest mb-1">⚠️ Attendance Warning</p>
+      <p id="att-txt" class="text-xs text-white/75 leading-relaxed"></p>
+    </div>
+
+    <div class="space-y-4 flex-1">
+      <div>
+        <label id="l-lbl" class="block text-[10px] font-bold text-white/35 uppercase tracking-widest mb-2">Roll Number</label>
+        <input id="l-id" type="text" class="inp w-full rounded-xl px-4 py-3.5 text-sm font-mono tracking-wide" placeholder="e.g. 24WKCSE010"/>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-white/35 uppercase tracking-widest mb-2">Password</label>
+        <div class="relative">
+          <input id="l-pwd" type="password" value="password123" class="inp w-full rounded-xl px-4 py-3.5 pr-12 text-sm font-mono"/>
+          <button onclick="togglePwd()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors p-1">
+            <svg id="eye1" class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <svg id="eye2" class="w-4.5 h-4.5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+          </button>
+        </div>
+      </div>
+      <button id="l-btn" onclick="doLogin()" class="btn-v w-full py-4 rounded-xl text-white font-bold text-sm tracking-widest uppercase mt-2 flex items-center justify-center gap-2">
+        <span id="l-btn-txt">Authorize</span>
+        <div id="l-spin" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin-slow"></div>
+      </button>
+      <p id="l-err" class="hidden text-red-400 text-xs text-center font-medium"></p>
+    </div>
+  </div>
+
+  <!-- ════════ SCREEN: WORKSPACE ════════ -->
+  <div id="s-workspace" class="screen s-off flex flex-col h-full pt-9 bg-[#0b0e18]">
+
+    <!-- DRAWER BACKDROP -->
+    <div id="backdrop" class="hidden absolute inset-0 z-30 bg-black/60 backdrop-blur-sm" onclick="closeDrawer()"></div>
+
+    <!-- SIDEBAR DRAWER -->
+    <div id="drawer" class="absolute inset-y-0 left-0 w-[272px] bg-[#0e1320] border-r border-white/[0.05] z-40 -translate-x-full transition-transform duration-300 flex flex-col shadow-[4px_0_40px_rgba(0,0,0,0.6)]">
+      <!-- drawer top -->
+      <div class="px-5 pt-14 pb-5 border-b border-white/[0.05]">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-xs font-black text-white tracking-wide">EduAgent</p>
+            <p id="d-role" class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mt-0.5">Student Console</p>
+          </div>
+          <button onclick="closeDrawer()" class="p-2 hover:bg-white/5 rounded-xl text-white/30 hover:text-white transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <!-- user chip -->
+        <div class="flex items-center gap-3 glass rounded-xl px-3 py-2.5">
+          <div id="d-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center text-xs font-bold text-white shrink-0">B</div>
+          <div class="min-w-0">
+            <p id="d-name" class="text-xs font-bold text-white truncate">Bharath Kumar</p>
+            <p id="d-id"   class="text-[10px] text-white/30 font-mono truncate">24WKCSE010</p>
+          </div>
+          <div class="w-2 h-2 rounded-full bg-emerald-400 animate-glow-pulse shrink-0 ml-auto"></div>
+        </div>
+      </div>
+
+      <!-- nav -->
+      <nav class="flex-1 overflow-y-auto thin-scroll px-3 py-4">
+        <div id="nav-s" class="space-y-0.5">
+          <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest px-3 pb-2">Student</p>
+          <button onclick="tab('direct-chat')"    class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>💬</span> AI Assistant</button>
+          <button onclick="tab('lobby-creator')"  class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>✨</span> Launch Study Room</button>
+          <button onclick="tab('lobby-join')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔗</span> Join Room</button>
+          <button onclick="tab('student-notes')"  class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📚</span> Study Textbook</button>
+          <button onclick="tab('student-alerts')" class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04] relative"><span>🔔</span> Notices & Timetable<span id="alert-dot" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500 animate-ping-slow"></span></button>
+          <button onclick="tab('history')"        class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📜</span> Chat History</button>
+        </div>
+        <div id="nav-f" class="space-y-0.5 hidden">
+          <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest px-3 pb-2 pt-1">Faculty</p>
+          <button onclick="tab('direct-chat')"      class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>💬</span> AI Assistant</button>
+          <button onclick="tab('faculty-duty')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔄</span> Duty Swaps</button>
+          <button onclick="tab('faculty-classroom')"class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>👥</span> Classroom Hub</button>
+          <button onclick="tab('lobby-creator')"    class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>✨</span> Group Chat Room</button>
+          <button onclick="tab('lobby-join')"       class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔗</span> Join Room</button>
+          <button onclick="tab('faculty-upload')"   class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📤</span> Upload Materials</button>
+          <button onclick="tab('history')"          class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📜</span> Chat History</button>
+        </div>
+      </nav>
+
+      <div class="p-3 border-t border-white/[0.05]">
+        <button onclick="logout()" class="w-full bg-red-500/8 border border-red-500/20 hover:bg-red-500/18 py-3 rounded-xl text-center text-red-400 text-xs font-bold uppercase tracking-widest transition-all">🚪 Sign Out</button>
+      </div>
+    </div>
+
+    <!-- TOP BAR -->
+    <div class="flex items-center justify-between px-4 py-3 border-b border-white/[0.05] bg-[#0b0e18]/95 backdrop-blur-sm z-20 shrink-0">
+      <div class="flex items-center gap-3 min-w-0">
+        <button onclick="openDrawer()" class="p-2 glass rounded-xl text-white/55 hover:text-white transition-all">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="truncate">
+          <h2 id="tb-title" class="text-sm font-bold text-white truncate">EduAgent</h2>
+          <p  id="tb-sub"   class="text-[10px] text-white/28 truncate font-mono"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <span id="tb-badge" class="text-[9px] font-bold px-2 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/14 uppercase tracking-wider">Chat</span>
+        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-glow-pulse"></div>
+      </div>
+    </div>
+
+    <!-- ──────── TAB VIEWS ──────── -->
+    <div class="flex-1 relative overflow-hidden">
+
+      <!-- DIRECT CHAT -->
+      <div id="v-direct-chat" class="view absolute inset-0 flex flex-col">
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+          <div class="text-center">
+            <p class="text-[52px] font-black text-white/[0.022] tracking-tighter leading-none">EduAgent</p>
+            <p class="text-[10px] font-bold text-indigo-500/[0.04] tracking-[5px] uppercase mt-1">by NEXT LEvEL</p>
+          </div>
+        </div>
+        <div id="chat-direct" class="thin-scroll flex-1 overflow-y-auto px-4 py-4 space-y-4 z-10"></div>
+        <div class="px-4 py-3 border-t border-white/[0.05] bg-[#0b0e18]/95 backdrop-blur-sm shrink-0">
+          <div class="flex gap-2">
+            <input id="inp-direct" type="text" placeholder="Ask EduAgent anything…" onkeydown="if(event.key==='Enter')sendDirect()" class="inp flex-1 rounded-full px-4 py-3 text-sm"/>
+            <button onclick="sendDirect()" class="btn-v w-11 h-11 rounded-full flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOBBY CREATOR -->
+      <div id="v-lobby-creator" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
+        <div class="glass rounded-3xl p-6 w-full max-w-[320px] text-center space-y-5 animate-fade-up">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-violet-500/15 border border-indigo-500/20 flex items-center justify-center text-2xl mx-auto">✨</div>
+          <div>
+            <h3 class="text-base font-bold text-white">Create Study Room</h3>
+            <p class="text-xs text-white/30 mt-1 leading-normal">Get a 6-char code and share it with your group.</p>
+          </div>
+          <div id="faculty-room-type" class="hidden bg-black/25 border border-white/[0.05] rounded-2xl p-3 text-left space-y-2">
+            <p class="text-[9px] font-bold text-violet-400 uppercase tracking-widest">Room Type</p>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 glass rounded-xl p-2.5 cursor-pointer text-white text-[11px] font-medium"><input type="radio" name="room-type" value="normal" checked class="accent-violet-500"> Study Group</label>
+              <label class="flex items-center gap-2 glass rounded-xl p-2.5 cursor-pointer text-white text-[11px] font-medium"><input type="radio" name="room-type" value="attendance" class="accent-violet-500"> Attendance</label>
+            </div>
+          </div>
+          <button onclick="createRoom()" class="btn-v w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wider uppercase">Generate Code</button>
+        </div>
+      </div>
+
+      <!-- LOBBY JOIN -->
+      <div id="v-lobby-join" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
+        <div class="glass rounded-3xl p-6 w-full max-w-[320px] space-y-5 animate-fade-up">
+          <div class="text-center">
+            <div class="w-14 h-14 rounded-2xl bg-sky-500/12 border border-sky-500/20 flex items-center justify-center text-2xl mx-auto mb-3">🔗</div>
+            <h3 class="text-base font-bold text-white">Join a Room</h3>
+            <p class="text-xs text-white/30 mt-1">Enter the 6-char code from your group.</p>
+          </div>
+          <div class="flex gap-2">
+            <input id="inp-code" type="text" maxlength="6" placeholder="A3F9BC" class="inp flex-1 rounded-xl px-4 py-3 text-center font-mono text-xl font-bold uppercase tracking-widest"/>
+            <button onclick="joinRoom()" class="bg-sky-600 hover:bg-sky-500 active:scale-95 px-5 rounded-xl text-white text-xs font-bold uppercase tracking-wider transition-all shrink-0">Join</button>
+          </div>
+          <p id="join-err" class="hidden text-red-400 text-xs text-center font-medium"></p>
+        </div>
+      </div>
+
+      <!-- GROUP CHAT -->
+      <div id="v-group-room" class="view hidden absolute inset-0 flex flex-col bg-[#0b0e18]">
+        <div class="px-4 py-2 border-b border-white/[0.05] flex items-center gap-2 shrink-0">
+          <div id="member-avatars" class="flex -space-x-2"></div>
+          <span id="member-count" class="text-[10px] text-white/35 font-mono ml-2">0 online</span>
+        </div>
+        <div id="chat-group" class="thin-scroll flex-1 overflow-y-auto px-4 py-4 space-y-4"></div>
+        <div class="px-4 py-3 border-t border-white/[0.05] bg-[#0b0e18]/95 backdrop-blur-sm shrink-0">
+          <div class="flex gap-2">
+            <input id="inp-group" type="text" placeholder="Message or /agent question…" onkeydown="if(event.key==='Enter')sendGroup()" class="inp flex-1 rounded-full px-4 py-3 text-sm"/>
+            <button onclick="sendGroup()" class="btn-v w-11 h-11 rounded-full flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+            </button>
+          </div>
+          <p class="text-[10px] text-white/18 text-center mt-1.5 font-mono">Type <span class="text-violet-400">/agent</span> to call EduAgent</p>
+        </div>
+      </div>
+
+      <!-- STUDENT NOTES -->
+      <div id="v-student-notes" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
+        <div class="glass rounded-2xl p-4">
+          <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Live Repo</span>
+          <h3 class="text-sm font-bold text-white mt-0.5">Course Textbook</h3>
+          <p class="text-[11px] text-white/30 mt-1 leading-normal">Faculty-uploaded materials appear here instantly.</p>
+        </div>
+        <div id="notes-box" class="space-y-3"></div>
+      </div>
+
+      <!-- STUDENT ALERTS + TIMETABLE (Brick 3 — real timetable) -->
+      <div id="v-student-alerts" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
+        <div class="glass rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Faculty Notices</h4>
+          </div>
+          <div id="alerts-box" class="space-y-2.5">
+            <p class="text-xs text-white/22 text-center py-2 italic">No notices yet.</p>
+          </div>
+        </div>
+        <div class="glass rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Your Timetable</h4>
+          </div>
+          <div id="tt-box" class="space-y-2 text-xs font-mono">
+            <p class="text-white/25 italic text-xs">Loading from ERP sync…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FACULTY DUTY -->
+      <div id="v-faculty-duty" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll space-y-4">
+        <div class="glass rounded-2xl p-4 space-y-3">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider">Today's Schedule</h3>
+          <div class="bg-white/[0.025] border border-white/[0.05] rounded-xl p-3.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <span class="text-[9px] font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/15 px-1.5 py-0.5 rounded uppercase tracking-wide">Hour 1 · 09:30</span>
+                <p class="text-xs font-bold text-white mt-1.5">Python Programming — III B.Tech IT</p>
+              </div>
+              <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full shrink-0">Active</span>
+            </div>
+          </div>
+          <div class="bg-white/[0.025] border border-white/[0.05] rounded-xl p-3.5 space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <span class="text-[9px] font-bold text-violet-400 bg-violet-500/10 border border-violet-500/15 px-1.5 py-0.5 rounded uppercase tracking-wide">Hour 3 · 11:30</span>
+                <p class="text-xs font-bold text-white mt-1.5">Computational AI — IV CSE</p>
+              </div>
+              <span class="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full shrink-0">Pending</span>
+            </div>
+            <div class="border-t border-white/[0.05] pt-2.5">
+              <label class="block text-[9px] font-bold text-white/28 uppercase tracking-widest mb-1.5">Emergency Swap</label>
+              <select onchange="doSwap(this)" class="inp w-full rounded-xl px-3 py-2 text-xs">
+                <option value="">— Select available staff —</option>
+                <option>Dr. R. Srinivasan (Hour 3 free)</option>
+                <option>Prof. M. Anjali (Hour 3 free)</option>
+                <option>Prof. S. Rohan (Hour 3 free)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FACULTY CLASSROOM -->
+      <div id="v-faculty-classroom" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
+        <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-1">Classroom Hub</h3>
+          <p class="text-[11px] text-white/30 mb-3 leading-normal">Select students, then broadcast a notice.</p>
+          <div class="relative mb-3 shrink-0">
+            <input oninput="filterRoster()" type="text" placeholder="Search students…" class="inp w-full rounded-xl pl-4 pr-10 py-2.5 text-xs"/>
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <div id="roster" class="flex-1 overflow-y-auto thin-scroll space-y-2 bg-black/15 rounded-xl p-2 border border-white/[0.04]"></div>
+          <div class="mt-3 border-t border-white/[0.05] pt-3 space-y-2 shrink-0">
+            <div class="flex justify-between text-[10px] font-bold text-white/28 px-1">
+              <span>SELECTED</span>
+              <span id="sel-count" class="text-violet-400 font-mono">0 targets</span>
+            </div>
+            <div class="flex gap-2">
+              <input id="broadcast-inp" type="text" placeholder="Broadcast message…" class="inp flex-1 rounded-xl px-3 py-2 text-xs"/>
+              <button onclick="doBroadcast()" class="bg-violet-600 hover:bg-violet-500 active:scale-95 px-4 py-2 rounded-xl text-white text-[11px] font-bold uppercase tracking-wider transition-all shrink-0">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FACULTY UPLOAD -->
+      <div id="v-faculty-upload" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll">
+        <div class="glass rounded-2xl p-4 space-y-4 animate-fade-up">
+          <div class="pb-3 border-b border-white/[0.05]">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Upload Materials</h3>
+            <p class="text-[10px] text-white/28 mt-0.5">Pushed live into student textbook.</p>
+          </div>
+          <div class="space-y-3">
+            <div><label class="block text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">Subject</label>
+              <select id="up-subj" class="inp w-full rounded-xl px-3 py-2.5 text-xs">
+                <option value="24ITE01">24ITE01 — Python Programming</option>
+                <option value="24WKAI02">24WKAI02 — Computational AI</option>
+              </select>
+            </div>
+            <div><label class="block text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">Unit</label>
+              <input id="up-unit" type="text" placeholder="e.g. Unit III" class="inp w-full rounded-xl px-3 py-2.5 text-xs font-mono"/>
+            </div>
+            <div><label class="block text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">Topic Heading</label>
+              <input id="up-head" type="text" placeholder="e.g. For-Loops & Iterators" class="inp w-full rounded-xl px-3 py-2.5 text-xs"/>
+            </div>
+            <div><label class="block text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">Notes Body</label>
+              <textarea id="up-body" rows="5" placeholder="Paste lecture notes here…" class="inp w-full rounded-xl px-3 py-2.5 text-xs resize-none thin-scroll leading-relaxed"></textarea>
+            </div>
+            <button onclick="uploadMat()" class="btn-v w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wider uppercase">Upload to ERP</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div id="v-history" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
+        <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
+          <div class="pb-3 border-b border-white/[0.05] mb-3">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Chat History</h3>
+            <p class="text-[10px] text-white/25 font-mono mt-0.5">Last 50 from MongoDB</p>
+          </div>
+          <div id="history-box" class="flex-1 overflow-y-auto thin-scroll space-y-3"></div>
+        </div>
+      </div>
+
+    </div><!-- end views -->
+  </div><!-- end workspace -->
+
+</div><!-- end phone -->
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────
+const HOST = window.location.hostname || '127.0.0.1';
+const API  = `http://${HOST}:8000`;
+const WS   = `ws://${HOST}:8000`;
+const SUB  = '24ITE01';
+
+// ── STATE ────────────────────────────────────────────────────────────
+let role = '', userId = '', activeTab = '', activeRoom = '', ws = null;
+let selected = [];
+let materials = [{ subject:'24ITE01', unit:'Unit III', heading:'Loops & Syntax Invariants', body:'A loop repeatedly executes code while a condition holds. Python supports for and while loops via iteration sequences and programmatic checks.' }];
+let syncedTT = null; // timetable from /student/sync
+
+const ROSTER = [
+  {roll:'24WKCSE001',name:'Arun Raj',dept:'CSE'},
+  {roll:'24WKCSE010',name:'Bharath Kumar',dept:'CSE'},
+  {roll:'24WKCSE024',name:'Sanjay Sharma',dept:'CSE'},
+  {roll:'24WKIT012', name:'Priya Nair',dept:'IT'},
+  {roll:'23WKCSE045',name:'Rahul Reddy',dept:'CSE'},
+  {roll:'25WKECE015',name:'Anjali Murugan',dept:'ECE'},
+];
+
+// ── SCREEN TRANSITION ───────────────────────────────────────────────
+function go(a,b){ document.getElementById(a).classList.replace('s-on','s-off'); setTimeout(()=>document.getElementById(b).classList.replace('s-off','s-on'),120); }
+
+function goLogin(r){
+  role = r;
+  const s = r==='student';
+  document.getElementById('l-icon').textContent  = s ? '🎓' : '🏛️';
+  document.getElementById('l-title').textContent = s ? 'Student Login' : 'Faculty Login';
+  document.getElementById('l-sub').textContent   = s ? 'Enter campus credentials' : 'Enter staff credentials';
+  document.getElementById('l-lbl').textContent   = s ? 'Roll Number' : 'Staff Token';
+  document.getElementById('l-id').value          = s ? '24WKCSE010' : 'DR_SRINIVASAN_JCT';
+  document.getElementById('l-id').placeholder    = s ? 'e.g. 24WKCSE010' : 'e.g. DR_SRINIVASAN_JCT';
+  document.getElementById('att-box').classList.add('hidden');
+  document.getElementById('sync-row').classList.add('hidden');
+  go('s-gateway','s-login');
+}
+
+// ── LOGIN + BRICK 1 (sync) ──────────────────────────────────────────
+async function doLogin(){
+  const id  = document.getElementById('l-id').value.trim().toUpperCase();
+  const pwd = document.getElementById('l-pwd').value.trim();
+  const err = document.getElementById('l-err');
+  err.classList.add('hidden');
+  if(!id)  { err.textContent='Roll number required.'; err.classList.remove('hidden'); return; }
+  if(!pwd) { err.textContent='Password required.'; err.classList.remove('hidden'); return; }
+
+  userId = id;
+  document.getElementById('l-btn-txt').textContent = 'Connecting…';
+  document.getElementById('l-spin').classList.remove('hidden');
+  document.getElementById('l-btn').disabled = true;
+
+  // BRICK 1 — call /student/sync on login (students only)
+  if(role === 'student'){
+    try{
+      const res = await fetch(`${API}/student/sync`,{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({roll_number: id})
+      });
+      if(res.ok){
+        const d = await res.json();
+        setSyncPill('ok', `Synced · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
+
+        // BRICK 4 — low attendance warning
+        if(d.warning){
+          document.getElementById('att-txt').textContent = d.warning;
+          document.getElementById('att-box').classList.remove('hidden');
+        }
+
+        // Store timetable from sync if returned (future: backend can pass it)
+        if(d.timetable) syncedTT = d.timetable;
+      } else {
+        setSyncPill('warn', 'Sync skipped — backend error');
+      }
+    } catch(e){
+      setSyncPill('err','Offline mode — no sync');
+    }
+  }
+
+  document.getElementById('l-btn-txt').textContent = 'Authorize';
+  document.getElementById('l-spin').classList.add('hidden');
+  document.getElementById('l-btn').disabled = false;
+
+  bootWorkspace();
+  go('s-login','s-workspace');
+}
+
+function setSyncPill(state, txt){
+  const row  = document.getElementById('sync-row');
+  const pill = document.getElementById('sync-pill');
+  const dot  = document.getElementById('sync-dot');
+  const span = document.getElementById('sync-txt');
+  row.classList.remove('hidden');
+  span.textContent = txt;
+  const cls = state==='ok' ? 'pill-ok' : state==='warn' ? 'pill-warn' : 'pill-err';
+  pill.className = `${cls} inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full`;
+  dot.className  = `w-1.5 h-1.5 rounded-full ${state==='ok'?'bg-emerald-400':state==='warn'?'bg-amber-400':'bg-red-400'}`;
+}
+
+// ── WORKSPACE BOOT ──────────────────────────────────────────────────
+function bootWorkspace(){
+  const s = role==='student';
+  document.getElementById('nav-s').classList.toggle('hidden',!s);
+  document.getElementById('nav-f').classList.toggle('hidden', s);
+  document.getElementById('faculty-room-type').classList.toggle('hidden',s);
+  document.getElementById('d-role').textContent = s ? 'Student Console' : 'Faculty Console';
+  document.getElementById('d-role').className   = `text-[10px] font-bold uppercase tracking-widest mt-0.5 ${s?'text-indigo-400':'text-violet-400'}`;
+  document.getElementById('d-avatar').textContent = userId.substring(0,2);
+  document.getElementById('d-name').textContent   = s ? `Student ${userId}` : userId.replace(/_/g,' ').replace('JCT','').trim();
+  document.getElementById('d-id').textContent     = userId;
+  document.getElementById('tb-sub').textContent   = `${userId} · ${s?'B.Tech Workspace':'Professor Hub'}`;
+  if(s){ renderNotes(); loadTimetable(); tab('direct-chat'); }
+  else { buildRoster(); tab('faculty-duty'); }
+}
+
+// ── TABS ────────────────────────────────────────────────────────────
+const VIEWS=['direct-chat','lobby-creator','lobby-join','group-room','student-notes','student-alerts','faculty-duty','faculty-classroom','faculty-upload','history'];
+function tab(id){
+  activeTab = id;
+  closeDrawer();
+  document.getElementById('tb-badge').textContent = id.replace(/faculty-|student-/g,'').replace(/-/g,' ');
+  VIEWS.forEach(v=>{
+    const el=document.getElementById(`v-${v}`);
+    if(!el) return;
+    if(v===id){ el.classList.remove('hidden'); if(v==='direct-chat')document.getElementById('inp-direct').focus(); if(v==='group-room')document.getElementById('inp-group').focus(); if(v==='history')loadHistory(); }
+    else el.classList.add('hidden');
+  });
+}
+
+// ── DRAWER ──────────────────────────────────────────────────────────
+function openDrawer(){  document.getElementById('drawer').classList.remove('-translate-x-full'); document.getElementById('backdrop').classList.remove('hidden'); }
+function closeDrawer(){ document.getElementById('drawer').classList.add('-translate-x-full');    document.getElementById('backdrop').classList.add('hidden'); }
+
+// ── DIRECT CHAT ─────────────────────────────────────────────────────
+async function sendDirect(){
+  const inp=document.getElementById('inp-direct'), q=inp.value.trim(); if(!q)return;
+  inp.value='';
+  addBubble('chat-direct',{roll:userId,text:q},true);
+  addTyping('chat-direct');
+  try{
+    const r=await fetch(`${API}/ask-eduagent`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({roll_number:role==='student'?userId:'24WKCSE010',subject_code:SUB,student_query:q})});
+    removeTyping();
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d=await r.json();
+    addAI('chat-direct',d.answer,d);
+  } catch(e){ removeTyping(); addAI('chat-direct',`⚠️ ${e.message}`,{track:'error'}); }
+}
+
+// ── GROUP ROOM ──────────────────────────────────────────────────────
+async function createRoom(){
+  let mode='normal';
+  if(role==='faculty'){ const sel=document.querySelector('input[name="room-type"]:checked'); if(sel)mode=sel.value; }
+  try{
+    const r=await fetch(`${API}/room/create`,{method:'POST'});
+    const d=await r.json();
+    if(mode==='attendance') alert(`⏱️ Attendance Token: [ ${d.room_code} ] — Active 60s`);
+    connectWS(d.room_code);
+  } catch(e){ alert(`Could not create room: ${e.message}`); }
+}
+
+async function joinRoom(){
+  const code=document.getElementById('inp-code').value.trim().toUpperCase();
+  const err=document.getElementById('join-err'); err.classList.add('hidden');
+  if(!code){ err.textContent='Enter room code.'; err.classList.remove('hidden'); return; }
+  try{
+    const r=await fetch(`${API}/room/${code}/exists`), d=await r.json();
+    if(!d.exists){ err.textContent='Room not found.'; err.classList.remove('hidden'); return; }
+    connectWS(code);
+  } catch(e){ err.textContent='Backend offline.'; err.classList.remove('hidden'); }
+}
+
+function connectWS(code){
+  activeRoom=code.toUpperCase();
+  const roll=role==='student'?userId:`FACULTY_${userId}`;
+  ws=new WebSocket(`${WS}/ws/chat/${activeRoom}?roll=${roll}&subject=${SUB}`);
+  ws.onmessage=e=>{
+    const f=JSON.parse(e.data);
+    if(f.type==='joined'){ document.getElementById('tb-title').textContent=`Room ${activeRoom}`; tab('group-room'); }
+    else if(f.type==='history'){ document.getElementById('chat-group').innerHTML=''; f.messages.forEach(m=>addBubble('chat-group',m)); }
+    else if(f.type==='members'){ updateMembers(f.members); }
+    else if(f.type==='system'){ addSystem('chat-group',f.text); }
+    else if(f.type==='chat'||f.type==='agent_question'){ addBubble('chat-group',f); }
+    else if(f.type==='agent_typing'){ addTyping('chat-group'); }
+    else if(f.type==='agent_reply'){ removeTyping(); addAI('chat-group',f.text,f); }
+  };
+}
+
+function sendGroup(){
+  const inp=document.getElementById('inp-group'), txt=inp.value.trim();
+  if(!txt||!ws)return;
+  ws.send(JSON.stringify(txt.startsWith('/agent ')?{type:'agent',text:txt.substring(7).trim()}:{type:'chat',text:txt}));
+  inp.value=''; inp.focus();
+}
+
+function updateMembers(m){
+  document.getElementById('member-avatars').innerHTML=m.slice(0,4).map(x=>`<div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 border-2 border-[#0b0e18] flex items-center justify-center text-[10px] font-bold text-white" title="${x.name}">${x.name[0]}</div>`).join('');
+  document.getElementById('member-count').textContent=`${m.length} online`;
+}
+
+// ── NOTES ───────────────────────────────────────────────────────────
+function renderNotes(){
+  const c=document.getElementById('notes-box'); if(!c)return;
+  c.innerHTML='';
+  materials.forEach(n=>{
+    const d=document.createElement('div');
+    d.className='glass rounded-2xl p-4 space-y-2 animate-fade-up';
+    d.innerHTML=`<div class="flex items-center justify-between pb-2 border-b border-white/[0.05]"><span class="text-[10px] font-bold text-indigo-400 font-mono">${esc(n.unit)} · ${esc(n.subject)}</span><span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">Live</span></div><p class="text-xs font-bold text-white">${esc(n.heading)}</p><p class="text-xs text-white/55 leading-relaxed whitespace-pre-wrap">${esc(n.body)}</p>`;
+    c.prepend(d);
+  });
+}
+
+// ── TIMETABLE (Brick 3 — real data from sync) ────────────────────────
+function loadTimetable(){
+  const c=document.getElementById('tt-box'); if(!c)return;
+  // Use synced timetable if available, else fallback
+  const tt = syncedTT || { Monday:'Python, DBMS, AI', Tuesday:'DBMS, AI, Operations Research', Wednesday:'Python, Operations Research, DBMS', Thursday:'AI, Python, DBMS', Friday:'Operations Research, AI, Python' };
+  c.innerHTML=Object.entries(tt).map(([day,subs])=>`<div class="flex justify-between border-b border-white/[0.05] pb-1.5 last:border-0 last:pb-0"><span class="text-white/32">${day}</span><span class="text-white/78 text-right text-[11px]">${esc(subs)}</span></div>`).join('');
+}
+
+// ── ROSTER ──────────────────────────────────────────────────────────
+function buildRoster(){
+  const c=document.getElementById('roster'); c.innerHTML='';
+  ROSTER.forEach(s=>{
+    const d=document.createElement('div');
+    d.id=`row-${s.roll}`;
+    d.className='glass rounded-xl p-3 flex items-center justify-between cursor-pointer transition-all hover:bg-white/[0.06] active:scale-[0.99]';
+    d.onclick=()=>selStudent(s.roll);
+    d.innerHTML=`<div><p class="text-xs font-bold text-white">${s.name}</p><p class="text-[10px] text-white/30 font-mono mt-0.5">${s.roll} · ${s.dept}</p></div><div id="chk-${s.roll}" class="w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] text-white transition-all"></div>`;
+    c.appendChild(d);
+  });
+}
+
+function filterRoster(){ const t=event.target.value.toLowerCase(); ROSTER.forEach(s=>{ const r=document.getElementById(`row-${s.roll}`); if(r) r.style.display=(s.name.toLowerCase().includes(t)||s.roll.toLowerCase().includes(t))?'flex':'none'; }); }
+
+function selStudent(roll){
+  const idx=selected.indexOf(roll), row=document.getElementById(`row-${roll}`), chk=document.getElementById(`chk-${roll}`);
+  if(idx>-1){ selected.splice(idx,1); row?.classList.remove('row-sel'); if(chk){chk.className='w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] text-white'; chk.textContent='';} }
+  else { selected.push(roll); row?.classList.add('row-sel'); if(chk){chk.className='w-5 h-5 rounded-full bg-violet-600 border-2 border-violet-400 flex items-center justify-center text-[10px] text-white font-bold'; chk.textContent='✓';} }
+  document.getElementById('sel-count').textContent=`${selected.length} targets`;
+}
+
+function doBroadcast(){
+  const msg=document.getElementById('broadcast-inp').value.trim();
+  if(!selected.length){ alert('Select students first.'); return; }
+  if(!msg){ alert('Enter a message.'); return; }
+  showBanner(msg);
+  alert(`📢 Broadcast sent to ${selected.length} student(s).`);
+  document.getElementById('broadcast-inp').value='';
+  selected=[]; buildRoster();
+  document.getElementById('sel-count').textContent='0 targets';
+}
+
+// ── UPLOAD ──────────────────────────────────────────────────────────
+function uploadMat(){
+  const subj=document.getElementById('up-subj').value, unit=document.getElementById('up-unit').value.trim(), head=document.getElementById('up-head').value.trim(), body=document.getElementById('up-body').value.trim();
+  if(!unit||!head||!body){ alert('Fill all fields.'); return; }
+  materials.push({subject:subj,unit,heading:head,body});
+  alert(`✅ "${head}" pushed to student textbook.`);
+  document.getElementById('up-unit').value=document.getElementById('up-head').value=document.getElementById('up-body').value='';
+}
+
+// ── HISTORY ─────────────────────────────────────────────────────────
+async function loadHistory(){
+  const c=document.getElementById('history-box');
+  c.innerHTML=shimmer(3);
+  try{
+    const r=await fetch(`${API}/history/${role==='student'?userId:'24WKCSE010'}`), d=await r.json();
+    c.innerHTML='';
+    if(!d.messages?.length){ c.innerHTML='<p class="text-xs text-white/22 text-center py-4">No history yet.</p>'; return; }
+    d.messages.forEach(m=>{ const row=document.createElement('div'); const u=m.role==='user'; row.className=`p-3 rounded-xl border border-white/[0.05] text-xs ${u?'bg-white/[0.025] text-white/70':'bg-indigo-500/[0.04] text-indigo-300'}`; row.innerHTML=`<p class="text-[10px] font-bold uppercase tracking-widest opacity-35 mb-1">${m.role}</p><p class="leading-relaxed font-mono">${esc(m.text)}</p>`; c.appendChild(row); });
+  } catch(e){ c.innerHTML=`<p class="text-xs text-red-400 text-center py-4">${e.message}</p>`; }
+}
+
+// ── BANNER ──────────────────────────────────────────────────────────
+function showBanner(msg){
+  document.getElementById('banner-text').textContent=msg;
+  document.getElementById('alert-dot').classList.remove('hidden');
+  document.getElementById('live-banner').classList.remove('hidden');
+  const c=document.getElementById('alerts-box'), old=c.querySelector('p.italic'); if(old)old.remove();
+  const d=document.createElement('div'); d.className='glass border-l-4 border-l-indigo-500 rounded-xl p-3 text-xs animate-fade-up'; d.innerHTML=`<p class="font-bold text-indigo-400 mb-0.5">Notice · ${fmtTime()}</p><p class="text-white/65">${esc(msg)}</p>`; c.prepend(d);
+  setTimeout(closeBanner,6000);
+}
+function closeBanner(){ document.getElementById('live-banner').classList.add('hidden'); }
+
+// ── MISC ────────────────────────────────────────────────────────────
+function doSwap(sel){ if(!sel.value)return; if(confirm(`Reassign Hour 3 to ${sel.value}?`))alert(`✅ Swap confirmed.`); sel.value=''; }
+function togglePwd(){ const i=document.getElementById('l-pwd'),a=document.getElementById('eye1'),b=document.getElementById('eye2'),h=i.type==='password'; i.type=h?'text':'password'; a.classList.toggle('hidden',h); b.classList.toggle('hidden',!h); }
+function logout(){ if(ws){ws.close();ws=null;} role='';userId='';activeRoom='';selected=[]; document.getElementById('chat-direct').innerHTML=''; document.getElementById('chat-group').innerHTML=''; document.getElementById('l-id').value=''; document.getElementById('alert-dot').classList.add('hidden'); document.getElementById('tb-title').textContent='EduAgent'; syncedTT=null; go('s-workspace','s-gateway'); }
+
+// ── BUBBLE HELPERS ──────────────────────────────────────────────────
+function addBubble(aId,msg,me=false){
+  const area=document.getElementById(aId);
+  if(msg.type==='agent_reply'){addAI(aId,msg.text,msg);return;}
+  const bind=role==='student'?userId:`FACULTY_${userId}`;
+  const isMe=me||msg.roll===bind||(msg.roll||'').startsWith('FACULTY_');
+  const name=isMe?'You':(msg.roll?.startsWith('FACULTY_')?'🏛️ Professor':(msg.name||'Peer'));
+  const isAgent=(msg.text||'').startsWith('/agent');
+  const w=document.createElement('div'); w.className=`flex ${isMe?'justify-end':'justify-start'} animate-fade-up`;
+  w.innerHTML=`<div class="${isMe?'bub-me':'bub-peer'} max-w-[82%] rounded-2xl ${isMe?'rounded-tr-md':'rounded-tl-md'} px-4 py-3 shadow-lg"><p class="text-[9px] font-bold mb-1 ${isMe?'text-white/50':'text-indigo-400'}">${esc(name)}</p><p class="text-sm ${isAgent?'text-amber-300 font-semibold':'text-white/90'} leading-relaxed break-words">${esc(msg.text||'')}</p><span class="text-[9px] text-white/22 mt-1.5 block ${isMe?'text-right':'text-left'}">${fmtTime()}</span></div>`;
+  area.appendChild(w); scrollBot(aId);
+}
+
+function addAI(aId,text,pkt){
+  const area=document.getElementById(aId), track=pkt?.track||'academic';
+  const badge=track==='personal'?'<span class="text-[9px] bg-emerald-500/14 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-lg font-bold">⚡ Instant</span>':track==='error'?'<span class="text-[9px] bg-red-500/14 text-red-400 border border-red-500/25 px-2 py-0.5 rounded-lg font-bold">⚠️ Error</span>':'<span class="text-[9px] bg-violet-500/14 text-violet-300 border border-violet-500/25 px-2 py-0.5 rounded-lg font-bold">🧠 Judge</span>';
+  const lat=pkt?.latency_ms?` · ${Math.round(pkt.latency_ms)}ms`:'';
+  const w=document.createElement('div'); w.className='flex justify-start animate-fade-up';
+  w.innerHTML=`<div class="bub-ai max-w-[88%] rounded-2xl rounded-tl-md px-4 py-3.5 shadow-xl"><div class="flex items-center gap-2 mb-2"><div class="w-5 h-5 rounded-lg bg-violet-500/18 flex items-center justify-center"><svg class="w-3 h-3 text-violet-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div><p class="text-[10px] text-violet-400 font-black uppercase tracking-widest">EduAgent</p></div><p class="text-sm text-white/88 leading-relaxed whitespace-pre-wrap break-words">${esc(text)}</p><div class="flex items-center gap-2 mt-3 pt-2 border-t border-white/[0.05]">${badge}<span class="text-[9px] text-white/22 font-mono">${fmtTime()}${lat}</span></div></div>`;
+  area.appendChild(w); scrollBot(aId);
+}
+
+function addTyping(aId){
+  removeTyping();
+  const area=document.getElementById(aId); const w=document.createElement('div'); w.id='typing'; w.className='flex justify-start animate-fade-up';
+  w.innerHTML=`<div class="bub-ai rounded-2xl rounded-tl-md px-4 py-3 shadow-xl"><div class="flex items-center gap-2"><span class="text-xs text-white/38 font-mono mr-1">EduAgent</span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
+  area.appendChild(w); scrollBot(aId);
+}
+function removeTyping(){ const e=document.getElementById('typing'); if(e)e.remove(); }
+
+function addSystem(aId,txt){ const area=document.getElementById(aId); const d=document.createElement('div'); d.className='text-center text-[10px] text-white/28 glass py-1.5 px-4 rounded-full mx-auto max-w-[85%] animate-fade-up'; d.textContent=txt; area.appendChild(d); scrollBot(aId); }
+
+function shimmer(n){ return Array(n).fill(`<div class="space-y-2 p-3 glass rounded-xl"><div class="shimmer-line h-3 w-1/3"></div><div class="shimmer-line h-3 w-full"></div><div class="shimmer-line h-3 w-4/5"></div></div>`).join(''); }
+
+// ── UTILS ────────────────────────────────────────────────────────────
+function scrollBot(id){ const a=document.getElementById(id); if(a)a.scrollTop=a.scrollHeight; }
+function fmtTime(){ return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+// ── PWA ──────────────────────────────────────────────────────────────
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>/;;;;;;;;;;;;;
