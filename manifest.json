@@ -17,14 +17,14 @@
   ],
   "screenshots": [
     {
-      "src": "assets/white-knights.png.jpg",
+      "src": "assets/white-knights.png.png",
       "sizes": "1024x559",
       "type": "image/jpeg",
       "form_factor": "wide",
       "label": "EduAgent Desktop View"
     },
     {
-      "src": "assets/nextlevel.png.jpg",
+      "src": "assets/nextlevel.png.png",
       "sizes": "1024x559",
       "type": "image/jpeg",
       "form_factor": "narrow",
