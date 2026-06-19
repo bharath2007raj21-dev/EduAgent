@@ -9,7 +9,7 @@
   "theme_color": "#3b82f6",
   "icons": [
     {
-      "src": "assets/logo-square.png",
+      "src": "logo-square.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
