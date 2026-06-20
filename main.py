@@ -311,7 +311,7 @@ GROQ_MODEL_X          = os.getenv("GROQ_MODEL_X",          "llama-3.1-8b-instant
 GROQ_MODEL_Y          = os.getenv("GROQ_MODEL_Y",          "mixtral-8x7b-32768")
 
 PERSONAL_KEYWORDS = re.compile(
-    r"\b(attendance|mark|marks|score|grade|present|absent|fee|fees|timetable|schedule)\b",
+    r"\b(attendance|mark|marks|score|grade|present|absent|fee|fees|timetable|schedule|work|today|class|classes|subject|subjects|balance|paid|due)\b",
     re.IGNORECASE,
 )
 
