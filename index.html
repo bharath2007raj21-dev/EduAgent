@@ -126,17 +126,16 @@
     .bub-me   { background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 4px 14px rgba(124,58,237,0.25); }
     .bub-peer { background:linear-gradient(135deg,rgba(30,40,70,0.95),rgba(18,24,42,0.95)); border:1px solid rgba(255,255,255,0.08); }
 
-    /* ── AI BUBBLE — brighter background so text is clearly readable ── */
+    /* ── AI BUBBLE ── */
     .bub-ai {
       background:linear-gradient(135deg,#111827,#0f172a);
       border:1px solid rgba(124,58,237,0.25);
       box-shadow:0 0 24px rgba(124,58,237,0.1);
     }
-    /* Force all text inside AI bubble to be fully white */
     .bub-ai p.ai-body{ color:#f1f5f9 !important; font-size:0.875rem; line-height:1.6; }
     .bub-ai p.ai-label{ color:#a78bfa; font-size:0.625rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; }
 
-    /* ── HISTORY CARDS — readable contrast ── */
+    /* ── HISTORY CARDS ── */
     .hist-user  { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); color:#e2e8f0; }
     .hist-agent { background:rgba(79,70,229,0.08);   border:1px solid rgba(79,70,229,0.2);   color:#c7d2fe; }
 
@@ -164,7 +163,6 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-6 font-sans antialiased select-none">
 
-<!-- ═══════════════════════════════════ PHONE ═══════════════════════════════════ -->
 <div class="phone relative overflow-hidden bg-[#0b0e18]">
 
   <div class="notch">
@@ -173,7 +171,6 @@
     <div class="notch-cam"></div>
   </div>
 
-  <!-- LIVE BANNER -->
   <div id="live-banner" class="hidden absolute top-10 inset-x-3 z-50 animate-fade-up">
     <div class="flex items-start gap-3 bg-gradient-to-r from-violet-950/95 to-indigo-950/95 border border-violet-500/30 backdrop-blur-xl rounded-2xl p-3.5 shadow-2xl">
       <div class="w-8 h-8 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0 text-base">🔔</div>
@@ -185,10 +182,8 @@
     </div>
   </div>
 
-  <!-- ════════ SCREEN: GATEWAY ════════ -->
   <div id="s-gateway" class="screen s-on flex flex-col h-full pt-12 pb-10 px-7 justify-between">
     <div class="text-center mt-6">
-      <!-- logo -->
       <div class="flex justify-center mb-5">
         <div class="relative">
           <div class="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center shadow-[0_0_40px_rgba(124,58,237,0.4)]">
@@ -203,7 +198,6 @@
 
     <div class="space-y-3">
       <p class="text-center text-[10px] font-bold text-white/25 uppercase tracking-[3px] mb-4">Choose your role</p>
-
       <button onclick="goLogin('student')" class="group w-full glass rounded-2xl p-5 text-left transition-all duration-200 hover:border-indigo-500/40 active:scale-[0.98]">
         <div class="flex items-center gap-4">
           <div class="w-11 h-11 rounded-xl bg-indigo-500/12 border border-indigo-500/20 flex items-center justify-center text-xl shrink-0 group-hover:bg-indigo-500/22 transition-colors">🎓</div>
@@ -233,7 +227,6 @@
     </div>
   </div>
 
-  <!-- ════════ SCREEN: LOGIN ════════ -->
   <div id="s-login" class="screen s-off flex flex-col h-full pt-12 pb-8 px-6">
     <button onclick="go('s-login','s-gateway')" class="self-start flex items-center gap-1.5 text-[11px] font-semibold text-white/40 hover:text-white glass px-3 py-2 rounded-xl transition-all mb-6 mt-2">
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg> Back
@@ -245,7 +238,6 @@
       <p id="l-sub" class="text-xs text-white/30 mt-1">Enter your campus credentials</p>
     </div>
 
-    <!-- sync status (shown after backend call) -->
     <div id="sync-row" class="hidden mb-4 flex items-center gap-2">
       <div id="sync-pill" class="pill-ok inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full">
         <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
@@ -253,7 +245,6 @@
       </div>
     </div>
 
-    <!-- low attendance warning (Brick 4) -->
     <div id="att-box" class="hidden mb-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3.5 animate-fade-up">
       <p class="text-[10px] font-black text-amber-300 uppercase tracking-widest mb-1">⚠️ Attendance Warning</p>
       <p id="att-txt" class="text-xs text-white/75 leading-relaxed"></p>
@@ -282,15 +273,11 @@
     </div>
   </div>
 
-  <!-- ════════ SCREEN: WORKSPACE ════════ -->
   <div id="s-workspace" class="screen s-off flex flex-col h-full pt-9 bg-[#0b0e18]">
 
-    <!-- DRAWER BACKDROP -->
     <div id="backdrop" class="hidden absolute inset-0 z-30 bg-black/60 backdrop-blur-sm" onclick="closeDrawer()"></div>
 
-    <!-- SIDEBAR DRAWER -->
     <div id="drawer" class="absolute inset-y-0 left-0 w-[272px] bg-[#0e1320] border-r border-white/[0.05] z-40 -translate-x-full transition-transform duration-300 flex flex-col shadow-[4px_0_40px_rgba(0,0,0,0.6)]">
-      <!-- drawer top -->
       <div class="px-5 pt-14 pb-5 border-b border-white/[0.05]">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -301,7 +288,6 @@
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
-        <!-- user chip -->
         <div class="flex items-center gap-3 glass rounded-xl px-3 py-2.5">
           <div id="d-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center text-xs font-bold text-white shrink-0">B</div>
           <div class="min-w-0">
@@ -312,7 +298,6 @@
         </div>
       </div>
 
-      <!-- nav -->
       <nav class="flex-1 overflow-y-auto thin-scroll px-3 py-4">
         <div id="nav-s" class="space-y-0.5">
           <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest px-3 pb-2">Student</p>
@@ -340,7 +325,6 @@
       </div>
     </div>
 
-    <!-- TOP BAR -->
     <div class="flex items-center justify-between px-4 py-3 border-b border-white/[0.05] bg-[#0b0e18]/95 backdrop-blur-sm z-20 shrink-0">
       <div class="flex items-center gap-3 min-w-0">
         <button onclick="openDrawer()" class="p-2 glass rounded-xl text-white/55 hover:text-white transition-all">
@@ -357,10 +341,8 @@
       </div>
     </div>
 
-    <!-- ──────── TAB VIEWS ──────── -->
     <div class="flex-1 relative overflow-hidden">
 
-      <!-- DIRECT CHAT -->
       <div id="v-direct-chat" class="view absolute inset-0 flex flex-col">
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
           <div class="text-center">
@@ -379,7 +361,6 @@
         </div>
       </div>
 
-      <!-- LOBBY CREATOR -->
       <div id="v-lobby-creator" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
         <div class="glass rounded-3xl p-6 w-full max-w-[320px] text-center space-y-5 animate-fade-up">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-violet-500/15 border border-indigo-500/20 flex items-center justify-center text-2xl mx-auto">✨</div>
@@ -398,7 +379,6 @@
         </div>
       </div>
 
-      <!-- LOBBY JOIN -->
       <div id="v-lobby-join" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
         <div class="glass rounded-3xl p-6 w-full max-w-[320px] space-y-5 animate-fade-up">
           <div class="text-center">
@@ -414,7 +394,6 @@
         </div>
       </div>
 
-      <!-- GROUP CHAT -->
       <div id="v-group-room" class="view hidden absolute inset-0 flex flex-col bg-[#0b0e18]">
         <div class="px-4 py-2 border-b border-white/[0.05] flex items-center gap-2 shrink-0">
           <div id="member-avatars" class="flex -space-x-2"></div>
@@ -432,7 +411,6 @@
         </div>
       </div>
 
-      <!-- STUDENT NOTES -->
       <div id="v-student-notes" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4">
           <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Live Repo</span>
@@ -442,7 +420,6 @@
         <div id="notes-box" class="space-y-3"></div>
       </div>
 
-      <!-- STUDENT ALERTS + TIMETABLE (Brick 3 — real timetable) -->
       <div id="v-student-alerts" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4">
           <div class="flex items-center gap-2 mb-3">
@@ -464,7 +441,6 @@
         </div>
       </div>
 
-      <!-- FACULTY DUTY -->
       <div id="v-faculty-duty" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4 space-y-3">
           <h3 class="text-sm font-bold text-white uppercase tracking-wider">Today's Schedule</h3>
@@ -498,7 +474,6 @@
         </div>
       </div>
 
-      <!-- FACULTY CLASSROOM -->
       <div id="v-faculty-classroom" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
         <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
           <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-1">Classroom Hub</h3>
@@ -521,7 +496,6 @@
         </div>
       </div>
 
-      <!-- FACULTY UPLOAD -->
       <div id="v-faculty-upload" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll">
         <div class="glass rounded-2xl p-4 space-y-4 animate-fade-up">
           <div class="pb-3 border-b border-white/[0.05]">
@@ -549,7 +523,6 @@
         </div>
       </div>
 
-      <!-- HISTORY -->
       <div id="v-history" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
         <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
           <div class="pb-3 border-b border-white/[0.05] mb-3">
@@ -560,10 +533,10 @@
         </div>
       </div>
 
-    </div><!-- end views -->
-  </div><!-- end workspace -->
+    </div>
+  </div>
 
-</div><!-- end phone -->
+</div>
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────
@@ -576,7 +549,7 @@ const SUB  = '24ITE01';
 let role = '', userId = '', activeTab = '', activeRoom = '', ws = null;
 let selected = [];
 let materials = [{ subject:'24ITE01', unit:'Unit III', heading:'Loops & Syntax Invariants', body:'A loop repeatedly executes code while a condition holds. Python supports for and while loops via iteration sequences and programmatic checks.' }];
-let syncedTT = null; // timetable from /student/sync
+let syncedTT = null;
 
 const ROSTER = [
   {roll:'24WKCSE001',name:'Arun Raj',dept:'CSE'},
@@ -604,7 +577,7 @@ function goLogin(r){
   go('s-gateway','s-login');
 }
 
-// ── LOGIN + BRICK 1 (sync) ──────────────────────────────────────────
+// ── LOGIN + SYNC ────────────────────────────────────────────────────
 async function doLogin(){
   const id  = document.getElementById('l-id').value.trim().toUpperCase();
   const pwd = document.getElementById('l-pwd').value.trim();
@@ -618,7 +591,6 @@ async function doLogin(){
   document.getElementById('l-spin').classList.remove('hidden');
   document.getElementById('l-btn').disabled = true;
 
-  // BRICK 1 — call /student/sync on login (students only)
   if(role === 'student'){
     try{
       const res = await fetch(`${API}/student/sync`,{
@@ -629,13 +601,11 @@ async function doLogin(){
         const d = await res.json();
         setSyncPill('ok', `Synced · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
 
-        // BRICK 4 — low attendance warning
         if(d.warning){
           document.getElementById('att-txt').textContent = d.warning;
           document.getElementById('att-box').classList.remove('hidden');
         }
 
-        // Store timetable from sync if returned (future: backend can pass it)
         if(d.timetable) syncedTT = d.timetable;
       } else {
         setSyncPill('warn', 'Sync skipped — backend error');
@@ -681,16 +651,17 @@ function bootWorkspace(){
   else { buildRoster(); tab('faculty-duty'); greetOnce(); }
 }
 
-// ── GREETING (fires once per login, only if chat is empty) ──────────
+// ── GREETING ────────────────────────────────────────────────────────
 function greetOnce(){
   const c = document.getElementById('chat-direct');
-  if(!c || c.children.length>0) return; // don't re-greet if messages already exist
+  if(!c || c.children.length>0) return; 
   const s = role==='student';
   const displayName = s ? `Student ${userId}` : userId.replace(/_/g,' ').replace('JCT','').trim();
   const msg = s
     ? `Hey ${displayName.replace('Student ','')} 👋 I'm EduAgent. Ask me about your attendance, marks, fees, timetable, or any course material — I've got it ready.`
     : `Welcome back, ${displayName} 👋 I'm EduAgent. Ask me about classroom data, schedules, or anything you need help managing today.`;
   addAI('chat-direct', msg, {track:'personal'});
+}
 
 // ── TABS ────────────────────────────────────────────────────────────
 const VIEWS=['direct-chat','lobby-creator','lobby-join','group-room','student-notes','student-alerts','faculty-duty','faculty-classroom','faculty-upload','history'];
@@ -788,10 +759,9 @@ function renderNotes(){
   });
 }
 
-// ── TIMETABLE (Brick 3 — real data from sync) ────────────────────────
+// ── TIMETABLE ───────────────────────────────────────────────────────
 function loadTimetable(){
   const c=document.getElementById('tt-box'); if(!c)return;
-  // Use synced timetable if available, else fallback
   const tt = syncedTT || { Monday:'Python, DBMS, AI', Tuesday:'DBMS, AI, Operations Research', Wednesday:'Python, Operations Research, DBMS', Thursday:'AI, Python, DBMS', Friday:'Operations Research, AI, Python' };
   c.innerHTML=Object.entries(tt).map(([day,subs])=>`<div class="flex justify-between border-b border-white/[0.05] pb-1.5 last:border-0 last:pb-0"><span class="text-white/32">${day}</span><span class="text-white/78 text-right text-[11px]">${esc(subs)}</span></div>`).join('');
 }
@@ -905,8 +875,14 @@ function scrollBot(id){ const a=document.getElementById(id); if(a)a.scrollTop=a.
 function fmtTime(){ return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
 function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 
-// ── PWA ──────────────────────────────────────────────────────────────
-if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+// ── PWA SERVICE WORKER ENGINE ─────────────────────────────────────────
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('PWA Service Worker connected!', reg))
+      .catch(err => console.error('PWA Registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>
