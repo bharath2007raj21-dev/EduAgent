@@ -1,19 +1,3 @@
-"""
-EduAgent — Multi-key, multi-client FastAPI enterprise backend.
-Features:
-  · 7-Key Failover Matrix
-  · Heavy Document Splitter (>40k chars)
-  · Dual-Role ERP (Student + Faculty)
-  · MongoDB Persistence
-  · WebSocket Group Chat + /agent trigger
-  · Brick 1 : /student/sync   — on-login sandbox cache to MongoDB
-  · Brick 2 : Daily 4:30 PM auto-sync + change-detection notifications
-  · Brick 3 : Last-seen / login tracker
-  · Brick 4 : Low-attendance early warning (< 78% threshold)
-  · Brick 5 : /student/snapshot — faculty pull cached student summary
-  · Brick 6 : /student/sync-status — when was data last synced & what changed
-"""
-
 from __future__ import annotations
 
 import asyncio
@@ -25,9 +9,10 @@ import uuid
 from collections import defaultdict
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Any, Literal, Optional
 
+import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,7 +25,6 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("eduagent")
 
-
 # ---------------------------------------------------------------------------
 # WHITE KNIGHTS CAMPUS DATABASE — 1,200 Students + Faculty Seed
 # ---------------------------------------------------------------------------
@@ -50,8 +34,8 @@ def _seeded_random(seed: str) -> int:
     for ch in seed:
         h = ((h << 5) - h) + ord(ch)
         h &= 0xFFFFFFFF
-        if h >= 0x80000000:
-            h -= 0x100000000
+    if h >= 0x80000000:
+        h -= 0x100000000
     return abs(h)
 
 def _seeded_pick(arr, seed: str, offset: int = 0):
@@ -60,10 +44,8 @@ def _seeded_pick(arr, seed: str, offset: int = 0):
 def _seeded_range(min_val: int, max_val: int, seed: str, offset: int = 0) -> int:
     return min_val + (_seeded_random(seed + str(offset)) % (max_val - min_val + 1))
 
-
 def _init_white_knights_database() -> dict[str, dict[str, Any]]:
     database: dict[str, dict[str, Any]] = {}
-
     first_names  = ["Arun","Bharath","Sanjay","Rahul","Deepak","Vikram","Rohan","Karthik",
                     "Abhishek","Hari","Arjun","Suresh","Priya","Anjali","Sneha","Divya",
                     "Pooja","Meena","Ananya","Neha","Rohani","Kavitha","Lakshmi","Sindhu"]
@@ -91,7 +73,6 @@ def _init_white_knights_database() -> dict[str, dict[str, Any]]:
     ]
     depts = ["CSE","ECE","MECH","IT"]
 
-    # ── 1,200 student records ─────────────────────────────────
     for year in year_configs:
         subjects = subjects_by_year[year["num"]]
         for dept in depts:
@@ -149,7 +130,6 @@ def _init_white_knights_database() -> dict[str, dict[str, Any]]:
                     },
                 }
 
-    # ── Faculty records ───────────────────────────────────────
     for fid, fname in zip(
         ["DR_SRINIVASAN_JCT","PROF_ANJALI_JCT","DR_VIKRAM_JCT","PROF_ROHAN_JCT"],
         ["Dr. R. Srinivasan","Prof. M. Anjali","Dr. K. Vikram","Prof. S. Rohan"],
@@ -170,7 +150,6 @@ def _init_white_knights_database() -> dict[str, dict[str, Any]]:
     logger.info("White Knights ERP seeded: %d records.", len(database))
     return database
 
-
 # ---------------------------------------------------------------------------
 # DATA CLASSES & PYDANTIC MODELS
 # ---------------------------------------------------------------------------
@@ -181,7 +160,6 @@ class BlastResult:
     text:       str
     elapsed_ms: float
     error:      Optional[str] = None
-
 
 class AskEduAgentRequest(BaseModel):
     roll_number:   str = Field(..., min_length=1)
@@ -216,7 +194,6 @@ class MassNotificationRequest(BaseModel):
 class CreateRoomResponse(BaseModel):
     room_code: str
 
-
 # ---------------------------------------------------------------------------
 # WEBSOCKET ROOM MANAGER
 # ---------------------------------------------------------------------------
@@ -226,7 +203,6 @@ class RoomMember:
     websocket: WebSocket
     roll:      str
     name:      str
-
 
 class RoomManager:
     def __init__(self):
@@ -267,9 +243,7 @@ class RoomManager:
     def member_list(self, code: str) -> list[dict]:
         return [{"roll": m.roll, "name": m.name} for m in self.rooms.get(code, [])]
 
-
 room_manager = RoomManager()
-
 
 # ---------------------------------------------------------------------------
 # FACULTY SESSION MANAGER
@@ -288,16 +262,14 @@ class FacultySessionManager:
     def is_session_valid(self, room_code: str) -> bool:
         s = self.sessions.get(room_code)
         if not s:
-            return True   # Normal room — always open
+            return True
         if not s["active"] or time.time() > s["expires_at"]:
             s["active"] = False
             return False
         return True
 
-
 faculty_session_manager = FacultySessionManager()
 active_campus_sockets: dict[str, WebSocket] = {}
-
 
 # ---------------------------------------------------------------------------
 # MODEL CONFIG
@@ -315,9 +287,10 @@ PERSONAL_KEYWORDS = re.compile(
     re.IGNORECASE,
 )
 
-# Low-attendance early warning threshold (one class before danger)
 LOW_ATT_WARNING_PCT = 78
 
+WK_ERP_BASE  = os.getenv("WK_ERP_BASE",  "http://localhost:8001")
+WK_ERP_TOKEN = os.getenv("WK_ERP_TOKEN", "WK_DEV_TOKEN_2025")
 
 # ---------------------------------------------------------------------------
 # MONGODB LAYER
@@ -327,11 +300,10 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/eduagent")
 mongo_db  = None
 IN_MEMORY_DB: dict[str, dict[str, Any]] = {}
 
-# In-memory fallbacks
 FALLBACK_PRIVATE_HISTORY:  dict[str, list[dict]] = defaultdict(list)
 FALLBACK_GROUP_HISTORY:    dict[str, list[dict]] = defaultdict(list)
 FALLBACK_STUDY_MATERIALS:  list[dict]            = []
-FALLBACK_SNAPSHOTS:        dict[str, dict]       = {}   # roll → snapshot doc
+FALLBACK_SNAPSHOTS:        dict[str, dict]       = {}
 
 try:
     import motor.motor_asyncio as motor_asyncio
@@ -339,7 +311,6 @@ try:
 except ImportError:
     MOTOR_AVAILABLE = False
     logger.warning("motor not installed — in-memory only.")
-
 
 async def _seed_mongo_if_empty(collection) -> None:
     count = await collection.count_documents({})
@@ -349,7 +320,6 @@ async def _seed_mongo_if_empty(collection) -> None:
         logger.info("Seeding complete.")
     else:
         logger.info("MongoDB already has %d records.", count)
-
 
 async def db_get_user(token_id: str) -> dict[str, Any] | None:
     if mongo_db is not None:
@@ -365,7 +335,6 @@ async def db_get_user(token_id: str) -> dict[str, Any] | None:
             pass
     return IN_MEMORY_DB.get(token_id)
 
-
 async def db_save_message(coll: str, roll: str, room: str, message: dict) -> None:
     if mongo_db is None:
         FALLBACK_PRIVATE_HISTORY[roll].append(message)
@@ -375,7 +344,6 @@ async def db_save_message(coll: str, roll: str, room: str, message: dict) -> Non
             {"roll_number": roll, "room": room, "message": message, "ts": time.time()})
     except Exception:
         FALLBACK_PRIVATE_HISTORY[roll].append(message)
-
 
 async def db_load_history(coll: str, roll: str, room: str, limit: int = 50) -> list[dict]:
     if mongo_db is None:
@@ -389,7 +357,6 @@ async def db_load_history(coll: str, roll: str, room: str, limit: int = 50) -> l
     except Exception:
         return FALLBACK_PRIVATE_HISTORY[roll][-limit:]
 
-
 async def db_load_room_history(room: str, limit: int = 100) -> list[dict]:
     if mongo_db is None:
         return FALLBACK_GROUP_HISTORY[room][-limit:]
@@ -402,7 +369,6 @@ async def db_load_room_history(room: str, limit: int = 100) -> list[dict]:
     except Exception:
         return FALLBACK_GROUP_HISTORY[room][-limit:]
 
-
 async def db_save_group_message(room: str, message: dict) -> None:
     if mongo_db is None:
         FALLBACK_GROUP_HISTORY[room].append(message)
@@ -412,7 +378,6 @@ async def db_save_group_message(room: str, message: dict) -> None:
             {"room": room, "message": message, "ts": time.time()})
     except Exception:
         FALLBACK_GROUP_HISTORY[room].append(message)
-
 
 async def db_save_study_material(subject_code: str, unit: str, heading: str, body: str) -> None:
     doc = {"subject_code": subject_code, "unit": unit, "heading": heading,
@@ -425,7 +390,6 @@ async def db_save_study_material(subject_code: str, unit: str, heading: str, bod
     except Exception:
         FALLBACK_STUDY_MATERIALS.append(doc)
 
-
 async def db_load_study_materials(subject_code: str) -> list[dict]:
     if mongo_db is None:
         return [m for m in FALLBACK_STUDY_MATERIALS if m["subject_code"] == subject_code]
@@ -436,11 +400,7 @@ async def db_load_study_materials(subject_code: str) -> list[dict]:
     except Exception:
         return [m for m in FALLBACK_STUDY_MATERIALS if m["subject_code"] == subject_code]
 
-
-# ── BRICK 1 & 2 — Snapshot helpers ──────────────────────────────────────────
-
 async def db_save_snapshot(roll: str, snapshot: dict) -> None:
-    """Store a full student data snapshot + timestamp in MongoDB."""
     doc = {"roll_number": roll, "snapshot": snapshot, "synced_at": time.time()}
     if mongo_db is None:
         FALLBACK_SNAPSHOTS[roll] = doc
@@ -451,9 +411,7 @@ async def db_save_snapshot(roll: str, snapshot: dict) -> None:
     except Exception:
         FALLBACK_SNAPSHOTS[roll] = doc
 
-
 async def db_get_snapshot(roll: str) -> dict | None:
-    """Retrieve the last stored snapshot for a student."""
     if mongo_db is None:
         return FALLBACK_SNAPSHOTS.get(roll)
     try:
@@ -462,9 +420,7 @@ async def db_get_snapshot(roll: str) -> dict | None:
     except Exception:
         return FALLBACK_SNAPSHOTS.get(roll)
 
-
 async def db_update_last_seen(roll: str) -> None:
-    """BRICK 3 — record login timestamp."""
     doc = {"roll_number": roll, "last_seen": time.time()}
     if mongo_db is None:
         FALLBACK_SNAPSHOTS.setdefault(roll, {})["last_seen_ts"] = time.time()
@@ -475,6 +431,22 @@ async def db_update_last_seen(roll: str) -> None:
     except Exception:
         pass
 
+# ---------------------------------------------------------------------------
+# ASYNC ERP COUPLING HELPER
+# ---------------------------------------------------------------------------
+
+async def fetch_from_erp(path: str) -> dict | None:
+    url = f"{WK_ERP_BASE.rstrip('/')}{path}"
+    headers = {"X-System-Token": WK_ERP_TOKEN}
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            resp = await client.get(url, headers=headers)
+            if resp.status_code == 200:
+                return resp.json()
+            logger.warning("ERP service returned status %d for %s", resp.status_code, path)
+    except Exception as exc:
+        logger.error("Failed outbound connection to ERP server: %s", exc)
+    return None
 
 # ---------------------------------------------------------------------------
 # 7-KEY CLIENT POOL
@@ -482,21 +454,19 @@ async def db_update_last_seen(roll: str) -> None:
 
 @dataclass
 class ClientPool:
-    gemini_judge_primary: genai.Client   # Key A  — Primary Judge
-    gemini_judge_backup:  genai.Client   # Key A2 — Backup Judge
-    gemini_researcher:    genai.Client   # Key B  — Researcher
-    gemini_blaster:       genai.Client   # Key C  — Parallel Blast
-    groq_x:               AsyncGroq      # Key X  — Speed 1
-    groq_y:               AsyncGroq      # Key Y  — Speed 2
-    gemini_heavy_parser:  genai.Client   # Key P  — Heavy Doc Parser
-
+    gemini_judge_primary: genai.Client
+    gemini_judge_backup:  genai.Client
+    gemini_researcher:    genai.Client
+    gemini_blaster:       genai.Client
+    groq_x:               AsyncGroq
+    groq_y:               AsyncGroq
+    gemini_heavy_parser:  genai.Client
 
 def _require_key(name: str) -> str:
     v = os.environ.get(name)
     if not v:
         raise RuntimeError(f"Missing env var: {name}")
     return v
-
 
 def build_client_pool() -> ClientPool:
     return ClientPool(
@@ -509,34 +479,27 @@ def build_client_pool() -> ClientPool:
         gemini_heavy_parser =genai.Client(api_key=_require_key("GEMINI_KEY_FILE_PARSER")),
     )
 
-
 clients: Optional[ClientPool] = None
-
 
 # ---------------------------------------------------------------------------
 # BRICK 2 — DAILY AUTO-SYNC ENGINE (runs every day at 16:30 local time)
 # ---------------------------------------------------------------------------
 
 def _detect_changes(old_snap: dict, new_data: dict) -> list[str]:
-    """
-    Compare old snapshot academics vs fresh sandbox data.
-    Returns a list of human-readable change strings.
-    """
     changes: list[str] = []
     old_acc = old_snap.get("academics", {})
     new_acc = new_data.get("academics", {})
 
-    # Attendance change detection
     old_att = old_acc.get("attendance", {})
     new_att = new_acc.get("attendance", {})
     for sub, new_pct in new_att.items():
-        old_val = int(old_att.get(sub, "0").rstrip("%"))
-        new_val = int(new_pct.rstrip("%"))
+        old_str = old_att.get(sub, "0%")
+        old_val = int(old_str.rstrip("%")) if isinstance(old_str, str) else int(old_str)
+        new_val = int(new_pct.rstrip("%")) if isinstance(new_pct, str) else int(new_pct)
         if new_val != old_val:
             direction = "📉 dropped" if new_val < old_val else "📈 improved"
             changes.append(f"Attendance in {sub} {direction}: {old_val}% → {new_val}%")
 
-    # Marks change detection
     old_it = old_acc.get("institution_test", {})
     new_it = new_acc.get("institution_test", {})
     for sub, new_score in new_it.items():
@@ -546,33 +509,24 @@ def _detect_changes(old_snap: dict, new_data: dict) -> list[str]:
 
     return changes
 
-
 async def _sync_one_student(roll: str) -> list[str]:
-    """Pull fresh sandbox data, compare with stored snapshot, save new snapshot."""
-    fresh = IN_MEMORY_DB.get(roll)
-    if not fresh or fresh.get("role") != "student":
+    fresh = await fetch_from_erp(f"/student/{roll}")
+    if not fresh:
+        fresh = IN_MEMORY_DB.get(roll)
+    if not fresh or fresh.get("role") == "faculty":
         return []
 
     old_doc = await db_get_snapshot(roll)
     changes: list[str] = []
-
     if old_doc:
         changes = _detect_changes(old_doc.get("snapshot", {}), fresh)
-
     await db_save_snapshot(roll, fresh)
     return changes
 
-
 async def _daily_sync_all_students() -> None:
-    """
-    BRICK 2 — Runs at 16:30 every day.
-    Syncs every student. If changes found AND student is online → push notification.
-    """
     logger.info("🔄 Daily 4:30 PM auto-sync started (%d students).", len(IN_MEMORY_DB))
     total_changes = 0
-
     student_rolls = [k for k, v in IN_MEMORY_DB.items() if v.get("role") == "student"]
-
     for roll in student_rolls:
         changes = await _sync_one_student(roll)
         if changes:
@@ -590,24 +544,18 @@ async def _daily_sync_all_students() -> None:
                     logger.info("Notified %s — %d change(s).", roll, len(changes))
                 except Exception:
                     pass
-
     logger.info("✅ Daily sync complete. Total changes detected: %d.", total_changes)
 
-
 async def _schedule_daily_sync() -> None:
-    """Async background loop — waits until 16:30 each day then fires sync."""
     while True:
         now = datetime.now()
-        # Calculate seconds until next 16:30
         target = now.replace(hour=16, minute=30, second=0, microsecond=0)
         if now >= target:
-            # Already past 16:30 today — schedule for tomorrow
-            target = target.replace(day=target.day + 1)
+            target = target + timedelta(days=1)
         wait_secs = (target - now).total_seconds()
         logger.info("⏰ Next auto-sync scheduled in %.0f seconds (16:30).", wait_secs)
         await asyncio.sleep(wait_secs)
         await _daily_sync_all_students()
-
 
 # ---------------------------------------------------------------------------
 # LIFESPAN
@@ -616,15 +564,12 @@ async def _schedule_daily_sync() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global clients, mongo_db, IN_MEMORY_DB
-
     IN_MEMORY_DB = _init_white_knights_database()
-
     if MOTOR_AVAILABLE:
         try:
             mc       = motor_asyncio.AsyncIOMotorClient(MONGO_URI, serverSelectionTimeoutMS=5000)
             mongo_db = mc["eduagent"]
             await _seed_mongo_if_empty(mongo_db["users"])
-            # Indexes
             await mongo_db["private_messages"].create_index([("roll_number",1),("room",1),("ts",-1)])
             await mongo_db["group_messages"].create_index([("room",1),("ts",-1)])
             await mongo_db["study_materials"].create_index([("subject_code",1),("ts",-1)])
@@ -636,7 +581,6 @@ async def lifespan(app: FastAPI):
             mongo_db = None
     else:
         logger.info("motor absent — in-memory mode.")
-
     try:
         clients = build_client_pool()
         logger.info("EduAgent 7-key client pool ready.")
@@ -644,17 +588,13 @@ async def lifespan(app: FastAPI):
         logger.error("Client pool failed: %s", err)
         clients = None
 
-    # Start daily sync background task
     sync_task = asyncio.create_task(_schedule_daily_sync())
-
     yield
-
     sync_task.cancel()
     if clients:
         await clients.groq_x.close()
         await clients.groq_y.close()
     clients = None
-
 
 app = FastAPI(title="EduAgent Enterprise API", version="4.0.0", lifespan=lifespan)
 app.add_middleware(
@@ -664,7 +604,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # ---------------------------------------------------------------------------
 # HEAVY FILE PARSER (7th Key)
@@ -682,7 +621,6 @@ def split_heavy_document(text: str, max_chars: int = 25000) -> list[str]:
         pos = end
     return chunks
 
-
 async def run_heavy_parser(pool: ClientPool, text: str) -> str:
     chunks  = split_heavy_document(text)
     results = []
@@ -693,7 +631,6 @@ async def run_heavy_parser(pool: ClientPool, text: str) -> str:
             "You extract structured academic data from raw text.")
         results.append(f"[Segment {idx+1}]\n{summary}")
     return "\n\n".join(results)
-
 
 # ---------------------------------------------------------------------------
 # AI PIPELINE
@@ -706,7 +643,6 @@ async def gemini_generate(client, model, prompt, system_instruction=None) -> str
     r = await client.aio.models.generate_content(model=model, contents=prompt, config=config)
     return (r.text or "").strip()
 
-
 async def groq_generate(client, model, prompt, system) -> str:
     c = await client.chat.completions.create(
         model=model,
@@ -714,7 +650,6 @@ async def groq_generate(client, model, prompt, system) -> str:
         temperature=0.4, max_tokens=1024,
     )
     return (c.choices[0].message.content or "").strip()
-
 
 async def timed_blast(coro, source: str) -> BlastResult:
     t = time.perf_counter()
@@ -724,11 +659,9 @@ async def timed_blast(coro, source: str) -> BlastResult:
     except Exception as exc:
         return BlastResult(source=source, text="", elapsed_ms=(time.perf_counter()-t)*1000, error=str(exc))
 
-
 async def run_parallel_blast(pool: ClientPool, student: dict, subject: str, query: str):
     sx = "Give a concise, accurate first-pass answer. Be exam-safe and structured."
     sy = "Respond in sections: Definition, Key Points, Example, Common Mistakes."
-
     tasks = await asyncio.gather(
         timed_blast(gemini_generate(pool.gemini_researcher, GEMINI_MODEL_RESEARCH,
             f"Student: {student['name']} | Marks: {student['metrics'].get('python_marks',0)}\n"
@@ -739,7 +672,6 @@ async def run_parallel_blast(pool: ClientPool, student: dict, subject: str, quer
             f"Subject {subject}. Detailed answer:\n{query}", "You are a thorough academic explainer."), "gemini_c"),
     )
     return tasks[0].text or f"Student {student['name']} prefers mixed learning.", list(tasks[1:])
-
 
 async def judge_with_failover(pool: ClientPool, profile: str, query: str, blasts: list[BlastResult]) -> str:
     candidates = "\n\n".join(f"### {r.source}\n{r.text or '[FAILED]'}" for r in blasts)
@@ -755,13 +687,11 @@ async def judge_with_failover(pool: ClientPool, profile: str, query: str, blasts
             return await gemini_generate(pool.gemini_judge_backup, GEMINI_MODEL_JUDGE, prompt, system)
         raise
 
-
 def pick_fastest(blasts: list[BlastResult]) -> str:
     hits = [r for r in blasts if r.text and not r.error]
     if hits:
         return min(hits, key=lambda r: r.elapsed_ms).text
     raise RuntimeError("All blast engines failed.")
-
 
 async def run_academic_pipeline(pool: ClientPool, student: dict, subject: str, query: str):
     profile, blasts = await run_parallel_blast(pool, student, subject, query)
@@ -772,15 +702,46 @@ async def run_academic_pipeline(pool: ClientPool, student: dict, subject: str, q
         meta["synthesis"] = "fail_safe_groq"
         return pick_fastest(blasts), meta
 
-
 # ---------------------------------------------------------------------------
 # STUDENT HELPERS
 # ---------------------------------------------------------------------------
 
 def _flatten_student(raw: dict, roll: str) -> dict:
-    p  = raw.get("profile", {})
+    p = raw.get("profile", {})
     ac = raw.get("academics", {})
     fi = raw.get("finance", {})
+    if "attendance" in raw and isinstance(raw["attendance"], dict) and "name" in raw:
+        att_vals = [int(v.rstrip("%")) for v in raw.get("attendance", {}).values()]
+        avg_att = sum(att_vals) // len(att_vals) if att_vals else 0
+        it = raw.get("marks", {})
+        py_marks = it.get("Python Programming") or (sum(it.values()) // len(it) if it else 0)
+        
+        fee_data = raw.get("fee", {})
+        fee_status = "Fully Paid" if fee_data.get("due", 0) <= 0 else "Balance Due"
+        timetable = {}
+        for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]:
+            sh = sorted(list(raw.get("attendance", {}).keys()))
+            if len(sh) >= 3:
+                timetable[day] = f"{sh[0]}, {sh[1]}, {sh[2]}"
+            elif sh:
+                timetable[day] = ", ".join(sh)
+            else:
+                timetable[day] = "No classes"
+        return {
+            "roll_number": roll,
+            "name": raw.get("name", roll),
+            "learning_style": "mixed",
+            "metrics": {
+                "attendance_percent": avg_att,
+                "python_marks": py_marks,
+                "fee_status": fee_status,
+                "present_days": int(200 * avg_att / 100),
+                "absent_days": 200 - int(200 * avg_att / 100),
+                "overall_grade": "A" if py_marks >= 80 else "B",
+                "timetable": timetable,
+                "raw_attendance": raw.get("attendance", {}),
+            }
+        }
     att_vals    = [int(v.rstrip("%")) for v in ac.get("attendance", {}).values()]
     avg_att     = sum(att_vals) // len(att_vals) if att_vals else 0
     it          = ac.get("institution_test", {})
@@ -799,14 +760,19 @@ def _flatten_student(raw: dict, roll: str) -> dict:
             "absent_days":        total_days - int(total_days * avg_att / 100),
             "overall_grade":      grades[0].split()[0] if grades else "B",
             "timetable":          ac.get("timetable", {}),
-            "raw_attendance":     ac.get("attendance", {}),  # needed for warning check
+            "raw_attendance":     ac.get("attendance", {}),
         },
     }
 
-
-def _build_personal_response(student: dict, query: str) -> str:
+async def _build_personal_response(student: dict, query: str) -> str:
     m = student["metrics"]
     q = query.lower()
+    roll = student["roll_number"]
+    if not m.get("raw_attendance") and m.get("attendance_percent") == 0:
+        fresh_erp = await fetch_from_erp(f"/student/{roll}")
+        if fresh_erp:
+            student = _flatten_student(fresh_erp, roll)
+            m = student["metrics"]
     if re.search(r"\battendance|present|absent\b", q):
         return (f"📊 Attendance — {student['roll_number']} ({student['name']}):\n"
                 f"Overall: {m['attendance_percent']}% | "
@@ -823,12 +789,13 @@ def _build_personal_response(student: dict, query: str) -> str:
     return (f"👤 {student['roll_number']} ({student['name']}) — "
             f"Att: {m['attendance_percent']}% | Marks: {m['python_marks']} | Fee: {m['fee_status']}")
 
-
 def _build_low_att_warning(student: dict) -> str | None:
-    """BRICK 4 — Returns warning string if any subject is in the danger zone."""
     raw_att = student["metrics"].get("raw_attendance", {})
-    danger  = [(sub, int(pct.rstrip("%"))) for sub, pct in raw_att.items()
-               if int(pct.rstrip("%")) < LOW_ATT_WARNING_PCT]
+    danger  = []
+    for sub, pct in raw_att.items():
+        val = int(pct.rstrip("%")) if isinstance(pct, str) else int(pct)
+        if val < LOW_ATT_WARNING_PCT:
+            danger.append((sub, val))
     if not danger:
         return None
     lines = "\n".join(f"  ⚠️  {sub}: {pct}% (minimum 75%)" for sub, pct in danger)
@@ -836,34 +803,28 @@ def _build_low_att_warning(student: dict) -> str | None:
             f"The following subjects are approaching the shortage limit:\n{lines}\n"
             f"Please attend classes regularly to avoid exam detainment.")
 
-
 async def _run_eduagent_query(roll: str, subject: str, query: str) -> AskEduAgentResponse:
     t0        = time.perf_counter()
     user_data = await db_get_user(roll)
-
     if user_data and user_data.get("role") == "faculty":
         return AskEduAgentResponse(
             track="personal", roll_number=roll, subject_code=subject,
             answer=f"Hello Professor {user_data['profile']['name']}. How can I assist today?",
             latency_ms=(time.perf_counter()-t0)*1000, meta={"role": "faculty"})
-
     student = _flatten_student(user_data or {}, roll)
     track   = "personal" if PERSONAL_KEYWORDS.search(query) else "academic"
-
     if track == "personal":
+        personal_ans = await _build_personal_response(student, query)
         return AskEduAgentResponse(
             track="personal", roll_number=roll, subject_code=subject,
-            answer=_build_personal_response(student, query),
+            answer=personal_ans,
             latency_ms=(time.perf_counter()-t0)*1000, meta={"router": "local_keyword_match"})
-
     if clients is None:
         raise HTTPException(status_code=503, detail="AI Client Pool Offline.")
-
     answer, meta = await run_academic_pipeline(clients, student, subject, query)
     return AskEduAgentResponse(
         track="academic", roll_number=roll, subject_code=subject,
         answer=answer, latency_ms=round((time.perf_counter()-t0)*1000, 2), meta=meta)
-
 
 # ---------------------------------------------------------------------------
 # HTTP ROUTES
@@ -875,43 +836,30 @@ async def health() -> dict:
             "database": "mongodb" if mongo_db is not None else "in-memory",
             "ai_pool":  "online"  if clients  is not None else "offline"}
 
-
-# ── BRICK 1 — On-login student sync ─────────────────────────────────────────
 @app.post("/student/sync")
 async def student_sync(payload: StudentSyncRequest) -> dict:
-    """
-    Called by frontend immediately after successful student login.
-    Reads full sandbox data → stores snapshot in MongoDB → updates last-seen.
-    Also fires low-attendance warning if needed.
-    """
-    roll = payload.roll_number.strip().upper()
-    raw  = IN_MEMORY_DB.get(roll)
-    if not raw or raw.get("role") != "student":
-        raise HTTPException(status_code=404, detail=f"Student {roll} not found in sandbox.")
-
-    await db_save_snapshot(roll, raw)
-    await db_update_last_seen(roll)          # BRICK 3
-
-    # BRICK 4 — check low attendance on sync
-    student = _flatten_student(raw, roll)
+    roll_number = payload.roll_number.strip().upper()
+    erp_data = await fetch_from_erp(f"/student/{roll_number}")
+    if erp_data:
+        student_record = erp_data
+    else:
+        student_record = IN_MEMORY_DB.get(roll_number)
+    if not student_record or (isinstance(student_record, dict) and student_record.get("role") == "faculty"):
+        raise HTTPException(status_code=404, detail=f"Student {roll_number} not found in sandbox or live ERP.")
+    await db_save_snapshot(roll_number, student_record)
+    await db_update_last_seen(roll_number)
+    student = _flatten_student(student_record, roll_number)
     warning = _build_low_att_warning(student)
-
-    logger.info("Synced %s to MongoDB.", roll)
+    logger.info("Synced %s to MongoDB snapshot caches.", roll_number)
     return {
         "status":   "synced",
-        "roll":     roll,
+        "roll":     roll_number,
         "synced_at": time.time(),
-        "warning":  warning,   # frontend shows this as a banner if not None
+        "warning":  warning,
     }
 
-
-# ── BRICK 5 — Faculty snapshot pull ─────────────────────────────────────────
 @app.get("/student/snapshot/{roll_number}")
 async def get_student_snapshot(roll_number: str) -> dict:
-    """
-    Faculty endpoint — pulls the last cached MongoDB snapshot for a student.
-    Much faster than hitting the sandbox every time.
-    """
     roll = roll_number.strip().upper()
     doc  = await db_get_snapshot(roll)
     if not doc:
@@ -919,42 +867,29 @@ async def get_student_snapshot(roll_number: str) -> dict:
     snap = doc.get("snapshot", {})
     return {
         "roll":      roll,
-        "name":      snap.get("profile", {}).get("name", roll),
-        "dept":      snap.get("profile", {}).get("department", "—"),
+        "name":      snap.get("profile", {}).get("name", snap.get("name", roll)),
+        "dept":      snap.get("profile", {}).get("department", snap.get("department", "—")),
         "synced_at": doc.get("synced_at"),
-        "finance":   snap.get("finance", {}),
-        "academics": snap.get("academics", {}),
+        "finance":   snap.get("finance", snap.get("fee", {})),
+        "academics": snap.get("academics", {"attendance": snap.get("attendance", {}), "institution_test": snap.get("marks", {})}),
     }
 
-
-# ── BRICK 6 — Sync status ────────────────────────────────────────────────────
 @app.get("/student/sync-status/{roll_number}")
 async def get_sync_status(roll_number: str) -> dict:
-    """
-    Shows when a student's data was last synced and detects current changes
-    vs stored snapshot. Useful for demo — principal sees 'last synced: 4:31 PM today.'
-    """
     roll = roll_number.strip().upper()
     doc  = await db_get_snapshot(roll)
     if not doc:
         return {"roll": roll, "status": "never_synced", "last_synced_at": None, "changes": []}
-
-    # Live change detection against current sandbox
     fresh   = IN_MEMORY_DB.get(roll, {})
     changes = _detect_changes(doc.get("snapshot", {}), fresh) if fresh else []
-
     synced_ts = doc.get("synced_at")
     synced_dt = datetime.fromtimestamp(synced_ts).strftime("%d %b %Y, %I:%M %p") if synced_ts else "Unknown"
-
     return {
         "roll":          roll,
         "status":        "up_to_date" if not changes else "changes_detected",
         "last_synced_at": synced_dt,
         "changes":       changes,
     }
-
-
-# ── Standard routes ──────────────────────────────────────────────────────────
 
 @app.post("/ask-eduagent", response_model=AskEduAgentResponse)
 async def ask_eduagent(payload: AskEduAgentRequest) -> AskEduAgentResponse:
@@ -968,13 +903,11 @@ async def ask_eduagent(payload: AskEduAgentRequest) -> AskEduAgentResponse:
                           {"role": "agent", "text": result.answer, "track": result.track, "ts": time.time()})
     return result
 
-
 @app.get("/history/{roll_number}")
 async def get_history(roll_number: str, limit: int = 50) -> dict:
     roll = roll_number.strip().upper()
     return {"roll_number": roll,
             "messages": await db_load_history("private_messages", roll, "private", limit)}
-
 
 @app.post("/faculty/upload-materials")
 async def upload_materials(payload: UploadMaterialRequest) -> dict:
@@ -987,29 +920,24 @@ async def upload_materials(payload: UploadMaterialRequest) -> dict:
     await db_save_study_material(payload.subject_code.upper(), payload.unit, payload.heading, body)
     return {"status": "success", "message": "Material uploaded."}
 
-
 @app.get("/student/materials/{subject_code}")
 async def get_materials(subject_code: str) -> dict:
     return {"subject_code": subject_code.upper(),
             "materials": await db_load_study_materials(subject_code.upper())}
-
 
 @app.post("/room/create", response_model=CreateRoomResponse)
 async def create_room() -> CreateRoomResponse:
     code = room_manager.create_room()
     return CreateRoomResponse(room_code=code)
 
-
 @app.get("/room/{room_code}/exists")
 async def room_exists(room_code: str) -> dict:
     return {"exists": room_manager.room_exists(room_code.upper())}
-
 
 @app.get("/room/{room_code}/history")
 async def room_history(room_code: str, limit: int = 50) -> dict:
     return {"room": room_code.upper(),
             "messages": await db_load_room_history(room_code.upper(), limit=limit)}
-
 
 @app.post("/faculty/trigger-attendance-window")
 async def trigger_attendance_window(payload: AttendanceTokenRequest) -> dict:
@@ -1018,7 +946,6 @@ async def trigger_attendance_window(payload: AttendanceTokenRequest) -> dict:
         room_manager.rooms[room_code] = []
     faculty_session_manager.start_attendance_session(room_code, payload.duration_seconds)
     return {"status": "success", "room_code": room_code, "expires_in_secs": payload.duration_seconds}
-
 
 @app.post("/faculty/broadcast-mass-notice")
 async def broadcast_mass_notice(payload: MassNotificationRequest) -> dict:
@@ -1038,7 +965,6 @@ async def broadcast_mass_notice(payload: MassNotificationRequest) -> dict:
                 pass
     return {"status": "success", "total_targets": len(payload.target_student_rolls),
             "live_dispatched": dispatched}
-
 
 # ---------------------------------------------------------------------------
 # WEBSOCKET — GROUP CHAT HUB
