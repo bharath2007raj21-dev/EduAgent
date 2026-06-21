@@ -34,8 +34,8 @@ def _seeded_random(seed: str) -> int:
     for ch in seed:
         h = ((h << 5) - h) + ord(ch)
         h &= 0xFFFFFFFF
-    if h >= 0x80000000:
-        h -= 0x100000000
+        if h >= 0x80000000:
+             h -= 0x100000000
     return abs(h)
 
 def _seeded_pick(arr, seed: str, offset: int = 0):
@@ -131,7 +131,7 @@ def _init_white_knights_database() -> dict[str, dict[str, Any]]:
                 }
 
     for fid, fname in zip(
-        ["DR_SRINIVASAN_JCT","PROF_ANJALI_JCT","DR_VIKRAM_JCT","PROF_ROHAN_JCT"],
+        ["DR_SRINIVASAN_WK","PROF_ANJALI_WK","DR_VIKRAM_WK","PROF_ROHAN_WK"],
         ["Dr. R. Srinivasan","Prof. M. Anjali","Dr. K. Vikram","Prof. S. Rohan"],
     ):
         database[fid] = {
@@ -289,7 +289,7 @@ PERSONAL_KEYWORDS = re.compile(
 
 LOW_ATT_WARNING_PCT = 78
 
-WK_ERP_BASE  = os.getenv("WK_ERP_BASE",  "http://localhost:8001")
+WK_ERP_BASE  = os.getenv("WK_ERP_BASE",  "https://white-knights-erp.onrender.com")
 WK_ERP_TOKEN = os.getenv("WK_ERP_TOKEN", "WK_DEV_TOKEN_2025")
 
 # ---------------------------------------------------------------------------
@@ -324,16 +324,30 @@ async def _seed_mongo_if_empty(collection) -> None:
 async def db_get_user(token_id: str) -> dict[str, Any] | None:
     if mongo_db is not None:
         try:
-            doc = await mongo_db["users"].find_one(
-                {"profile.roll_number": token_id}, {"_id": 0})
+            doc = await mongo_db["users"].find_one({"profile.roll_number": token_id}, {"_id": 0})
             if not doc:
-                doc = await mongo_db["users"].find_one(
-                    {"profile.staff_id": token_id}, {"_id": 0})
+                doc = await mongo_db["users"].find_one({"profile.staff_id": token_id}, {"_id": 0})
             if doc:
                 return doc
         except Exception:
             pass
-    return IN_MEMORY_DB.get(token_id)
+    
+    headers = {"X-System-Token": WK_ERP_TOKEN}
+    try:
+        async with httpx.AsyncClient(timeout=4.0) as client:
+            if "FAC_" in token_id or "WK" in token_id:
+                r = await client.get(f"{WK_ERP_BASE.rstrip('/')}/faculty/{token_id}", headers=headers)
+                if r.status_code == 200:
+                    data = r.json()
+                    return {"role": "faculty", "profile": {"name": data["name"], "staff_id": token_id}}
+            else:
+                r = await client.get(f"{WK_ERP_BASE.rstrip('/')}/student/{token_id}", headers=headers)
+                if r.status_code == 200:
+                    data = r.json()
+                    return {"role": "student", "profile": {"name": data["name"], "roll_number": token_id}}
+    except Exception:
+        pass
+    return None
 
 async def db_save_message(coll: str, roll: str, room: str, message: dict) -> None:
     if mongo_db is None:
@@ -491,7 +505,7 @@ def _detect_changes(old_snap: dict, new_data: dict) -> list[str]:
     new_acc = new_data.get("academics", {})
 
     old_att = old_acc.get("attendance", {})
-    new_att = new_acc.get("attendance", {})
+    new_att = new_data.get("attendance", new_acc.get("attendance", {}))
     for sub, new_pct in new_att.items():
         old_str = old_att.get(sub, "0%")
         old_val = int(old_str.rstrip("%")) if isinstance(old_str, str) else int(old_str)
