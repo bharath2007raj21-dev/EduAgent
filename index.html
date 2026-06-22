@@ -9,7 +9,6 @@
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
@@ -45,7 +44,7 @@
       min-height:100vh;
     }
 
-    /* ── PHONE SHELL (desktop preview only) ── */
+    /* ── PHONE SHELL ── */
     .phone{
       width:390px; height:844px;
       border-radius:3rem;
@@ -69,7 +68,7 @@
       border-radius:0 2px 2px 0;
     }
 
-    /* ── NOTCH (desktop preview only) ── */
+    /* ── NOTCH ── */
     .notch{
       position:absolute; top:0; left:50%; transform:translateX(-50%);
       width:120px; height:34px; background:#000;
@@ -78,22 +77,6 @@
     }
     .notch-cam{ width:10px; height:10px; border-radius:50%; background:#0d0d1a; border:1px solid rgba(255,255,255,0.08); }
     .notch-pill{ width:48px; height:6px; border-radius:4px; background:#080810; }
-
-    /* ── REAL MOBILE: kill the fake phone frame entirely, go true fullscreen ── */
-    @media (max-width: 480px){
-      body{ padding:0 !important; align-items:stretch !important; }
-      .phone{
-        width:100vw !important;
-        height:100vh !important;
-        height:100dvh !important; /* dynamic viewport for mobile browser chrome */
-        border-radius:0 !important;
-        box-shadow:none !important;
-      }
-      .phone::before,
-      .phone::after{ display:none !important; } /* hide fake side buttons */
-      .notch{ display:none !important; } /* hide fake notch — real phone has its own */
-      .screen{ padding-top:max(env(safe-area-inset-top),12px) !important; padding-bottom:max(env(safe-area-inset-bottom),8px) !important; }
-    }
 
     /* ── SCREENS ── */
     .screen{ position:absolute; inset:0; transition:opacity .35s ease, transform .35s cubic-bezier(0.16,1,0.3,1); }
@@ -118,7 +101,7 @@
     .inp::placeholder{ color:rgba(255,255,255,0.18); }
 
     /* ── SELECT DROPDOWN — force dark background, no white flash ── */
-    select.inp{ background:#111827; color:#fff; color-scheme:dark; }
+    select.inp{ background:#111827; color:#fff; }
     select.inp option{ background:#111827; color:#fff; }
     select.inp:focus{ background:#111827; }
 
@@ -126,16 +109,17 @@
     .bub-me   { background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 4px 14px rgba(124,58,237,0.25); }
     .bub-peer { background:linear-gradient(135deg,rgba(30,40,70,0.95),rgba(18,24,42,0.95)); border:1px solid rgba(255,255,255,0.08); }
 
-    /* ── AI BUBBLE ── */
+    /* ── AI BUBBLE — brighter background so text is clearly readable ── */
     .bub-ai {
       background:linear-gradient(135deg,#111827,#0f172a);
       border:1px solid rgba(124,58,237,0.25);
       box-shadow:0 0 24px rgba(124,58,237,0.1);
     }
+    /* Force all text inside AI bubble to be fully white */
     .bub-ai p.ai-body{ color:#f1f5f9 !important; font-size:0.875rem; line-height:1.6; }
     .bub-ai p.ai-label{ color:#a78bfa; font-size:0.625rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; }
 
-    /* ── HISTORY CARDS ── */
+    /* ── HISTORY CARDS — readable contrast ── */
     .hist-user  { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); color:#e2e8f0; }
     .hist-agent { background:rgba(79,70,229,0.08);   border:1px solid rgba(79,70,229,0.2);   color:#c7d2fe; }
 
@@ -163,6 +147,7 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-6 font-sans antialiased select-none">
 
+<!-- ═══════════════════════════════════ PHONE ═══════════════════════════════════ -->
 <div class="phone relative overflow-hidden bg-[#0b0e18]">
 
   <div class="notch">
@@ -171,6 +156,7 @@
     <div class="notch-cam"></div>
   </div>
 
+  <!-- LIVE BANNER -->
   <div id="live-banner" class="hidden absolute top-10 inset-x-3 z-50 animate-fade-up">
     <div class="flex items-start gap-3 bg-gradient-to-r from-violet-950/95 to-indigo-950/95 border border-violet-500/30 backdrop-blur-xl rounded-2xl p-3.5 shadow-2xl">
       <div class="w-8 h-8 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0 text-base">🔔</div>
@@ -182,8 +168,10 @@
     </div>
   </div>
 
+  <!-- ════════ SCREEN: GATEWAY ════════ -->
   <div id="s-gateway" class="screen s-on flex flex-col h-full pt-12 pb-10 px-7 justify-between">
     <div class="text-center mt-6">
+      <!-- logo -->
       <div class="flex justify-center mb-5">
         <div class="relative">
           <div class="w-16 h-16 rounded-[1.25rem] bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center shadow-[0_0_40px_rgba(124,58,237,0.4)]">
@@ -198,6 +186,7 @@
 
     <div class="space-y-3">
       <p class="text-center text-[10px] font-bold text-white/25 uppercase tracking-[3px] mb-4">Choose your role</p>
+
       <button onclick="goLogin('student')" class="group w-full glass rounded-2xl p-5 text-left transition-all duration-200 hover:border-indigo-500/40 active:scale-[0.98]">
         <div class="flex items-center gap-4">
           <div class="w-11 h-11 rounded-xl bg-indigo-500/12 border border-indigo-500/20 flex items-center justify-center text-xl shrink-0 group-hover:bg-indigo-500/22 transition-colors">🎓</div>
@@ -227,6 +216,7 @@
     </div>
   </div>
 
+  <!-- ════════ SCREEN: LOGIN ════════ -->
   <div id="s-login" class="screen s-off flex flex-col h-full pt-12 pb-8 px-6">
     <button onclick="go('s-login','s-gateway')" class="self-start flex items-center gap-1.5 text-[11px] font-semibold text-white/40 hover:text-white glass px-3 py-2 rounded-xl transition-all mb-6 mt-2">
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg> Back
@@ -238,6 +228,7 @@
       <p id="l-sub" class="text-xs text-white/30 mt-1">Enter your campus credentials</p>
     </div>
 
+    <!-- sync status (shown after backend call) -->
     <div id="sync-row" class="hidden mb-4 flex items-center gap-2">
       <div id="sync-pill" class="pill-ok inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full">
         <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
@@ -245,6 +236,7 @@
       </div>
     </div>
 
+    <!-- low attendance warning (Brick 4) -->
     <div id="att-box" class="hidden mb-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3.5 animate-fade-up">
       <p class="text-[10px] font-black text-amber-300 uppercase tracking-widest mb-1">⚠️ Attendance Warning</p>
       <p id="att-txt" class="text-xs text-white/75 leading-relaxed"></p>
@@ -273,11 +265,15 @@
     </div>
   </div>
 
+  <!-- ════════ SCREEN: WORKSPACE ════════ -->
   <div id="s-workspace" class="screen s-off flex flex-col h-full pt-9 bg-[#0b0e18]">
 
+    <!-- DRAWER BACKDROP -->
     <div id="backdrop" class="hidden absolute inset-0 z-30 bg-black/60 backdrop-blur-sm" onclick="closeDrawer()"></div>
 
+    <!-- SIDEBAR DRAWER -->
     <div id="drawer" class="absolute inset-y-0 left-0 w-[272px] bg-[#0e1320] border-r border-white/[0.05] z-40 -translate-x-full transition-transform duration-300 flex flex-col shadow-[4px_0_40px_rgba(0,0,0,0.6)]">
+      <!-- drawer top -->
       <div class="px-5 pt-14 pb-5 border-b border-white/[0.05]">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -288,6 +284,7 @@
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
+        <!-- user chip -->
         <div class="flex items-center gap-3 glass rounded-xl px-3 py-2.5">
           <div id="d-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center text-xs font-bold text-white shrink-0">B</div>
           <div class="min-w-0">
@@ -298,6 +295,7 @@
         </div>
       </div>
 
+      <!-- nav -->
       <nav class="flex-1 overflow-y-auto thin-scroll px-3 py-4">
         <div id="nav-s" class="space-y-0.5">
           <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest px-3 pb-2">Student</p>
@@ -325,6 +323,7 @@
       </div>
     </div>
 
+    <!-- TOP BAR -->
     <div class="flex items-center justify-between px-4 py-3 border-b border-white/[0.05] bg-[#0b0e18]/95 backdrop-blur-sm z-20 shrink-0">
       <div class="flex items-center gap-3 min-w-0">
         <button onclick="openDrawer()" class="p-2 glass rounded-xl text-white/55 hover:text-white transition-all">
@@ -341,8 +340,10 @@
       </div>
     </div>
 
+    <!-- ──────── TAB VIEWS ──────── -->
     <div class="flex-1 relative overflow-hidden">
 
+      <!-- DIRECT CHAT -->
       <div id="v-direct-chat" class="view absolute inset-0 flex flex-col">
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
           <div class="text-center">
@@ -361,6 +362,7 @@
         </div>
       </div>
 
+      <!-- LOBBY CREATOR -->
       <div id="v-lobby-creator" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
         <div class="glass rounded-3xl p-6 w-full max-w-[320px] text-center space-y-5 animate-fade-up">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-violet-500/15 border border-indigo-500/20 flex items-center justify-center text-2xl mx-auto">✨</div>
@@ -379,6 +381,7 @@
         </div>
       </div>
 
+      <!-- LOBBY JOIN -->
       <div id="v-lobby-join" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
         <div class="glass rounded-3xl p-6 w-full max-w-[320px] space-y-5 animate-fade-up">
           <div class="text-center">
@@ -394,6 +397,7 @@
         </div>
       </div>
 
+      <!-- GROUP CHAT -->
       <div id="v-group-room" class="view hidden absolute inset-0 flex flex-col bg-[#0b0e18]">
         <div class="px-4 py-2 border-b border-white/[0.05] flex items-center gap-2 shrink-0">
           <div id="member-avatars" class="flex -space-x-2"></div>
@@ -411,6 +415,7 @@
         </div>
       </div>
 
+      <!-- STUDENT NOTES -->
       <div id="v-student-notes" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4">
           <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Live Repo</span>
@@ -420,6 +425,7 @@
         <div id="notes-box" class="space-y-3"></div>
       </div>
 
+      <!-- STUDENT ALERTS + TIMETABLE (Brick 3 — real timetable) -->
       <div id="v-student-alerts" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4">
           <div class="flex items-center gap-2 mb-3">
@@ -441,6 +447,7 @@
         </div>
       </div>
 
+      <!-- FACULTY DUTY -->
       <div id="v-faculty-duty" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4 space-y-3">
           <h3 class="text-sm font-bold text-white uppercase tracking-wider">Today's Schedule</h3>
@@ -474,6 +481,7 @@
         </div>
       </div>
 
+      <!-- FACULTY CLASSROOM -->
       <div id="v-faculty-classroom" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
         <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
           <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-1">Classroom Hub</h3>
@@ -496,6 +504,7 @@
         </div>
       </div>
 
+      <!-- FACULTY UPLOAD -->
       <div id="v-faculty-upload" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll">
         <div class="glass rounded-2xl p-4 space-y-4 animate-fade-up">
           <div class="pb-3 border-b border-white/[0.05]">
@@ -523,6 +532,7 @@
         </div>
       </div>
 
+      <!-- HISTORY -->
       <div id="v-history" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
         <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
           <div class="pb-3 border-b border-white/[0.05] mb-3">
@@ -533,10 +543,10 @@
         </div>
       </div>
 
-    </div>
-  </div>
+    </div><!-- end views -->
+  </div><!-- end workspace -->
 
-</div>
+</div><!-- end phone -->
 
 <script>
 // ── CONFIG ──────────────────────────────────────────────────────────
@@ -549,7 +559,7 @@ const SUB  = '24ITE01';
 let role = '', userId = '', activeTab = '', activeRoom = '', ws = null;
 let selected = [];
 let materials = [{ subject:'24ITE01', unit:'Unit III', heading:'Loops & Syntax Invariants', body:'A loop repeatedly executes code while a condition holds. Python supports for and while loops via iteration sequences and programmatic checks.' }];
-let syncedTT = null;
+let syncedTT = null; // timetable from /student/sync
 
 const ROSTER = [
   {roll:'24WKCSE001',name:'Arun Raj',dept:'CSE'},
@@ -570,14 +580,14 @@ function goLogin(r){
   document.getElementById('l-title').textContent = s ? 'Student Login' : 'Faculty Login';
   document.getElementById('l-sub').textContent   = s ? 'Enter campus credentials' : 'Enter staff credentials';
   document.getElementById('l-lbl').textContent   = s ? 'Roll Number' : 'Staff Token';
-  document.getElementById('l-id').value          = s ? '24WKCSE010' : 'DR_SRINIVASAN_JCT';
-  document.getElementById('l-id').placeholder    = s ? 'e.g. 24WKCSE010' : 'e.g. DR_SRINIVASAN_JCT';
+  document.getElementById('l-id').value          = s ? '24WKCSE010' : 'DR_SRINIVASAN_WK';
+  document.getElementById('l-id').placeholder    = s ? 'e.g. 24WKCSE010' : 'e.g. DR_SRINIVASAN_WK';
   document.getElementById('att-box').classList.add('hidden');
   document.getElementById('sync-row').classList.add('hidden');
   go('s-gateway','s-login');
 }
 
-// ── LOGIN + SYNC ────────────────────────────────────────────────────
+// ── LOGIN + BRICK 1 (sync) ──────────────────────────────────────────
 async function doLogin(){
   const id  = document.getElementById('l-id').value.trim().toUpperCase();
   const pwd = document.getElementById('l-pwd').value.trim();
@@ -591,6 +601,7 @@ async function doLogin(){
   document.getElementById('l-spin').classList.remove('hidden');
   document.getElementById('l-btn').disabled = true;
 
+  // BRICK 1 — call /student/sync on login (students only)
   if(role === 'student'){
     try{
       const res = await fetch(`${API}/student/sync`,{
@@ -601,11 +612,13 @@ async function doLogin(){
         const d = await res.json();
         setSyncPill('ok', `Synced · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
 
+        // BRICK 4 — low attendance warning
         if(d.warning){
           document.getElementById('att-txt').textContent = d.warning;
           document.getElementById('att-box').classList.remove('hidden');
         }
 
+        // Store timetable from sync if returned (future: backend can pass it)
         if(d.timetable) syncedTT = d.timetable;
       } else {
         setSyncPill('warn', 'Sync skipped — backend error');
@@ -644,23 +657,11 @@ function bootWorkspace(){
   document.getElementById('d-role').textContent = s ? 'Student Console' : 'Faculty Console';
   document.getElementById('d-role').className   = `text-[10px] font-bold uppercase tracking-widest mt-0.5 ${s?'text-indigo-400':'text-violet-400'}`;
   document.getElementById('d-avatar').textContent = userId.substring(0,2);
-  document.getElementById('d-name').textContent   = s ? `Student ${userId}` : userId.replace(/_/g,' ').replace('JCT','').trim();
+  document.getElementById('d-name').textContent   = s ? `Student ${userId}` : userId.replace(/_/g,' ').replace('WK','').trim();
   document.getElementById('d-id').textContent     = userId;
   document.getElementById('tb-sub').textContent   = `${userId} · ${s?'B.Tech Workspace':'Professor Hub'}`;
-  if(s){ renderNotes(); loadTimetable(); tab('direct-chat'); greetOnce(); }
-  else { buildRoster(); tab('faculty-duty'); greetOnce(); }
-}
-
-// ── GREETING ────────────────────────────────────────────────────────
-function greetOnce(){
-  const c = document.getElementById('chat-direct');
-  if(!c || c.children.length>0) return; 
-  const s = role==='student';
-  const displayName = s ? `Student ${userId}` : userId.replace(/_/g,' ').replace('JCT','').trim();
-  const msg = s
-    ? `Hey ${displayName.replace('Student ','')} 👋 I'm EduAgent. Ask me about your attendance, marks, fees, timetable, or any course material — I've got it ready.`
-    : `Welcome back, ${displayName} 👋 I'm EduAgent. Ask me about classroom data, schedules, or anything you need help managing today.`;
-  addAI('chat-direct', msg, {track:'personal'});
+  if(s){ renderNotes(); loadTimetable(); tab('direct-chat'); }
+  else { buildRoster(); tab('faculty-duty'); }
 }
 
 // ── TABS ────────────────────────────────────────────────────────────
@@ -688,7 +689,7 @@ async function sendDirect(){
   addBubble('chat-direct',{roll:userId,text:q},true);
   addTyping('chat-direct');
   try{
-    const r=await fetch(`${API}/ask-eduagent`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({roll_number:role==='student'?userId:'FACULTY_'+userId,subject_code:SUB,student_query:q})});
+    const r=await fetch(`${API}/ask-eduagent`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({roll_number:role==='student'?userId:'24WKCSE010',subject_code:SUB,student_query:q})});
     removeTyping();
     if(!r.ok) throw new Error(`HTTP ${r.status}`);
     const d=await r.json();
@@ -759,9 +760,10 @@ function renderNotes(){
   });
 }
 
-// ── TIMETABLE ───────────────────────────────────────────────────────
+// ── TIMETABLE (Brick 3 — real data from sync) ────────────────────────
 function loadTimetable(){
   const c=document.getElementById('tt-box'); if(!c)return;
+  // Use synced timetable if available, else fallback
   const tt = syncedTT || { Monday:'Python, DBMS, AI', Tuesday:'DBMS, AI, Operations Research', Wednesday:'Python, Operations Research, DBMS', Thursday:'AI, Python, DBMS', Friday:'Operations Research, AI, Python' };
   c.innerHTML=Object.entries(tt).map(([day,subs])=>`<div class="flex justify-between border-b border-white/[0.05] pb-1.5 last:border-0 last:pb-0"><span class="text-white/32">${day}</span><span class="text-white/78 text-right text-[11px]">${esc(subs)}</span></div>`).join('');
 }
@@ -813,7 +815,7 @@ async function loadHistory(){
   const c=document.getElementById('history-box');
   c.innerHTML=shimmer(3);
   try{
-    const r=await fetch(`${API}/history/${role==='student'?userId:'FACULTY_'+userId}`), d=await r.json();
+    const r=await fetch(`${API}/history/${role==='student'?userId:'24WKCSE010'}`), d=await r.json();
     c.innerHTML='';
     if(!d.messages?.length){ c.innerHTML='<p class="text-xs text-white/22 text-center py-4">No history yet.</p>'; return; }
     d.messages.forEach(m=>{ const row=document.createElement('div'); const u=m.role==='user'; row.className=`p-3 rounded-xl border border-white/[0.05] text-xs ${u?'bg-white/[0.025] text-white/70':'bg-indigo-500/[0.04] text-indigo-300'}`; row.innerHTML=`<p class="text-[10px] font-bold uppercase tracking-widest opacity-35 mb-1">${m.role}</p><p class="leading-relaxed font-mono">${esc(m.text)}</p>`; c.appendChild(row); });
@@ -854,7 +856,7 @@ function addAI(aId,text,pkt){
   const badge=track==='personal'?'<span class="text-[9px] bg-emerald-500/14 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-lg font-bold">⚡ Instant</span>':track==='error'?'<span class="text-[9px] bg-red-500/14 text-red-400 border border-red-500/25 px-2 py-0.5 rounded-lg font-bold">⚠️ Error</span>':'<span class="text-[9px] bg-violet-500/14 text-violet-300 border border-violet-500/25 px-2 py-0.5 rounded-lg font-bold">🧠 Judge</span>';
   const lat=pkt?.latency_ms?` · ${Math.round(pkt.latency_ms)}ms`:'';
   const w=document.createElement('div'); w.className='flex justify-start animate-fade-up';
-  w.innerHTML=`<div class="bub-ai max-w-[88%] rounded-2xl rounded-tl-md px-4 py-3.5 shadow-xl"><div class="flex items-center gap-2 mb-2"><div class="w-5 h-5 rounded-lg bg-violet-500/18 flex items-center justify-center"><svg class="w-3 h-3 text-violet-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div><p class="text-[10px] text-violet-400 font-black uppercase tracking-widest">EduAgent</p></div><p class="ai-body whitespace-pre-wrap break-words">${esc(text)}</p><div class="flex items-center gap-2 mt-3 pt-2 border-t border-white/[0.05]">${badge}<span class="text-[9px] text-white/22 font-mono">${fmtTime()}${lat}</span></div></div>`;
+  w.innerHTML=`<div class="bub-ai max-w-[88%] rounded-2xl rounded-tl-md px-4 py-3.5 shadow-xl"><div class="flex items-center gap-2 mb-2"><div class="w-5 h-5 rounded-lg bg-violet-500/18 flex items-center justify-center"><svg class="w-3 h-3 text-violet-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div><p class="text-[10px] text-violet-400 font-black uppercase tracking-widest">EduAgent</p></div><p class="text-sm text-white/88 leading-relaxed whitespace-pre-wrap break-words">${esc(text)}</p><div class="flex items-center gap-2 mt-3 pt-2 border-t border-white/[0.05]">${badge}<span class="text-[9px] text-white/22 font-mono">${fmtTime()}${lat}</span></div></div>`;
   area.appendChild(w); scrollBot(aId);
 }
 
@@ -875,14 +877,8 @@ function scrollBot(id){ const a=document.getElementById(id); if(a)a.scrollTop=a.
 function fmtTime(){ return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
 function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 
-// ── PWA SERVICE WORKER ENGINE ─────────────────────────────────────────
-if('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('PWA Service Worker connected!', reg))
-      .catch(err => console.error('PWA Registration failed:', err));
-  });
-}
+// ── PWA ──────────────────────────────────────────────────────────────
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
 </body>
-</html>
+</html>/;;;;;;;;;;;;;
