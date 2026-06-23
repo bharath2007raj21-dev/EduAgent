@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>EduAgent — White Knights</title>
   <link rel="manifest" href="manifest.json"/>
   <meta name="theme-color" content="#6d28d9"/>
@@ -44,7 +44,7 @@
       min-height:100vh;
     }
 
-    /* ── PHONE SHELL ── */
+    /* ── PHONE SHELL (desktop preview only) ── */
     .phone{
       width:390px; height:844px;
       border-radius:3rem;
@@ -55,7 +55,6 @@
         0 32px 80px rgba(0,0,0,0.8),
         0 0 80px rgba(79,70,229,0.12);
     }
-    /* side buttons */
     .phone::before{
       content:''; position:absolute; left:-3px; top:120px;
       width:3px; height:36px; background:rgba(255,255,255,0.09);
@@ -66,6 +65,31 @@
       content:''; position:absolute; right:-3px; top:160px;
       width:3px; height:60px; background:rgba(255,255,255,0.09);
       border-radius:0 2px 2px 0;
+    }
+
+    /* ── REAL MOBILE: strip fake frame, go fullscreen ── */
+    @media (max-width: 480px) {
+      body {
+        background: #0b0e18 !important;
+        background-image: none !important;
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .phone {
+        width: 100vw !important;
+        height: 100dvh !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        position: fixed !important;
+        top: 0 !important; left: 0 !important;
+      }
+      .phone::before, .phone::after { display: none !important; }
+      .notch { display: none !important; }
+      /* Safe area padding so content clears real notch + home bar */
+      #s-gateway  { padding-top: max(3rem, env(safe-area-inset-top)) !important; padding-bottom: max(2.5rem, env(safe-area-inset-bottom)) !important; }
+      #s-login    { padding-top: max(3rem, env(safe-area-inset-top)) !important; padding-bottom: max(2rem,   env(safe-area-inset-bottom)) !important; }
+      #s-workspace > div:first-child { padding-top: max(0.75rem, env(safe-area-inset-top)) !important; }
     }
 
     /* ── NOTCH ── */
@@ -83,63 +107,49 @@
     .s-off{ opacity:0; pointer-events:none; transform:scale(0.97) translateY(8px); }
     .s-on { opacity:1; pointer-events:auto; transform:scale(1) translateY(0); }
 
-    /* ── SCROLLBAR ── */
     .thin-scroll::-webkit-scrollbar{ width:3px; }
     .thin-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.1); border-radius:4px; }
 
-    /* ── GLASS ── */
     .glass{ background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(16px); }
 
-    /* ── GRADIENT BUTTON ── */
     .btn-v{ background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 4px 20px rgba(124,58,237,0.3); transition:filter .15s, transform .1s; }
     .btn-v:hover{ filter:brightness(1.1); }
     .btn-v:active{ transform:scale(0.96); }
 
-    /* ── INPUT ── */
     .inp{ background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; outline:none; transition:border-color .2s, box-shadow .2s; }
     .inp:focus{ border-color:rgba(124,58,237,0.6); box-shadow:0 0 0 3px rgba(124,58,237,0.14); }
     .inp::placeholder{ color:rgba(255,255,255,0.18); }
 
-    /* ── SELECT DROPDOWN — force dark background, no white flash ── */
-    select.inp{ background:#111827; color:#fff; }
+    select.inp{ background:#111827; color:#fff; color-scheme: dark; }
     select.inp option{ background:#111827; color:#fff; }
     select.inp:focus{ background:#111827; }
 
-    /* ── BUBBLES ── */
     .bub-me   { background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 4px 14px rgba(124,58,237,0.25); }
     .bub-peer { background:linear-gradient(135deg,rgba(30,40,70,0.95),rgba(18,24,42,0.95)); border:1px solid rgba(255,255,255,0.08); }
 
-    /* ── AI BUBBLE — brighter background so text is clearly readable ── */
     .bub-ai {
       background:linear-gradient(135deg,#111827,#0f172a);
       border:1px solid rgba(124,58,237,0.25);
       box-shadow:0 0 24px rgba(124,58,237,0.1);
     }
-    /* Force all text inside AI bubble to be fully white */
     .bub-ai p.ai-body{ color:#f1f5f9 !important; font-size:0.875rem; line-height:1.6; }
     .bub-ai p.ai-label{ color:#a78bfa; font-size:0.625rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; }
 
-    /* ── HISTORY CARDS — readable contrast ── */
     .hist-user  { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); color:#e2e8f0; }
     .hist-agent { background:rgba(79,70,229,0.08);   border:1px solid rgba(79,70,229,0.2);   color:#c7d2fe; }
 
-    /* ── NAV ACTIVE ── */
     .nav-on{ background:linear-gradient(135deg,rgba(79,70,229,0.18),rgba(124,58,237,0.14)); border-color:rgba(124,58,237,0.35) !important; color:#fff !important; }
 
-    /* ── SHIMMER ── */
     .shimmer-line{ background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; animation:shimmer 1.6s linear infinite; border-radius:6px; }
 
-    /* ── DOTS TYPING ── */
     @keyframes dot{ 0%,100%{opacity:.2;transform:translateY(0)} 50%{opacity:1;transform:translateY(-4px)} }
     .dot{ display:inline-block; width:5px; height:5px; border-radius:50%; background:#7c3aed; }
     .dot:nth-child(1){ animation:dot 1.4s ease-in-out 0s infinite; }
     .dot:nth-child(2){ animation:dot 1.4s ease-in-out .2s infinite; }
     .dot:nth-child(3){ animation:dot 1.4s ease-in-out .4s infinite; }
 
-    /* ── ROSTER SELECTED ── */
     .row-sel{ background:rgba(124,58,237,0.12) !important; border-color:rgba(124,58,237,0.4) !important; }
 
-    /* ── PILL BADGES ── */
     .pill-ok  { background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.3); color:#6ee7b7; }
     .pill-warn{ background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.3); color:#fcd34d; }
     .pill-err { background:rgba(244,63,94,0.14);  border:1px solid rgba(244,63,94,0.3);  color:#fda4af; }
@@ -166,6 +176,7 @@
     </div>
   </div>
 
+  <!-- GATEWAY -->
   <div id="s-gateway" class="screen s-off flex flex-col h-full pt-12 pb-10 px-7 justify-between">
     <div class="text-center mt-6">
       <div class="flex justify-center mb-5">
@@ -182,7 +193,6 @@
 
     <div class="space-y-3">
       <p class="text-center text-[10px] font-bold text-white/25 uppercase tracking-[3px] mb-4">Choose your role</p>
-
       <button onclick="goLogin('student')" class="group w-full glass rounded-2xl p-5 text-left transition-all duration-200 hover:border-indigo-500/40 active:scale-[0.98]">
         <div class="flex items-center gap-4">
           <div class="w-11 h-11 rounded-xl bg-indigo-500/12 border border-indigo-500/20 flex items-center justify-center text-xl shrink-0 group-hover:bg-indigo-500/22 transition-colors">🎓</div>
@@ -193,7 +203,6 @@
           <svg class="w-4 h-4 text-white/20 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
         </div>
       </button>
-
       <button onclick="goLogin('faculty')" class="group w-full glass rounded-2xl p-5 text-left transition-all duration-200 hover:border-violet-500/40 active:scale-[0.98]">
         <div class="flex items-center gap-4">
           <div class="w-11 h-11 rounded-xl bg-violet-500/12 border border-violet-500/20 flex items-center justify-center text-xl shrink-0 group-hover:bg-violet-500/22 transition-colors">🏛️</div>
@@ -212,29 +221,26 @@
     </div>
   </div>
 
+  <!-- LOGIN -->
   <div id="s-login" class="screen s-off flex flex-col h-full pt-12 pb-8 px-6">
     <button onclick="go('s-login','s-gateway')" class="self-start flex items-center gap-1.5 text-[11px] font-semibold text-white/40 hover:text-white glass px-3 py-2 rounded-xl transition-all mb-6 mt-2">
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg> Back
     </button>
-
     <div class="text-center mb-7">
       <div id="l-icon" class="w-14 h-14 rounded-2xl bg-indigo-500/12 border border-indigo-500/20 flex items-center justify-center text-2xl mx-auto mb-3">🎓</div>
       <h2 id="l-title" class="text-xl font-extrabold text-white">Student Login</h2>
       <p id="l-sub" class="text-xs text-white/30 mt-1">Enter your campus credentials</p>
     </div>
-
     <div id="sync-row" class="hidden mb-4 flex items-center gap-2">
       <div id="sync-pill" class="pill-ok inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full">
         <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
         <span id="sync-txt">Synced</span>
       </div>
     </div>
-
     <div id="att-box" class="hidden mb-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3.5 animate-fade-up">
       <p class="text-[10px] font-black text-amber-300 uppercase tracking-widest mb-1">⚠️ Attendance Warning</p>
       <p id="att-txt" class="text-xs text-white/75 leading-relaxed"></p>
     </div>
-
     <div class="space-y-4 flex-1">
       <div>
         <label id="l-lbl" class="block text-[10px] font-bold text-white/35 uppercase tracking-widest mb-2">Roll Number</label>
@@ -258,6 +264,7 @@
     </div>
   </div>
 
+  <!-- WORKSPACE -->
   <div id="s-workspace" class="screen s-off flex flex-col h-full pt-9 bg-[#0b0e18]">
 
     <div id="backdrop" class="hidden absolute inset-0 z-30 bg-black/60 backdrop-blur-sm" onclick="closeDrawer()"></div>
@@ -282,30 +289,28 @@
           <div class="w-2 h-2 rounded-full bg-emerald-400 animate-glow-pulse shrink-0 ml-auto"></div>
         </div>
       </div>
-
       <nav class="flex-1 overflow-y-auto thin-scroll px-3 py-4">
         <div id="nav-s" class="space-y-0.5">
           <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest px-3 pb-2">Student</p>
-          <button onclick="tab('student-profile')"class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>👤</span> Profile</button>
-          <button onclick="tab('direct-chat')"    class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>💬</span> AI Assistant</button>
-          <button onclick="tab('student-vault')"  class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📚</span> Course Vault</button>
-          <button onclick="tab('lobby-creator')"  class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>✨</span> Launch Study Room</button>
-          <button onclick="tab('lobby-join')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔗</span> Join Room</button>
-          <button onclick="tab('student-alerts')" class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04] relative"><span>🔔</span> Notices & Timetable<span id="alert-dot" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500 animate-ping-slow"></span></button>
-          <button onclick="tab('history')"        class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📜</span> Chat History</button>
+          <button onclick="tab('student-profile')" class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>👤</span> Profile</button>
+          <button onclick="tab('direct-chat')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>💬</span> AI Assistant</button>
+          <button onclick="tab('student-vault')"   class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📚</span> Course Vault</button>
+          <button onclick="tab('lobby-creator')"   class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>✨</span> Launch Study Room</button>
+          <button onclick="tab('lobby-join')"      class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔗</span> Join Room</button>
+          <button onclick="tab('student-alerts')"  class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04] relative"><span>🔔</span> Notices &amp; Timetable<span id="alert-dot" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500 animate-ping-slow"></span></button>
+          <button onclick="tab('history')"         class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📜</span> Chat History</button>
         </div>
         <div id="nav-f" class="space-y-0.5 hidden">
           <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest px-3 pb-2 pt-1">Faculty</p>
-          <button onclick="tab('direct-chat')"      class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>💬</span> AI Assistant</button>
-          <button onclick="tab('faculty-duty')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔄</span> Duty Swaps</button>
-          <button onclick="tab('faculty-classroom')"class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>👥</span> Classroom Hub</button>
-          <button onclick="tab('lobby-creator')"    class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>✨</span> Group Chat Room</button>
-          <button onclick="tab('lobby-join')"       class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔗</span> Join Room</button>
-          <button onclick="tab('faculty-upload')"   class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📤</span> Upload Materials</button>
-          <button onclick="tab('history')"          class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📜</span> Chat History</button>
+          <button onclick="tab('direct-chat')"       class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>💬</span> AI Assistant</button>
+          <button onclick="tab('faculty-duty')"      class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔄</span> Duty Swaps</button>
+          <button onclick="tab('faculty-classroom')" class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>👥</span> Classroom Hub</button>
+          <button onclick="tab('lobby-creator')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>✨</span> Group Chat Room</button>
+          <button onclick="tab('lobby-join')"        class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔗</span> Join Room</button>
+          <button onclick="tab('faculty-upload')"    class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📤</span> Upload Materials</button>
+          <button onclick="tab('history')"           class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📜</span> Chat History</button>
         </div>
       </nav>
-
       <div class="p-3 border-t border-white/[0.05]">
         <button onclick="logout()" class="w-full bg-red-500/8 border border-red-500/20 hover:bg-red-500/18 py-3 rounded-xl text-center text-red-400 text-xs font-bold uppercase tracking-widest transition-all">🚪 Sign Out</button>
       </div>
@@ -328,7 +333,8 @@
     </div>
 
     <div class="flex-1 relative overflow-hidden">
-      
+
+      <!-- STUDENT PROFILE -->
       <div id="v-student-profile" class="view hidden absolute inset-0 bg-[#0b0e18] p-5 overflow-y-auto thin-scroll">
         <div class="glass rounded-3xl p-6 text-center animate-fade-up border border-white/[0.05]">
           <div class="relative inline-block mb-4">
@@ -338,7 +344,6 @@
           </div>
           <h3 id="p-name" class="text-lg font-bold text-white">Bharath Kumar</h3>
           <p id="p-id" class="text-xs text-white/40 font-mono mt-1 mb-4 tracking-widest">24WKCSE010</p>
-          
           <div class="grid grid-cols-2 gap-3 mt-4 text-left">
             <div class="glass rounded-xl p-3 border border-white/[0.05]">
               <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-1">Status</p>
@@ -349,13 +354,13 @@
               <p id="p-dept" class="text-white text-xs font-semibold">B.Tech CSE</p>
             </div>
           </div>
-          
           <div class="mt-6 border-t border-white/[0.05] pt-5">
-              <button onclick="logout()" class="w-full bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 py-3 rounded-xl text-center text-red-400 text-[11px] font-bold uppercase tracking-widest transition-all">Sign Out Session</button>
+            <button onclick="logout()" class="w-full bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 py-3 rounded-xl text-center text-red-400 text-[11px] font-bold uppercase tracking-widest transition-all">Sign Out Session</button>
           </div>
         </div>
       </div>
 
+      <!-- DIRECT CHAT -->
       <div id="v-direct-chat" class="view absolute inset-0 flex flex-col">
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
           <div class="text-center">
@@ -374,6 +379,7 @@
         </div>
       </div>
 
+      <!-- LOBBY CREATOR -->
       <div id="v-lobby-creator" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
         <div class="glass rounded-3xl p-6 w-full max-w-[320px] text-center space-y-5 animate-fade-up">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-violet-500/15 border border-indigo-500/20 flex items-center justify-center text-2xl mx-auto">✨</div>
@@ -392,6 +398,7 @@
         </div>
       </div>
 
+      <!-- LOBBY JOIN -->
       <div id="v-lobby-join" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
         <div class="glass rounded-3xl p-6 w-full max-w-[320px] space-y-5 animate-fade-up">
           <div class="text-center">
@@ -407,13 +414,14 @@
         </div>
       </div>
 
+      <!-- GROUP ROOM -->
       <div id="v-group-room" class="view hidden absolute inset-0 flex flex-col bg-[#0b0e18]">
         <div class="px-4 py-2 border-b border-white/[0.05] flex items-center justify-between shrink-0">
           <div class="flex items-center gap-2">
             <div id="member-avatars" class="flex -space-x-2"></div>
             <span id="member-count" class="text-[10px] text-white/35 font-mono ml-2">0 online</span>
           </div>
-          <button onclick="tab('direct-chat')" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-3 py-1 rounded-lg text-[10px] text-red-400 font-bold uppercase tracking-widest transition-colors">Exit</button>
+          <button onclick="leaveRoom()" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-3 py-1 rounded-lg text-[10px] text-red-400 font-bold uppercase tracking-widest transition-colors">Leave Room</button>
         </div>
         <div id="chat-group" class="thin-scroll flex-1 overflow-y-auto px-4 py-4 space-y-4"></div>
         <div class="px-4 py-3 border-t border-white/[0.05] bg-[#0b0e18]/95 backdrop-blur-sm shrink-0">
@@ -427,14 +435,15 @@
         </div>
       </div>
 
+      <!-- STUDENT VAULT -->
       <div id="v-student-vault" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4">
           <div class="flex justify-between items-start">
-              <div>
-                  <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Live Repo</span>
-                  <h3 class="text-sm font-bold text-white mt-0.5">Course Vault</h3>
-                  <p class="text-[10px] text-white/40 mt-1 leading-normal">Pull uploaded faculty documents.</p>
-              </div>
+            <div>
+              <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Live Repo</span>
+              <h3 class="text-sm font-bold text-white mt-0.5">Course Vault</h3>
+              <p class="text-[10px] text-white/40 mt-1 leading-normal">Pull uploaded faculty documents.</p>
+            </div>
           </div>
           <div class="mt-4 flex gap-2">
             <input id="inp-vault-code" type="text" placeholder="Subject Code (e.g. 24ITE01)" class="inp flex-1 rounded-xl px-3 py-2.5 text-xs font-mono tracking-wide"/>
@@ -442,13 +451,13 @@
           </div>
         </div>
         <div id="vault-loader" class="hidden text-center py-6">
-            <div class="w-5 h-5 border-2 border-indigo-500/30 border-t-indigo-400 rounded-full animate-spin-slow mx-auto"></div>
-            <p class="text-[10px] text-white/30 font-mono mt-3">Connecting to ERP...</p>
+          <div class="w-5 h-5 border-2 border-indigo-500/30 border-t-indigo-400 rounded-full animate-spin-slow mx-auto"></div>
+          <p class="text-[10px] text-white/30 font-mono mt-3">Connecting to ERP...</p>
         </div>
-        <div id="vault-box" class="space-y-3">
-             </div>
+        <div id="vault-box" class="space-y-3"></div>
       </div>
 
+      <!-- STUDENT ALERTS -->
       <div id="v-student-alerts" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4">
           <div class="flex items-center gap-2 mb-3">
@@ -470,6 +479,7 @@
         </div>
       </div>
 
+      <!-- FACULTY DUTY -->
       <div id="v-faculty-duty" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4 space-y-3">
           <h3 class="text-sm font-bold text-white uppercase tracking-wider">Today's Schedule</h3>
@@ -503,6 +513,7 @@
         </div>
       </div>
 
+      <!-- FACULTY CLASSROOM -->
       <div id="v-faculty-classroom" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
         <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
           <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-1">Classroom Hub</h3>
@@ -525,6 +536,7 @@
         </div>
       </div>
 
+      <!-- FACULTY UPLOAD -->
       <div id="v-faculty-upload" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll">
         <div class="glass rounded-2xl p-4 space-y-4 animate-fade-up">
           <div class="pb-3 border-b border-white/[0.05]">
@@ -545,36 +557,44 @@
               <textarea id="up-body" rows="5" placeholder="Paste lecture notes here…" class="inp w-full rounded-xl px-3 py-2.5 text-xs resize-none thin-scroll leading-relaxed"></textarea>
             </div>
             <button id="up-btn" onclick="uploadMat()" class="btn-v w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wider uppercase flex items-center justify-center gap-2">
-                <span id="up-btn-txt">Upload to ERP</span>
-                <div id="up-spin" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin-slow"></div>
+              <span id="up-btn-txt">Upload to ERP</span>
+              <div id="up-spin" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin-slow"></div>
             </button>
           </div>
         </div>
       </div>
 
+      <!-- HISTORY -->
       <div id="v-history" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
         <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
-          <div class="pb-3 border-b border-white/[0.05] mb-3">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Chat History</h3>
-            <p class="text-[10px] text-white/25 font-mono mt-0.5">Last 50 from MongoDB</p>
+          <div class="pb-3 border-b border-white/[0.05] mb-3 flex items-center justify-between">
+            <div>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Chat History</h3>
+              <p class="text-[10px] text-white/25 font-mono mt-0.5">Last 50 from MongoDB</p>
+            </div>
+            <button onclick="clearHistory()" class="text-[10px] text-red-400/60 hover:text-red-400 border border-red-500/15 hover:border-red-500/35 px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider transition-all">Clear</button>
           </div>
           <div id="history-box" class="flex-1 overflow-y-auto thin-scroll space-y-3"></div>
         </div>
       </div>
 
-    </div></div></div><script>
+    </div>
+  </div>
+</div>
+
+<script>
 // ── CONFIG ──────────────────────────────────────────────────────────
-const HOST = window.location.hostname || '127.0.0.1';
-const API  = 'https://eduagent-4baw.onrender.com';
-const WS   = 'wss://eduagent-4baw.onrender.com';
-const SUB  = '24ITE01';
+const API = 'https://eduagent-4baw.onrender.com';
+const WS  = 'wss://eduagent-4baw.onrender.com';
+const SUB = '24ITE01';
 
 // ── STATE ────────────────────────────────────────────────────────────
 let role = '', userId = '', activeTab = '', activeRoom = '', ws = null;
 let selected = [];
-let syncedTT = null; // timetable from /student/sync
-let studentDept = "B.Tech"; // Saved during sync
+let syncedTT = null;
+let studentDept = "B.Tech";
 let studentName = "";
+let greetedOnce = false;
 
 const ROSTER = [
   {roll:'24WKCSE001',name:'Arun Raj',dept:'CSE'},
@@ -585,40 +605,65 @@ const ROSTER = [
   {roll:'25WKECE015',name:'Anjali Murugan',dept:'ECE'},
 ];
 
-// ── BRICK 1: SESSION PERSISTENCE BOOTUP ────────────────────────────
-function initApp(){
-    const savedUser = localStorage.getItem("edu_user_id");
-    const savedRole = localStorage.getItem("edu_user_role");
-    const savedName = localStorage.getItem("edu_user_name");
-    const savedDept = localStorage.getItem("edu_user_dept");
-    
-    if(savedUser && savedRole) {
-        userId = savedUser;
-        role = savedRole;
-        if(savedName) studentName = savedName;
-        if(savedDept) studentDept = savedDept;
-        
-        // Background sync to pull fresh timetable silently
-        if(role === 'student'){
-            fetch(`${API}/student/sync`,{
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({roll_number: userId})
-            }).then(r=>r.json()).then(d=>{ if(d.timetable) syncedTT = d.timetable; loadTimetable(); }).catch(e=>console.log("Background sync failed"));
-        }
-        
-        bootWorkspace();
-        document.getElementById('s-workspace').classList.replace('s-off','s-on');
-    } else {
-        document.getElementById('s-gateway').classList.replace('s-off','s-on');
-    }
+// ── FIX 3: GREETING ──────────────────────────────────────────────────
+function greetOnce() {
+  if (greetedOnce) return;
+  greetedOnce = true;
+  const area = document.getElementById('chat-direct');
+  if (!area || area.children.length > 0) return;
+
+  const hour = new Date().getHours();
+  const timeGreet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const name = studentName || userId;
+
+  let msg;
+  if (role === 'student') {
+    msg = `${timeGreet}, ${name}! 👋\n\nI'm EduAgent — your personal AI assistant. I can instantly tell you your:\n• 📊 Attendance for any subject\n• 📝 Marks & grades\n• 💳 Fee status\n• 📅 Timetable\n\nOr ask me anything academic. What do you need?`;
+  } else {
+    msg = `${timeGreet}, Professor ${name}! 🏛️\n\nEduAgent Faculty Console is ready. You can:\n• 📢 Broadcast notices to students\n• 📤 Upload study materials\n• 👥 Launch attendance rooms\n• 💬 Ask me anything\n\nHow can I assist you today?`;
+  }
+
+  addAI('chat-direct', msg, { track: 'personal' });
 }
 
-// ── SCREEN TRANSITION ───────────────────────────────────────────────
-function go(a,b){ document.getElementById(a).classList.replace('s-on','s-off'); setTimeout(()=>document.getElementById(b).classList.replace('s-off','s-on'),120); }
+// ── SESSION PERSISTENCE ──────────────────────────────────────────────
+function initApp() {
+  const savedUser = localStorage.getItem("edu_user_id");
+  const savedRole = localStorage.getItem("edu_user_role");
+  const savedName = localStorage.getItem("edu_user_name");
+  const savedDept = localStorage.getItem("edu_user_dept");
 
-function goLogin(r){
+  if (savedUser && savedRole) {
+    userId = savedUser;
+    role   = savedRole;
+    if (savedName) studentName = savedName;
+    if (savedDept) studentDept = savedDept;
+
+    if (role === 'student') {
+      fetch(`${API}/student/sync`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({roll_number: userId})
+      }).then(r => r.json()).then(d => {
+        if (d.timetable) { syncedTT = d.timetable; loadTimetable(); }
+      }).catch(() => {});
+    }
+
+    bootWorkspace();
+    document.getElementById('s-workspace').classList.replace('s-off', 's-on');
+  } else {
+    document.getElementById('s-gateway').classList.replace('s-off', 's-on');
+  }
+}
+
+// ── SCREEN TRANSITION ────────────────────────────────────────────────
+function go(a, b) {
+  document.getElementById(a).classList.replace('s-on', 's-off');
+  setTimeout(() => document.getElementById(b).classList.replace('s-off', 's-on'), 120);
+}
+
+function goLogin(r) {
   role = r;
-  const s = r==='student';
+  const s = r === 'student';
   document.getElementById('l-icon').textContent  = s ? '🎓' : '🏛️';
   document.getElementById('l-title').textContent = s ? 'Student Login' : 'Faculty Login';
   document.getElementById('l-sub').textContent   = s ? 'Enter campus credentials' : 'Enter staff credentials';
@@ -627,59 +672,55 @@ function goLogin(r){
   document.getElementById('l-id').placeholder    = s ? 'e.g. 24WKCSE010' : 'e.g. DR_SRINIVASAN_WK';
   document.getElementById('att-box').classList.add('hidden');
   document.getElementById('sync-row').classList.add('hidden');
-  go('s-gateway','s-login');
+  go('s-gateway', 's-login');
 }
 
-// ── LOGIN + SYNC ────────────────────────────────────────────────────
-async function doLogin(){
+// ── LOGIN ────────────────────────────────────────────────────────────
+async function doLogin() {
   const id  = document.getElementById('l-id').value.trim().toUpperCase();
   const pwd = document.getElementById('l-pwd').value.trim();
   const err = document.getElementById('l-err');
   err.classList.add('hidden');
-  if(!id)  { err.textContent='Roll number required.'; err.classList.remove('hidden'); return; }
-  if(!pwd) { err.textContent='Password required.'; err.classList.remove('hidden'); return; }
+  if (!id)  { err.textContent = 'Roll number required.'; err.classList.remove('hidden'); return; }
+  if (!pwd) { err.textContent = 'Password required.';    err.classList.remove('hidden'); return; }
 
   userId = id;
-  studentName = role==='student' ? `Student` : userId.replace(/_/g,' ').replace('WK','').trim();
-  
+  studentName = role === 'student' ? `Student` : userId.replace(/_/g, ' ').replace('WK', '').trim();
+
   document.getElementById('l-btn-txt').textContent = 'Connecting…';
   document.getElementById('l-spin').classList.remove('hidden');
   document.getElementById('l-btn').disabled = true;
 
-  if(role === 'student'){
-    try{
-      const res = await fetch(`${API}/student/sync`,{
-        method:'POST', headers:{'Content-Type':'application/json'},
+  if (role === 'student') {
+    try {
+      const res = await fetch(`${API}/student/sync`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({roll_number: id})
       });
-      if(res.ok){
+      if (res.ok) {
         const d = await res.json();
-        setSyncPill('ok', `Synced · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
-
-        if(d.warning){
+        setSyncPill('ok', `Synced · ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`);
+        if (d.warning) {
           document.getElementById('att-txt').textContent = d.warning;
           document.getElementById('att-box').classList.remove('hidden');
         }
+        if (d.timetable) syncedTT = d.timetable;
 
-        if(d.timetable) syncedTT = d.timetable;
-        
-        // Grab accurate name/dept if available
         const snapRes = await fetch(`${API}/student/snapshot/${id}`);
-        if(snapRes.ok){
-            const snapD = await snapRes.json();
-            studentName = snapD.name;
-            studentDept = snapD.dept;
+        if (snapRes.ok) {
+          const snapD = await snapRes.json();
+          studentName = snapD.name || studentName;
+          studentDept = snapD.dept || studentDept;
         }
       } else {
         setSyncPill('warn', 'Sync skipped — backend error');
       }
-    } catch(e){
-      setSyncPill('err','Offline mode — no sync');
+    } catch (e) {
+      setSyncPill('err', 'Offline mode — no sync');
     }
   }
 
-  // Set Persistence!
-  localStorage.setItem("edu_user_id", userId);
+  localStorage.setItem("edu_user_id",   userId);
   localStorage.setItem("edu_user_role", role);
   localStorage.setItem("edu_user_name", studentName);
   localStorage.setItem("edu_user_dept", studentDept);
@@ -688,335 +729,387 @@ async function doLogin(){
   document.getElementById('l-spin').classList.add('hidden');
   document.getElementById('l-btn').disabled = false;
 
+  greetedOnce = false; // reset so greeting fires on fresh login
   bootWorkspace();
-  go('s-login','s-workspace');
+  go('s-login', 's-workspace');
 }
 
-function setSyncPill(state, txt){
+function setSyncPill(state, txt) {
   const row  = document.getElementById('sync-row');
   const pill = document.getElementById('sync-pill');
   const dot  = document.getElementById('sync-dot');
   const span = document.getElementById('sync-txt');
   row.classList.remove('hidden');
   span.textContent = txt;
-  const cls = state==='ok' ? 'pill-ok' : state==='warn' ? 'pill-warn' : 'pill-err';
+  const cls = state === 'ok' ? 'pill-ok' : state === 'warn' ? 'pill-warn' : 'pill-err';
   pill.className = `${cls} inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full`;
   dot.className  = `w-1.5 h-1.5 rounded-full ${state==='ok'?'bg-emerald-400':state==='warn'?'bg-amber-400':'bg-red-400'}`;
 }
 
-// ── WORKSPACE BOOT ──────────────────────────────────────────────────
-function bootWorkspace(){
-  const s = role==='student';
-  document.getElementById('nav-s').classList.toggle('hidden',!s);
-  document.getElementById('nav-f').classList.toggle('hidden', s);
-  document.getElementById('faculty-room-type').classList.toggle('hidden',s);
+// ── WORKSPACE BOOT ───────────────────────────────────────────────────
+function bootWorkspace() {
+  const s = role === 'student';
+  document.getElementById('nav-s').classList.toggle('hidden', !s);
+  document.getElementById('nav-f').classList.toggle('hidden',  s);
+  document.getElementById('faculty-room-type').classList.toggle('hidden', s);
   document.getElementById('d-role').textContent = s ? 'Student Console' : 'Faculty Console';
-  document.getElementById('d-role').className   = `text-[10px] font-bold uppercase tracking-widest mt-0.5 ${s?'text-indigo-400':'text-violet-400'}`;
-  
-  // Set drawer info
-  const initials = studentName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() || userId.substring(0,2);
+  document.getElementById('d-role').className   = `text-[10px] font-bold uppercase tracking-widest mt-0.5 ${s ? 'text-indigo-400' : 'text-violet-400'}`;
+
+  const initials = studentName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || userId.substring(0, 2);
   document.getElementById('d-avatar').textContent = initials;
   document.getElementById('d-name').textContent   = studentName;
   document.getElementById('d-id').textContent     = userId;
-  document.getElementById('tb-sub').textContent   = `${userId} · ${s?'B.Tech Workspace':'Professor Hub'}`;
-  
-  if(s){ 
-      // Set dedicated profile info
-      document.getElementById('p-avatar').textContent = initials;
-      document.getElementById('p-name').textContent = studentName;
-      document.getElementById('p-id').textContent = userId;
-      document.getElementById('p-dept').textContent = studentDept;
-      
-      loadTimetable(); 
-      tab('direct-chat'); // Open direct chat first by default
+  document.getElementById('tb-sub').textContent   = `${userId} · ${s ? 'B.Tech Workspace' : 'Professor Hub'}`;
+
+  if (s) {
+    document.getElementById('p-avatar').textContent = initials;
+    document.getElementById('p-name').textContent   = studentName;
+    document.getElementById('p-id').textContent     = userId;
+    document.getElementById('p-dept').textContent   = studentDept;
+    loadTimetable();
+    tab('direct-chat');
+  } else {
+    buildRoster();
+    tab('faculty-duty');
   }
-  else { buildRoster(); tab('faculty-duty'); }
 }
 
-// ── TABS ────────────────────────────────────────────────────────────
-const VIEWS=['direct-chat','lobby-creator','lobby-join','group-room','student-vault','student-alerts','faculty-duty','faculty-classroom','faculty-upload','history', 'student-profile'];
-function tab(id){
+// ── TABS ─────────────────────────────────────────────────────────────
+const VIEWS = ['direct-chat','lobby-creator','lobby-join','group-room','student-vault','student-alerts','faculty-duty','faculty-classroom','faculty-upload','history','student-profile'];
+function tab(id) {
   activeTab = id;
   closeDrawer();
-  
-  let niceTitle = id.replace(/faculty-|student-/g,'').replace(/-/g,' ');
-  if(id === 'direct-chat') niceTitle = 'AI Assistant';
-  
+  let niceTitle = id.replace(/faculty-|student-/g, '').replace(/-/g, ' ');
+  if (id === 'direct-chat') niceTitle = 'AI Assistant';
   document.getElementById('tb-badge').textContent = niceTitle;
-  VIEWS.forEach(v=>{
-    const el=document.getElementById(`v-${v}`);
-    if(!el) return;
-    if(v===id){ 
-        el.classList.remove('hidden'); 
-        if(v==='direct-chat')document.getElementById('inp-direct').focus(); 
-        if(v==='group-room')document.getElementById('inp-group').focus(); 
-        if(v==='history')loadHistory(); 
+  VIEWS.forEach(v => {
+    const el = document.getElementById(`v-${v}`);
+    if (!el) return;
+    if (v === id) {
+      el.classList.remove('hidden');
+      if (v === 'direct-chat') { document.getElementById('inp-direct').focus(); greetOnce(); }
+      if (v === 'group-room')  document.getElementById('inp-group').focus();
+      if (v === 'history')     loadHistory();
+    } else {
+      el.classList.add('hidden');
     }
-    else el.classList.add('hidden');
   });
 }
 
-// ── DRAWER ──────────────────────────────────────────────────────────
-function openDrawer(){  document.getElementById('drawer').classList.remove('-translate-x-full'); document.getElementById('backdrop').classList.remove('hidden'); }
-function closeDrawer(){ document.getElementById('drawer').classList.add('-translate-x-full');    document.getElementById('backdrop').classList.add('hidden'); }
+// ── DRAWER ───────────────────────────────────────────────────────────
+function openDrawer()  { document.getElementById('drawer').classList.remove('-translate-x-full'); document.getElementById('backdrop').classList.remove('hidden'); }
+function closeDrawer() { document.getElementById('drawer').classList.add('-translate-x-full');    document.getElementById('backdrop').classList.add('hidden'); }
 
-// ── DIRECT CHAT ─────────────────────────────────────────────────────
-async function sendDirect(){
-  const inp=document.getElementById('inp-direct'), q=inp.value.trim(); if(!q)return;
-  inp.value='';
-  addBubble('chat-direct',{roll:userId,text:q},true);
+// ── DIRECT CHAT ──────────────────────────────────────────────────────
+async function sendDirect() {
+  const inp = document.getElementById('inp-direct'), q = inp.value.trim();
+  if (!q) return;
+  inp.value = '';
+  addBubble('chat-direct', {roll: userId, text: q}, true);
   addTyping('chat-direct');
-  try{
-    const r=await fetch(`${API}/ask-eduagent`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({roll_number:role==='student'?userId:'24WKCSE010',subject_code:SUB,student_query:q})});
+  try {
+    const r = await fetch(`${API}/ask-eduagent`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({roll_number: userId, subject_code: SUB, student_query: q})
+    });
     removeTyping();
-    if(!r.ok) throw new Error(`HTTP ${r.status}`);
-    const d=await r.json();
-    addAI('chat-direct',d.answer,d);
-  } catch(e){ removeTyping(); addAI('chat-direct',`⚠️ ${e.message}`,{track:'error'}); }
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    addAI('chat-direct', d.answer, d);
+  } catch (e) {
+    removeTyping();
+    addAI('chat-direct', `⚠️ ${e.message}`, {track: 'error'});
+  }
 }
 
-// ── GROUP ROOM ──────────────────────────────────────────────────────
-async function createRoom(){
-  let mode='normal';
-  if(role==='faculty'){ const sel=document.querySelector('input[name="room-type"]:checked'); if(sel)mode=sel.value; }
-  try{
-    const r=await fetch(`${API}/room/create`,{method:'POST'});
-    const d=await r.json();
-    if(mode==='attendance') alert(`⏱️ Attendance Token: [ ${d.room_code} ] — Active 60s`);
+// ── GROUP ROOM ───────────────────────────────────────────────────────
+async function createRoom() {
+  let mode = 'normal';
+  if (role === 'faculty') { const sel = document.querySelector('input[name="room-type"]:checked'); if (sel) mode = sel.value; }
+  try {
+    const r = await fetch(`${API}/room/create`, {method: 'POST'});
+    const d = await r.json();
+    if (mode === 'attendance') alert(`⏱️ Attendance Token: [ ${d.room_code} ] — Active 60s`);
     connectWS(d.room_code);
-  } catch(e){ alert(`Could not create room: ${e.message}`); }
+  } catch (e) { alert(`Could not create room: ${e.message}`); }
 }
 
-async function joinRoom(){
-  const code=document.getElementById('inp-code').value.trim().toUpperCase();
-  const err=document.getElementById('join-err'); err.classList.add('hidden');
-  if(!code){ err.textContent='Enter room code.'; err.classList.remove('hidden'); return; }
-  try{
-    const r=await fetch(`${API}/room/${code}/exists`), d=await r.json();
-    if(!d.exists){ err.textContent='Room not found.'; err.classList.remove('hidden'); return; }
+async function joinRoom() {
+  const code = document.getElementById('inp-code').value.trim().toUpperCase();
+  const err  = document.getElementById('join-err');
+  err.classList.add('hidden');
+  if (!code) { err.textContent = 'Enter room code.'; err.classList.remove('hidden'); return; }
+  try {
+    const r = await fetch(`${API}/room/${code}/exists`), d = await r.json();
+    if (!d.exists) { err.textContent = 'Room not found.'; err.classList.remove('hidden'); return; }
     connectWS(code);
-  } catch(e){ err.textContent='Backend offline.'; err.classList.remove('hidden'); }
+  } catch (e) { err.textContent = 'Backend offline.'; err.classList.remove('hidden'); }
 }
 
-function connectWS(code){
-  activeRoom=code.toUpperCase();
-  const roll=role==='student'?userId:`FACULTY_${userId}`;
-  ws=new WebSocket(`${WS}/ws/chat/${activeRoom}?roll=${roll}&subject=${SUB}`);
-  ws.onmessage=e=>{
-    const f=JSON.parse(e.data);
-    if(f.type==='joined'){ document.getElementById('tb-title').textContent=`Room ${activeRoom}`; tab('group-room'); }
-    else if(f.type==='history'){ document.getElementById('chat-group').innerHTML=''; f.messages.forEach(m=>addBubble('chat-group',m)); }
-    else if(f.type==='members'){ updateMembers(f.members); }
-    else if(f.type==='system'){ addSystem('chat-group',f.text); }
-    else if(f.type==='chat'||f.type==='agent_question'){ addBubble('chat-group',f); }
-    else if(f.type==='agent_typing'){ addTyping('chat-group'); }
-    else if(f.type==='agent_reply'){ removeTyping(); addAI('chat-group',f.text,f); }
+function connectWS(code) {
+  activeRoom = code.toUpperCase();
+  const roll = role === 'student' ? userId : `FACULTY_${userId}`;
+  if (ws) { ws.close(); ws = null; }
+  ws = new WebSocket(`${WS}/ws/chat/${activeRoom}?roll=${roll}&subject=${SUB}`);
+  ws.onmessage = e => {
+    const f = JSON.parse(e.data);
+    if (f.type === 'joined')         { document.getElementById('tb-title').textContent = `Room ${activeRoom}`; tab('group-room'); }
+    else if (f.type === 'history')   { document.getElementById('chat-group').innerHTML = ''; f.messages.forEach(m => addBubble('chat-group', m)); }
+    else if (f.type === 'members')   { updateMembers(f.members); }
+    else if (f.type === 'system')    { addSystem('chat-group', f.text); }
+    else if (f.type === 'chat' || f.type === 'agent_question') { addBubble('chat-group', f); }
+    else if (f.type === 'agent_typing') { addTyping('chat-group'); }
+    else if (f.type === 'agent_reply')  { removeTyping(); addAI('chat-group', f.text, f); }
+  };
+  // FIX: graceful exit when attendance session expires
+  ws.onclose = e => {
+    if (e.code === 4041) {
+      addSystem('chat-group', '⏱️ Attendance session has ended. You can safely leave this room.');
+      document.getElementById('member-count').textContent = 'Session closed';
+    }
   };
 }
 
-function sendGroup(){
-  const inp=document.getElementById('inp-group'), txt=inp.value.trim();
-  if(!txt||!ws)return;
-  ws.send(JSON.stringify(txt.startsWith('/agent ')?{type:'agent',text:txt.substring(7).trim()}:{type:'chat',text:txt}));
-  inp.value=''; inp.focus();
+// FIX: proper leave room with cleanup
+function leaveRoom() {
+  if (ws) { ws.close(); ws = null; }
+  activeRoom = '';
+  document.getElementById('chat-group').innerHTML = '';
+  document.getElementById('tb-title').textContent = 'EduAgent';
+  tab('direct-chat');
 }
 
-function updateMembers(m){
-  document.getElementById('member-avatars').innerHTML=m.slice(0,4).map(x=>`<div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 border-2 border-[#0b0e18] flex items-center justify-center text-[10px] font-bold text-white z-10" title="${x.name}">${x.name[0]}</div>`).join('');
-  document.getElementById('member-count').textContent=`${m.length} online`;
+function sendGroup() {
+  const inp = document.getElementById('inp-group'), txt = inp.value.trim();
+  if (!txt || !ws) return;
+  ws.send(JSON.stringify(txt.startsWith('/agent ') ? {type: 'agent', text: txt.substring(7).trim()} : {type: 'chat', text: txt}));
+  inp.value = ''; inp.focus();
 }
 
-// ── VAULT / NOTES ───────────────────────────────────────────────────
+function updateMembers(m) {
+  document.getElementById('member-avatars').innerHTML = m.slice(0, 4).map(x =>
+    `<div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 border-2 border-[#0b0e18] flex items-center justify-center text-[10px] font-bold text-white z-10" title="${x.name}">${x.name[0]}</div>`
+  ).join('');
+  document.getElementById('member-count').textContent = `${m.length} online`;
+}
+
+// ── VAULT ─────────────────────────────────────────────────────────────
 async function loadVault() {
-    const scode = document.getElementById('inp-vault-code').value.trim().toUpperCase() || SUB;
-    const box = document.getElementById('vault-box');
-    const loader = document.getElementById('vault-loader');
-    
-    box.innerHTML = '';
-    loader.classList.remove('hidden');
-    
-    try {
-        const res = await fetch(`${API}/student/materials/${scode}`);
-        loader.classList.add('hidden');
-        if(!res.ok) throw new Error("Could not fetch");
-        
-        const data = await res.json();
-        
-        if(!data.materials || data.materials.length === 0){
-             box.innerHTML = '<p class="text-xs text-white/30 text-center py-6 font-mono italic">No materials uploaded yet.</p>';
-             return;
-        }
-        
-        data.materials.forEach(n => {
-            const d = document.createElement('div');
-            d.className='glass rounded-2xl p-4 space-y-2 animate-fade-up';
-            d.innerHTML=`<div class="flex items-center justify-between pb-2 border-b border-white/[0.05]"><span class="text-[10px] font-bold text-indigo-400 font-mono">${esc(n.unit)} · ${esc(n.subject_code)}</span><span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">Live</span></div><p class="text-xs font-bold text-white">${esc(n.heading)}</p><p class="text-xs text-white/55 leading-relaxed whitespace-pre-wrap">${esc(n.body)}</p>`;
-            box.appendChild(d);
-        });
-        
-    } catch(e) {
-        loader.classList.add('hidden');
-        box.innerHTML = `<p class="text-xs text-red-400 text-center py-6 font-mono">Error: ${e.message}</p>`;
+  const scode  = document.getElementById('inp-vault-code').value.trim().toUpperCase() || SUB;
+  const box    = document.getElementById('vault-box');
+  const loader = document.getElementById('vault-loader');
+  box.innerHTML = ''; loader.classList.remove('hidden');
+  try {
+    const res  = await fetch(`${API}/student/materials/${scode}`);
+    loader.classList.add('hidden');
+    if (!res.ok) throw new Error("Could not fetch");
+    const data = await res.json();
+    if (!data.materials || data.materials.length === 0) {
+      box.innerHTML = '<p class="text-xs text-white/30 text-center py-6 font-mono italic">No materials uploaded yet.</p>';
+      return;
     }
+    data.materials.forEach(n => {
+      const d = document.createElement('div');
+      d.className = 'glass rounded-2xl p-4 space-y-2 animate-fade-up';
+      d.innerHTML = `<div class="flex items-center justify-between pb-2 border-b border-white/[0.05]"><span class="text-[10px] font-bold text-indigo-400 font-mono">${esc(n.unit)} · ${esc(n.subject_code)}</span><span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">Live</span></div><p class="text-xs font-bold text-white">${esc(n.heading)}</p><p class="text-xs text-white/55 leading-relaxed whitespace-pre-wrap">${esc(n.body)}</p>`;
+      box.appendChild(d);
+    });
+  } catch (e) {
+    loader.classList.add('hidden');
+    box.innerHTML = `<p class="text-xs text-red-400 text-center py-6 font-mono">Error: ${e.message}</p>`;
+  }
 }
 
-async function uploadMat(){
-  const subj=document.getElementById('up-subj').value.trim().toUpperCase() || '24ITE01';
-  const unit=document.getElementById('up-unit').value.trim();
-  const head=document.getElementById('up-head').value.trim();
-  const body=document.getElementById('up-body').value.trim();
-  
-  if(!unit||!head||!body){ alert('Fill all fields.'); return; }
-  
+async function uploadMat() {
+  const subj = document.getElementById('up-subj').value.trim().toUpperCase() || '24ITE01';
+  const unit = document.getElementById('up-unit').value.trim();
+  const head = document.getElementById('up-head').value.trim();
+  const body = document.getElementById('up-body').value.trim();
+  if (!unit || !head || !body) { alert('Fill all fields.'); return; }
   document.getElementById('up-btn-txt').textContent = "Uploading...";
   document.getElementById('up-spin').classList.remove('hidden');
-  
   try {
-      const res = await fetch(`${API}/faculty/upload-materials`, {
-          method: 'POST', headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({subject_code: subj, unit: unit, heading: head, body_text: body})
-      });
-      if(res.ok){
-          alert(`✅ "${head}" pushed to student vault.`);
-          document.getElementById('up-unit').value=document.getElementById('up-head').value=document.getElementById('up-body').value='';
-      } else {
-          alert('Upload failed.');
-      }
-  } catch(e) { alert("Network error: " + e.message); }
-  
+    const res = await fetch(`${API}/faculty/upload-materials`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({subject_code: subj, unit, heading: head, body_text: body})
+    });
+    if (res.ok) {
+      alert(`✅ "${head}" pushed to student vault.`);
+      document.getElementById('up-unit').value = document.getElementById('up-head').value = document.getElementById('up-body').value = '';
+    } else { alert('Upload failed.'); }
+  } catch (e) { alert("Network error: " + e.message); }
   document.getElementById('up-btn-txt').textContent = "Upload to ERP";
   document.getElementById('up-spin').classList.add('hidden');
 }
 
-// ── TIMETABLE ────────────────────────────────────────────────────────
-function loadTimetable(){
-  const c=document.getElementById('tt-box'); if(!c)return;
-  const tt = syncedTT || { Monday:'Python, DBMS, AI', Tuesday:'DBMS, AI, Operations Research', Wednesday:'Python, Operations Research, DBMS', Thursday:'AI, Python, DBMS', Friday:'Operations Research, AI, Python' };
-  c.innerHTML=Object.entries(tt).map(([day,subs])=>`<div class="flex justify-between items-start border-b border-white/[0.05] pb-2 pt-1 last:border-0 last:pb-0"><span class="text-white/32 shrink-0 w-20">${day}</span><span class="text-white/78 text-right text-[11px] font-sans leading-tight">${esc(subs)}</span></div>`).join('');
+// ── TIMETABLE ─────────────────────────────────────────────────────────
+function loadTimetable() {
+  const c = document.getElementById('tt-box'); if (!c) return;
+  const tt = syncedTT || {Monday:'Python, DBMS, AI', Tuesday:'DBMS, AI, Operations Research', Wednesday:'Python, Operations Research, DBMS', Thursday:'AI, Python, DBMS', Friday:'Operations Research, AI, Python'};
+  c.innerHTML = Object.entries(tt).map(([day, subs]) =>
+    `<div class="flex justify-between items-start border-b border-white/[0.05] pb-2 pt-1 last:border-0 last:pb-0"><span class="text-white/32 shrink-0 w-20">${day}</span><span class="text-white/78 text-right text-[11px] font-sans leading-tight">${esc(subs)}</span></div>`
+  ).join('');
 }
 
-// ── ROSTER ──────────────────────────────────────────────────────────
-function buildRoster(){
-  const c=document.getElementById('roster'); c.innerHTML='';
-  ROSTER.forEach(s=>{
-    const d=document.createElement('div');
-    d.id=`row-${s.roll}`;
-    d.className='glass rounded-xl p-3 flex items-center justify-between cursor-pointer transition-all hover:bg-white/[0.06] active:scale-[0.99]';
-    d.onclick=()=>selStudent(s.roll);
-    d.innerHTML=`<div><p class="text-xs font-bold text-white">${s.name}</p><p class="text-[10px] text-white/30 font-mono mt-0.5">${s.roll} · ${s.dept}</p></div><div id="chk-${s.roll}" class="w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] text-white transition-all"></div>`;
+// ── ROSTER ────────────────────────────────────────────────────────────
+function buildRoster() {
+  const c = document.getElementById('roster'); c.innerHTML = '';
+  ROSTER.forEach(s => {
+    const d = document.createElement('div');
+    d.id = `row-${s.roll}`;
+    d.className = 'glass rounded-xl p-3 flex items-center justify-between cursor-pointer transition-all hover:bg-white/[0.06] active:scale-[0.99]';
+    d.onclick = () => selStudent(s.roll);
+    d.innerHTML = `<div><p class="text-xs font-bold text-white">${s.name}</p><p class="text-[10px] text-white/30 font-mono mt-0.5">${s.roll} · ${s.dept}</p></div><div id="chk-${s.roll}" class="w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] text-white transition-all"></div>`;
     c.appendChild(d);
   });
 }
 
-function filterRoster(){ const t=event.target.value.toLowerCase(); ROSTER.forEach(s=>{ const r=document.getElementById(`row-${s.roll}`); if(r) r.style.display=(s.name.toLowerCase().includes(t)||s.roll.toLowerCase().includes(t))?'flex':'none'; }); }
-
-function selStudent(roll){
-  const idx=selected.indexOf(roll), row=document.getElementById(`row-${roll}`), chk=document.getElementById(`chk-${roll}`);
-  if(idx>-1){ selected.splice(idx,1); row?.classList.remove('row-sel'); if(chk){chk.className='w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] text-white'; chk.textContent='';} }
-  else { selected.push(roll); row?.classList.add('row-sel'); if(chk){chk.className='w-5 h-5 rounded-full bg-violet-600 border-2 border-violet-400 flex items-center justify-center text-[10px] text-white font-bold'; chk.textContent='✓';} }
-  document.getElementById('sel-count').textContent=`${selected.length} targets`;
+function filterRoster() {
+  const t = event.target.value.toLowerCase();
+  ROSTER.forEach(s => { const r = document.getElementById(`row-${s.roll}`); if (r) r.style.display = (s.name.toLowerCase().includes(t) || s.roll.toLowerCase().includes(t)) ? 'flex' : 'none'; });
 }
 
-async function doBroadcast(){
-  const msg=document.getElementById('broadcast-inp').value.trim();
-  if(!selected.length){ alert('Select students first.'); return; }
-  if(!msg){ alert('Enter a message.'); return; }
-  
+function selStudent(roll) {
+  const idx = selected.indexOf(roll), row = document.getElementById(`row-${roll}`), chk = document.getElementById(`chk-${roll}`);
+  if (idx > -1) {
+    selected.splice(idx, 1);
+    row?.classList.remove('row-sel');
+    if (chk) { chk.className = 'w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] text-white'; chk.textContent = ''; }
+  } else {
+    selected.push(roll);
+    row?.classList.add('row-sel');
+    if (chk) { chk.className = 'w-5 h-5 rounded-full bg-violet-600 border-2 border-violet-400 flex items-center justify-center text-[10px] text-white font-bold'; chk.textContent = '✓'; }
+  }
+  document.getElementById('sel-count').textContent = `${selected.length} targets`;
+}
+
+async function doBroadcast() {
+  const msg = document.getElementById('broadcast-inp').value.trim();
+  if (!selected.length) { alert('Select students first.'); return; }
+  if (!msg) { alert('Enter a message.'); return; }
   try {
-      await fetch(`${API}/faculty/broadcast-mass-notice`, {
-          method: 'POST', headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({target_student_rolls: selected, announcement_message: msg})
-      });
-      alert(`📢 Broadcast sent to ${selected.length} student(s) over live network.`);
-      document.getElementById('broadcast-inp').value='';
-      selected=[]; buildRoster();
-      document.getElementById('sel-count').textContent='0 targets';
-  } catch (e){ alert('Failed to broadcast.'); }
+    await fetch(`${API}/faculty/broadcast-mass-notice`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({target_student_rolls: selected, announcement_message: msg})
+    });
+    alert(`📢 Broadcast sent to ${selected.length} student(s) over live network.`);
+    document.getElementById('broadcast-inp').value = '';
+    selected = []; buildRoster();
+    document.getElementById('sel-count').textContent = '0 targets';
+  } catch (e) { alert('Failed to broadcast.'); }
 }
 
-// ── HISTORY ─────────────────────────────────────────────────────────
-async function loadHistory(){
-  const c=document.getElementById('history-box');
-  c.innerHTML=shimmer(3);
-  try{
-    const r=await fetch(`${API}/history/${role==='student'?userId:'24WKCSE010'}`), d=await r.json();
-    c.innerHTML='';
-    if(!d.messages?.length){ c.innerHTML='<p class="text-xs text-white/22 text-center py-4">No history yet.</p>'; return; }
-    d.messages.forEach(m=>{ const row=document.createElement('div'); const u=m.role==='user'; row.className=`p-3 rounded-xl border border-white/[0.05] text-xs ${u?'bg-white/[0.025] text-white/70':'bg-indigo-500/[0.04] text-indigo-300'}`; row.innerHTML=`<p class="text-[10px] font-bold uppercase tracking-widest opacity-35 mb-1">${m.role}</p><p class="leading-relaxed font-mono whitespace-pre-wrap">${esc(m.text)}</p>`; c.appendChild(row); });
-  } catch(e){ c.innerHTML=`<p class="text-xs text-red-400 text-center py-4">${e.message}</p>`; }
+// ── FIX 2: HISTORY (faculty uses real ID) ────────────────────────────
+async function loadHistory() {
+  const c = document.getElementById('history-box');
+  c.innerHTML = shimmer(3);
+  // FIX: always use the actual logged-in userId, not hardcoded student roll
+  const histId = role === 'student' ? userId : `FACULTY_${userId}`;
+  try {
+    const r = await fetch(`${API}/history/${histId}`), d = await r.json();
+    c.innerHTML = '';
+    if (!d.messages?.length) { c.innerHTML = '<p class="text-xs text-white/22 text-center py-4">No history yet.</p>'; return; }
+    d.messages.forEach(m => {
+      const row = document.createElement('div');
+      const u = m.role === 'user';
+      row.className = `p-3 rounded-xl border border-white/[0.05] text-xs ${u ? 'bg-white/[0.025] text-white/70' : 'bg-indigo-500/[0.04] text-indigo-300'}`;
+      row.innerHTML = `<p class="text-[10px] font-bold uppercase tracking-widest opacity-35 mb-1">${m.role}</p><p class="leading-relaxed font-mono whitespace-pre-wrap">${esc(m.text)}</p>`;
+      c.appendChild(row);
+    });
+  } catch (e) { c.innerHTML = `<p class="text-xs text-red-400 text-center py-4">${e.message}</p>`; }
 }
 
-// ── BANNER ──────────────────────────────────────────────────────────
-function showBanner(msg){
-  document.getElementById('banner-text').textContent=msg;
+function clearHistory() {
+  if (!confirm('Clear your local chat history display?')) return;
+  document.getElementById('history-box').innerHTML = '<p class="text-xs text-white/22 text-center py-4">History cleared.</p>';
+  document.getElementById('chat-direct').innerHTML = '';
+  greetedOnce = false;
+  greetOnce();
+}
+
+// ── BANNER ────────────────────────────────────────────────────────────
+function showBanner(msg) {
+  document.getElementById('banner-text').textContent = msg;
   document.getElementById('alert-dot').classList.remove('hidden');
   document.getElementById('live-banner').classList.remove('hidden');
-  const c=document.getElementById('alerts-box'), old=c.querySelector('p.italic'); if(old)old.remove();
-  const d=document.createElement('div'); d.className='glass border-l-4 border-l-indigo-500 rounded-xl p-3 text-xs animate-fade-up'; d.innerHTML=`<p class="font-bold text-indigo-400 mb-0.5">Notice · ${fmtTime()}</p><p class="text-white/65">${esc(msg)}</p>`; c.prepend(d);
-  setTimeout(closeBanner,6000);
+  const c = document.getElementById('alerts-box'), old = c.querySelector('p.italic'); if (old) old.remove();
+  const d = document.createElement('div');
+  d.className = 'glass border-l-4 border-l-indigo-500 rounded-xl p-3 text-xs animate-fade-up';
+  d.innerHTML = `<p class="font-bold text-indigo-400 mb-0.5">Notice · ${fmtTime()}</p><p class="text-white/65">${esc(msg)}</p>`;
+  c.prepend(d);
+  setTimeout(closeBanner, 6000);
 }
-function closeBanner(){ document.getElementById('live-banner').classList.add('hidden'); }
+function closeBanner() { document.getElementById('live-banner').classList.add('hidden'); }
 
-// ── MISC ────────────────────────────────────────────────────────────
-function doSwap(sel){ if(!sel.value)return; if(confirm(`Reassign Hour 3 to ${sel.value}?`))alert(`✅ Swap confirmed.`); sel.value=''; }
-function togglePwd(){ const i=document.getElementById('l-pwd'),a=document.getElementById('eye1'),b=document.getElementById('eye2'),h=i.type==='password'; i.type=h?'text':'password'; a.classList.toggle('hidden',h); b.classList.toggle('hidden',!h); }
-function logout(){ 
-    if(ws){ws.close();ws=null;} 
-    role='';userId='';activeRoom='';selected=[]; studentName=''; studentDept='';
-    localStorage.removeItem("edu_user_id");
-    localStorage.removeItem("edu_user_role");
-    localStorage.removeItem("edu_user_name");
-    localStorage.removeItem("edu_user_dept");
-    document.getElementById('chat-direct').innerHTML=''; 
-    document.getElementById('chat-group').innerHTML=''; 
-    document.getElementById('l-id').value=''; 
-    document.getElementById('alert-dot').classList.add('hidden'); 
-    document.getElementById('tb-title').textContent='EduAgent'; 
-    syncedTT=null; 
-    go('s-workspace','s-gateway'); 
+// ── MISC ──────────────────────────────────────────────────────────────
+function doSwap(sel) { if (!sel.value) return; if (confirm(`Reassign Hour 3 to ${sel.value}?`)) alert(`✅ Swap confirmed.`); sel.value = ''; }
+function togglePwd() { const i = document.getElementById('l-pwd'), a = document.getElementById('eye1'), b = document.getElementById('eye2'), h = i.type === 'password'; i.type = h ? 'text' : 'password'; a.classList.toggle('hidden', h); b.classList.toggle('hidden', !h); }
+
+function logout() {
+  if (ws) { ws.close(); ws = null; }
+  role = ''; userId = ''; activeRoom = ''; selected = []; studentName = ''; studentDept = ''; greetedOnce = false; syncedTT = null;
+  localStorage.removeItem("edu_user_id");
+  localStorage.removeItem("edu_user_role");
+  localStorage.removeItem("edu_user_name");
+  localStorage.removeItem("edu_user_dept");
+  document.getElementById('chat-direct').innerHTML = '';
+  document.getElementById('chat-group').innerHTML  = '';
+  document.getElementById('l-id').value = '';
+  document.getElementById('alert-dot').classList.add('hidden');
+  document.getElementById('tb-title').textContent = 'EduAgent';
+  go('s-workspace', 's-gateway');
 }
 
-// ── BUBBLE HELPERS ──────────────────────────────────────────────────
-function addBubble(aId,msg,me=false){
-  const area=document.getElementById(aId);
-  if(msg.type==='agent_reply'){addAI(aId,msg.text,msg);return;}
-  const bind=role==='student'?userId:`FACULTY_${userId}`;
-  const isMe=me||msg.roll===bind||(msg.roll||'').startsWith('FACULTY_');
-  const name=isMe?'You':(msg.roll?.startsWith('FACULTY_')?'🏛️ Professor':(msg.name||'Peer'));
-  const isAgent=(msg.text||'').startsWith('/agent');
-  const w=document.createElement('div'); w.className=`flex ${isMe?'justify-end':'justify-start'} animate-fade-up`;
-  w.innerHTML=`<div class="${isMe?'bub-me':'bub-peer'} max-w-[82%] rounded-2xl ${isMe?'rounded-tr-md':'rounded-tl-md'} px-4 py-3 shadow-lg"><p class="text-[9px] font-bold mb-1 ${isMe?'text-white/50':'text-indigo-400'}">${esc(name)}</p><p class="text-sm ${isAgent?'text-amber-300 font-semibold':'text-white/90'} leading-relaxed break-words whitespace-pre-wrap">${esc(msg.text||'')}</p><span class="text-[9px] text-white/22 mt-1.5 block ${isMe?'text-right':'text-left'}">${fmtTime()}</span></div>`;
+// ── BUBBLE HELPERS ────────────────────────────────────────────────────
+function addBubble(aId, msg, me = false) {
+  const area = document.getElementById(aId);
+  if (msg.type === 'agent_reply') { addAI(aId, msg.text, msg); return; }
+  const bind = role === 'student' ? userId : `FACULTY_${userId}`;
+  const isMe = me || msg.roll === bind || (msg.roll || '').startsWith('FACULTY_');
+  const name = isMe ? 'You' : (msg.roll?.startsWith('FACULTY_') ? '🏛️ Professor' : (msg.name || 'Peer'));
+  const isAgent = (msg.text || '').startsWith('/agent');
+  const w = document.createElement('div');
+  w.className = `flex ${isMe ? 'justify-end' : 'justify-start'} animate-fade-up`;
+  w.innerHTML = `<div class="${isMe ? 'bub-me' : 'bub-peer'} max-w-[82%] rounded-2xl ${isMe ? 'rounded-tr-md' : 'rounded-tl-md'} px-4 py-3 shadow-lg"><p class="text-[9px] font-bold mb-1 ${isMe ? 'text-white/50' : 'text-indigo-400'}">${esc(name)}</p><p class="text-sm ${isAgent ? 'text-amber-300 font-semibold' : 'text-white/90'} leading-relaxed break-words whitespace-pre-wrap">${esc(msg.text || '')}</p><span class="text-[9px] text-white/22 mt-1.5 block ${isMe ? 'text-right' : 'text-left'}">${fmtTime()}</span></div>`;
   area.appendChild(w); scrollBot(aId);
 }
 
-function addAI(aId,text,pkt){
-  const area=document.getElementById(aId), track=pkt?.track||'academic';
-  const badge=track==='personal'?'<span class="text-[9px] bg-emerald-500/14 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-lg font-bold">⚡ Instant</span>':track==='error'?'<span class="text-[9px] bg-red-500/14 text-red-400 border border-red-500/25 px-2 py-0.5 rounded-lg font-bold">⚠️ Error</span>':'<span class="text-[9px] bg-violet-500/14 text-violet-300 border border-violet-500/25 px-2 py-0.5 rounded-lg font-bold">🧠 Judge</span>';
-  const lat=pkt?.latency_ms?` · ${Math.round(pkt.latency_ms)}ms`:'';
-  const w=document.createElement('div'); w.className='flex justify-start animate-fade-up';
-  w.innerHTML=`<div class="bub-ai max-w-[88%] rounded-2xl rounded-tl-md px-4 py-3.5 shadow-xl"><div class="flex items-center gap-2 mb-2"><div class="w-5 h-5 rounded-lg bg-violet-500/18 flex items-center justify-center"><svg class="w-3 h-3 text-violet-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div><p class="text-[10px] text-violet-400 font-black uppercase tracking-widest">EduAgent</p></div><p class="text-sm text-white/88 leading-relaxed whitespace-pre-wrap break-words">${esc(text)}</p><div class="flex items-center gap-2 mt-3 pt-2 border-t border-white/[0.05]">${badge}<span class="text-[9px] text-white/22 font-mono">${fmtTime()}${lat}</span></div></div>`;
+function addAI(aId, text, pkt) {
+  const area = document.getElementById(aId), track = pkt?.track || 'academic';
+  const badge = track === 'personal' ? '<span class="text-[9px] bg-emerald-500/14 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-lg font-bold">⚡ Instant</span>'
+              : track === 'error'    ? '<span class="text-[9px] bg-red-500/14 text-red-400 border border-red-500/25 px-2 py-0.5 rounded-lg font-bold">⚠️ Error</span>'
+              :                        '<span class="text-[9px] bg-violet-500/14 text-violet-300 border border-violet-500/25 px-2 py-0.5 rounded-lg font-bold">🧠 Judge</span>';
+  const lat = pkt?.latency_ms ? ` · ${Math.round(pkt.latency_ms)}ms` : '';
+  const w = document.createElement('div');
+  w.className = 'flex justify-start animate-fade-up';
+  w.innerHTML = `<div class="bub-ai max-w-[88%] rounded-2xl rounded-tl-md px-4 py-3.5 shadow-xl"><div class="flex items-center gap-2 mb-2"><div class="w-5 h-5 rounded-lg bg-violet-500/18 flex items-center justify-center"><svg class="w-3 h-3 text-violet-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div><p class="text-[10px] text-violet-400 font-black uppercase tracking-widest">EduAgent</p></div><p class="text-sm text-white/88 leading-relaxed whitespace-pre-wrap break-words">${esc(text)}</p><div class="flex items-center gap-2 mt-3 pt-2 border-t border-white/[0.05]">${badge}<span class="text-[9px] text-white/22 font-mono">${fmtTime()}${lat}</span></div></div>`;
   area.appendChild(w); scrollBot(aId);
 }
 
-function addTyping(aId){
+function addTyping(aId) {
   removeTyping();
-  const area=document.getElementById(aId); const w=document.createElement('div'); w.id='typing'; w.className='flex justify-start animate-fade-up';
-  w.innerHTML=`<div class="bub-ai rounded-2xl rounded-tl-md px-4 py-3 shadow-xl"><div class="flex items-center gap-2"><span class="text-xs text-white/38 font-mono mr-1">EduAgent</span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
+  const area = document.getElementById(aId), w = document.createElement('div');
+  w.id = 'typing'; w.className = 'flex justify-start animate-fade-up';
+  w.innerHTML = `<div class="bub-ai rounded-2xl rounded-tl-md px-4 py-3 shadow-xl"><div class="flex items-center gap-2"><span class="text-xs text-white/38 font-mono mr-1">EduAgent</span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
   area.appendChild(w); scrollBot(aId);
 }
-function removeTyping(){ const e=document.getElementById('typing'); if(e)e.remove(); }
+function removeTyping() { const e = document.getElementById('typing'); if (e) e.remove(); }
 
-function addSystem(aId,txt){ const area=document.getElementById(aId); const d=document.createElement('div'); d.className='text-center text-[10px] text-white/28 glass py-1.5 px-4 rounded-full mx-auto max-w-[85%] animate-fade-up mt-2 mb-2'; d.textContent=txt; area.appendChild(d); scrollBot(aId); }
+function addSystem(aId, txt) {
+  const area = document.getElementById(aId), d = document.createElement('div');
+  d.className = 'text-center text-[10px] text-white/28 glass py-1.5 px-4 rounded-full mx-auto max-w-[85%] animate-fade-up mt-2 mb-2';
+  d.textContent = txt; area.appendChild(d); scrollBot(aId);
+}
 
-function shimmer(n){ return Array(n).fill(`<div class="space-y-2 p-3 glass rounded-xl"><div class="shimmer-line h-3 w-1/3"></div><div class="shimmer-line h-3 w-full"></div><div class="shimmer-line h-3 w-4/5"></div></div>`).join(''); }
+function shimmer(n) { return Array(n).fill(`<div class="space-y-2 p-3 glass rounded-xl"><div class="shimmer-line h-3 w-1/3"></div><div class="shimmer-line h-3 w-full"></div><div class="shimmer-line h-3 w-4/5"></div></div>`).join(''); }
 
-// ── UTILS ────────────────────────────────────────────────────────────
-function scrollBot(id){ const a=document.getElementById(id); if(a)a.scrollTop=a.scrollHeight; }
-function fmtTime(){ return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
-function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+// ── UTILS ─────────────────────────────────────────────────────────────
+function scrollBot(id) { const a = document.getElementById(id); if (a) a.scrollTop = a.scrollHeight; }
+function fmtTime()     { return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
+function esc(s)        { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
-// ── PWA ──────────────────────────────────────────────────────────────
-if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+// ── PWA ───────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 </script>
 </body>
 </html>
