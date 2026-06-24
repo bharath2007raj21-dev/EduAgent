@@ -5,3 +5,4 @@ pymongo[srv]
 google-genai
 groq
 python-dotenv
+httpx>=0.27.0
