@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
@@ -35,17 +35,128 @@
     };
   </script>
   <style>
-    *{ -webkit-tap-highlight-color:transparent; box-sizing:border-box; }
-    body{
-      background:#07090f;
-      background-image:
-        radial-gradient(ellipse 80% 50% at 50% -5%, rgba(79,70,229,0.2) 0%, transparent 65%),
-        radial-gradient(ellipse 50% 40% at 90% 90%, rgba(124,58,237,0.09) 0%, transparent 55%);
-      min-height:100vh;
+    /* ══════════════════════════════════════════
+       CSS CUSTOM PROPERTIES — THEME SYSTEM
+       Switching [data-theme] on <html> changes
+       every colour in one place. No !important wars.
+    ══════════════════════════════════════════ */
+    :root, [data-theme="dark"] {
+      --bg-base:      #07090f;
+      --bg-phone:     #0b0e18;
+      --bg-panel:     #0b0e18;
+      --bg-drawer:    #0e1320;
+      --bg-header:    rgba(11,14,24,0.95);
+      --bg-input-bar: rgba(11,14,24,0.95);
+      --bg-glass:     rgba(255,255,255,0.03);
+      --bg-inp:       rgba(255,255,255,0.04);
+      --bg-bubble-ai: linear-gradient(135deg,#111827,#0f172a);
+      --bg-bubble-peer: linear-gradient(135deg,rgba(30,40,70,0.95),rgba(18,24,42,0.95));
+      --bg-roster:    rgba(0,0,0,0.15);
+
+      --border-glass: rgba(255,255,255,0.06);
+      --border-inp:   rgba(255,255,255,0.08);
+      --border-panel: rgba(255,255,255,0.05);
+      --border-ai:    rgba(124,58,237,0.25);
+      --border-peer:  rgba(255,255,255,0.08);
+
+      --text-primary:   #ffffff;
+      --text-secondary: rgba(255,255,255,0.70);
+      --text-muted:     rgba(255,255,255,0.35);
+      --text-faint:     rgba(255,255,255,0.22);
+      --text-inp:       #ffffff;
+      --text-inp-ph:    rgba(255,255,255,0.18);
+      --text-ai-body:   #f1f5f9;
+      --text-peer-body: rgba(255,255,255,0.92);
+      --text-nav:       rgba(255,255,255,0.45);
+      --text-sub:       rgba(255,255,255,0.28);
+      --text-tt-day:    rgba(255,255,255,0.32);
+      --text-tt-subs:   rgba(255,255,255,0.78);
+      --text-history-u: rgba(255,255,255,0.70);
+
+      --scroll-thumb:  rgba(255,255,255,0.10);
+      --select-bg:     #111827;
+      --select-color:  #ffffff;
+      --roster-hover:  rgba(255,255,255,0.06);
+      --bg-gradient-top: radial-gradient(ellipse 80% 50% at 50% -5%, rgba(79,70,229,0.2) 0%, transparent 65%),
+                         radial-gradient(ellipse 50% 40% at 90% 90%, rgba(124,58,237,0.09) 0%, transparent 55%);
     }
 
-    /* ── PHONE SHELL (desktop preview only) ── */
+    [data-theme="light"] {
+      --bg-base:      #f0f4f8;
+      --bg-phone:     #ffffff;
+      --bg-panel:     #f8fafc;
+      --bg-drawer:    #ffffff;
+      --bg-header:    rgba(255,255,255,0.97);
+      --bg-input-bar: rgba(248,250,252,0.97);
+      --bg-glass:     rgba(0,0,0,0.03);
+      --bg-inp:       rgba(0,0,0,0.05);
+      --bg-bubble-ai: #ffffff;
+      --bg-bubble-peer: #e8edf5;
+      --bg-roster:    rgba(0,0,0,0.03);
+
+      --border-glass: rgba(0,0,0,0.08);
+      --border-inp:   rgba(0,0,0,0.12);
+      --border-panel: rgba(0,0,0,0.07);
+      --border-ai:    rgba(79,70,229,0.20);
+      --border-peer:  rgba(0,0,0,0.08);
+
+      --text-primary:   #0f172a;
+      --text-secondary: #334155;
+      --text-muted:     #64748b;
+      --text-faint:     #94a3b8;
+      --text-inp:       #0f172a;
+      --text-inp-ph:    #94a3b8;
+      --text-ai-body:   #1e293b;
+      --text-peer-body: #1e293b;
+      --text-nav:       #475569;
+      --text-sub:       #64748b;
+      --text-tt-day:    #64748b;
+      --text-tt-subs:   #1e293b;
+      --text-history-u: #334155;
+
+      --scroll-thumb:  rgba(0,0,0,0.12);
+      --select-bg:     #f1f5f9;
+      --select-color:  #0f172a;
+      --roster-hover:  rgba(79,70,229,0.06);
+      --bg-gradient-top: none;
+    }
+
+    /* ══════════════════════════════════════════
+       BASE
+    ══════════════════════════════════════════ */
+    *{ -webkit-tap-highlight-color:transparent; box-sizing:border-box; }
+
+    body{
+      background: var(--bg-base);
+      background-image: var(--bg-gradient-top);
+      min-height:100vh;
+      transition: background 0.3s ease;
+    }
+
+    /* ══════════════════════════════════════════
+       COMPONENT CLASSES — all use CSS vars
+    ══════════════════════════════════════════ */
+    .glass{
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      backdrop-filter: blur(16px);
+    }
+    .inp{
+      background: var(--bg-inp);
+      border: 1px solid var(--border-inp);
+      color: var(--text-inp);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .inp:focus{ border-color:rgba(124,58,237,0.6); box-shadow:0 0 0 3px rgba(124,58,237,0.14); }
+    .inp::placeholder{ color: var(--text-inp-ph); }
+
+    select.inp{ background: var(--select-bg); color: var(--select-color); }
+    select.inp option{ background: var(--select-bg); color: var(--select-color); }
+
+    /* ── phone shell ── */
     .phone{
+      background: var(--bg-phone);
       width:390px; height:844px;
       border-radius:3rem;
       box-shadow:
@@ -54,6 +165,14 @@
         0 0 0 9px rgba(255,255,255,0.04),
         0 32px 80px rgba(0,0,0,0.8),
         0 0 80px rgba(79,70,229,0.12);
+      transition: background 0.3s ease;
+    }
+    [data-theme="light"] .phone{
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.08),
+        0 0 0 8px #e2e8f0,
+        0 32px 80px rgba(0,0,0,0.15),
+        0 0 80px rgba(79,70,229,0.08);
     }
     .phone::before{
       content:''; position:absolute; left:-3px; top:120px;
@@ -67,32 +186,22 @@
       border-radius:0 2px 2px 0;
     }
 
-    /* ── REAL MOBILE: strip fake frame, go fullscreen ── */
+    /* ── fullscreen on real mobile ── */
     @media (max-width: 480px) {
-      body {
-        background: #0b0e18 !important;
-        background-image: none !important;
-        display: block !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
+      body { display:block !important; padding:0 !important; margin:0 !important; }
       .phone {
-        width: 100vw !important;
-        height: 100dvh !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        position: fixed !important;
-        top: 0 !important; left: 0 !important;
+        width:100vw !important; height:100dvh !important;
+        border-radius:0 !important; box-shadow:none !important;
+        position:fixed !important; top:0 !important; left:0 !important;
       }
-      .phone::before, .phone::after { display: none !important; }
-      .notch { display: none !important; }
-      /* Safe area padding so content clears real notch + home bar */
-      #s-gateway  { padding-top: max(3rem, env(safe-area-inset-top)) !important; padding-bottom: max(2.5rem, env(safe-area-inset-bottom)) !important; }
-      #s-login    { padding-top: max(3rem, env(safe-area-inset-top)) !important; padding-bottom: max(2rem,   env(safe-area-inset-bottom)) !important; }
-      #s-workspace > div:first-child { padding-top: max(0.75rem, env(safe-area-inset-top)) !important; }
+      .phone::before, .phone::after { display:none !important; }
+      .notch { display:none !important; }
+      #s-gateway  { padding-top:max(3rem,env(safe-area-inset-top)) !important; padding-bottom:max(2.5rem,env(safe-area-inset-bottom)) !important; }
+      #s-login    { padding-top:max(3rem,env(safe-area-inset-top)) !important; padding-bottom:max(2rem,env(safe-area-inset-bottom)) !important; }
+      #s-workspace > div:first-child { padding-top:max(0.75rem,env(safe-area-inset-top)) !important; }
     }
 
-    /* ── NOTCH ── */
+    /* ── notch ── */
     .notch{
       position:absolute; top:0; left:50%; transform:translateX(-50%);
       width:120px; height:34px; background:#000;
@@ -102,62 +211,178 @@
     .notch-cam{ width:10px; height:10px; border-radius:50%; background:#0d0d1a; border:1px solid rgba(255,255,255,0.08); }
     .notch-pill{ width:48px; height:6px; border-radius:4px; background:#080810; }
 
-    /* ── SCREENS ── */
+    /* ── screens ── */
     .screen{ position:absolute; inset:0; transition:opacity .35s ease, transform .35s cubic-bezier(0.16,1,0.3,1); }
     .s-off{ opacity:0; pointer-events:none; transform:scale(0.97) translateY(8px); }
     .s-on { opacity:1; pointer-events:auto; transform:scale(1) translateY(0); }
 
+    /* ── scrollbar ── */
     .thin-scroll::-webkit-scrollbar{ width:3px; }
-    .thin-scroll::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.1); border-radius:4px; }
+    .thin-scroll::-webkit-scrollbar-thumb{ background:var(--scroll-thumb); border-radius:4px; }
 
-    .glass{ background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(16px); }
-
+    /* ── buttons ── */
     .btn-v{ background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 4px 20px rgba(124,58,237,0.3); transition:filter .15s, transform .1s; }
     .btn-v:hover{ filter:brightness(1.1); }
     .btn-v:active{ transform:scale(0.96); }
 
-    .inp{ background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:#fff; outline:none; transition:border-color .2s, box-shadow .2s; }
-    .inp:focus{ border-color:rgba(124,58,237,0.6); box-shadow:0 0 0 3px rgba(124,58,237,0.14); }
-    .inp::placeholder{ color:rgba(255,255,255,0.18); }
+    /* ── panels / themed backgrounds ── */
+    .panel-bg { background: var(--bg-panel); transition: background 0.3s ease; }
+    .drawer-bg { background: var(--bg-drawer); transition: background 0.3s ease; }
+    .header-bg { background: var(--bg-header); transition: background 0.3s ease; }
+    .inputbar-bg { background: var(--bg-input-bar); transition: background 0.3s ease; }
 
-    select.inp{ background:#111827; color:#fff; color-scheme: dark; }
-    select.inp option{ background:#111827; color:#fff; }
-    select.inp:focus{ background:#111827; }
+    /* ── text classes using vars ── */
+    .t-primary   { color: var(--text-primary); }
+    .t-secondary { color: var(--text-secondary); }
+    .t-muted     { color: var(--text-muted); }
+    .t-faint     { color: var(--text-faint); }
+    .t-nav       { color: var(--text-nav); }
+    .t-sub       { color: var(--text-sub); }
 
+    /* ── chat bubbles ── */
     .bub-me   { background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 4px 14px rgba(124,58,237,0.25); }
-    .bub-peer { background:linear-gradient(135deg,rgba(30,40,70,0.95),rgba(18,24,42,0.95)); border:1px solid rgba(255,255,255,0.08); }
-
-    .bub-ai {
-      background:linear-gradient(135deg,#111827,#0f172a);
-      border:1px solid rgba(124,58,237,0.25);
-      box-shadow:0 0 24px rgba(124,58,237,0.1);
+    .bub-peer {
+      background: var(--bg-bubble-peer);
+      border: 1px solid var(--border-peer);
     }
-    .bub-ai p.ai-body{ color:#f1f5f9 !important; font-size:0.875rem; line-height:1.6; }
-    .bub-ai p.ai-label{ color:#a78bfa; font-size:0.625rem; font-weight:800; text-transform:uppercase; letter-spacing:0.1em; }
+    .bub-ai {
+      background: var(--bg-bubble-ai);
+      border: 1px solid var(--border-ai);
+      box-shadow: 0 0 24px rgba(124,58,237,0.08);
+      transition: background 0.3s ease;
+    }
 
-    .hist-user  { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); color:#e2e8f0; }
-    .hist-agent { background:rgba(79,70,229,0.08);   border:1px solid rgba(79,70,229,0.2);   color:#c7d2fe; }
+    /* ── AI message body text — always clearly readable ── */
+    .ai-msg-body {
+      color: var(--text-ai-body);
+      font-size: 0.875rem;
+      line-height: 1.65;
+    }
+    .peer-msg-body {
+      color: var(--text-peer-body);
+    }
 
+    /* ── Smart markdown styles inside AI bubble ── */
+    .ai-md h3 {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #a78bfa;
+      margin: 0.75rem 0 0.3rem 0;
+      padding-bottom: 0.2rem;
+      border-bottom: 1px solid rgba(124,58,237,0.18);
+    }
+    .ai-md h3:first-child { margin-top: 0; }
+    .ai-md strong {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .ai-md ul {
+      margin: 0.4rem 0 0.4rem 0.1rem;
+      padding: 0;
+      list-style: none;
+    }
+    .ai-md ul li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.2rem 0;
+      color: var(--text-ai-body);
+      font-size: 0.8125rem;
+      line-height: 1.55;
+    }
+    .ai-md ul li::before {
+      content: '•';
+      color: #7c3aed;
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+    .ai-md ol {
+      margin: 0.4rem 0 0.4rem 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: ai-counter;
+    }
+    .ai-md ol li {
+      counter-increment: ai-counter;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.2rem 0;
+      color: var(--text-ai-body);
+      font-size: 0.8125rem;
+      line-height: 1.55;
+    }
+    .ai-md ol li::before {
+      content: counter(ai-counter) '.';
+      color: #818cf8;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      min-width: 1.2rem;
+      margin-top: 0.1rem;
+    }
+    .ai-md code {
+      background: rgba(124,58,237,0.12);
+      border: 1px solid rgba(124,58,237,0.2);
+      color: #c4b5fd;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+    }
+    .ai-md .ai-divider {
+      border: none;
+      border-top: 1px solid rgba(124,58,237,0.12);
+      margin: 0.5rem 0;
+    }
+    [data-theme="light"] .ai-md h3 { color: #6d28d9; border-color: rgba(109,40,217,0.15); }
+    [data-theme="light"] .ai-md code { background: rgba(79,70,229,0.08); border-color: rgba(79,70,229,0.15); color: #4f46e5; }
+
+    /* ── history ── */
+    .hist-user-bg  { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); }
+    .hist-agent-bg { background:rgba(79,70,229,0.08);   border:1px solid rgba(79,70,229,0.20); }
+    [data-theme="light"] .hist-user-bg  { background:rgba(0,0,0,0.03); border-color:rgba(0,0,0,0.08); }
+    [data-theme="light"] .hist-agent-bg { background:rgba(79,70,229,0.06); border-color:rgba(79,70,229,0.15); }
+
+    /* ── nav active ── */
     .nav-on{ background:linear-gradient(135deg,rgba(79,70,229,0.18),rgba(124,58,237,0.14)); border-color:rgba(124,58,237,0.35) !important; color:#fff !important; }
 
+    /* ── shimmer ── */
     .shimmer-line{ background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; animation:shimmer 1.6s linear infinite; border-radius:6px; }
+    [data-theme="light"] .shimmer-line{ background:linear-gradient(90deg,rgba(0,0,0,0.04) 25%,rgba(0,0,0,0.08) 50%,rgba(0,0,0,0.04) 75%); background-size:200% 100%; }
 
+    /* ── typing dots ── */
     @keyframes dot{ 0%,100%{opacity:.2;transform:translateY(0)} 50%{opacity:1;transform:translateY(-4px)} }
     .dot{ display:inline-block; width:5px; height:5px; border-radius:50%; background:#7c3aed; }
     .dot:nth-child(1){ animation:dot 1.4s ease-in-out 0s infinite; }
     .dot:nth-child(2){ animation:dot 1.4s ease-in-out .2s infinite; }
     .dot:nth-child(3){ animation:dot 1.4s ease-in-out .4s infinite; }
 
+    /* ── roster selection ── */
     .row-sel{ background:rgba(124,58,237,0.12) !important; border-color:rgba(124,58,237,0.4) !important; }
 
+    /* ── status pills ── */
     .pill-ok  { background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.3); color:#6ee7b7; }
     .pill-warn{ background:rgba(245,158,11,0.14); border:1px solid rgba(245,158,11,0.3); color:#fcd34d; }
     .pill-err { background:rgba(244,63,94,0.14);  border:1px solid rgba(244,63,94,0.3);  color:#fda4af; }
+
+    /* ── border helpers using vars ── */
+    .border-panel { border-color: var(--border-panel); }
+    .border-glass-c { border-color: var(--border-glass); }
+
+    /* ── theme toggle transition ── */
+    .phone, .panel-bg, .drawer-bg, .header-bg, .inputbar-bg, .glass, .bub-ai, .inp {
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+    }
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-6 font-sans antialiased select-none" onload="initApp()">
 
-<div class="phone relative overflow-hidden bg-[#0b0e18]">
+<div class="phone relative overflow-hidden">
 
   <div class="notch">
     <div class="notch-cam"></div>
@@ -165,6 +390,7 @@
     <div class="notch-cam"></div>
   </div>
 
+  <!-- LIVE BANNER -->
   <div id="live-banner" class="hidden absolute top-10 inset-x-3 z-50 animate-fade-up">
     <div class="flex items-start gap-3 bg-gradient-to-r from-violet-950/95 to-indigo-950/95 border border-violet-500/30 backdrop-blur-xl rounded-2xl p-3.5 shadow-2xl">
       <div class="w-8 h-8 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0 text-base">🔔</div>
@@ -176,8 +402,8 @@
     </div>
   </div>
 
-  <!-- GATEWAY -->
-  <div id="s-gateway" class="screen s-off flex flex-col h-full pt-12 pb-10 px-7 justify-between">
+  <!-- ══════════════ GATEWAY ══════════════ -->
+  <div id="s-gateway" class="screen s-off flex flex-col h-full pt-12 pb-10 px-7 justify-between panel-bg">
     <div class="text-center mt-6">
       <div class="flex justify-center mb-5">
         <div class="relative">
@@ -187,49 +413,47 @@
           <div class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-[#0b0e18] animate-ping-slow"></div>
         </div>
       </div>
-      <h1 class="text-[26px] font-black tracking-tight text-white">White Knights</h1>
-      <p class="text-[11px] text-white/30 mt-1 font-mono tracking-[4px] uppercase">EduAgent Platform</p>
+      <h1 class="text-[26px] font-black tracking-tight t-primary">White Knights</h1>
+      <p class="text-[11px] t-muted mt-1 font-mono tracking-[4px] uppercase">EduAgent Platform</p>
     </div>
-
     <div class="space-y-3">
-      <p class="text-center text-[10px] font-bold text-white/25 uppercase tracking-[3px] mb-4">Choose your role</p>
+      <p class="text-center text-[10px] font-bold t-faint uppercase tracking-[3px] mb-4">Choose your role</p>
       <button onclick="goLogin('student')" class="group w-full glass rounded-2xl p-5 text-left transition-all duration-200 hover:border-indigo-500/40 active:scale-[0.98]">
         <div class="flex items-center gap-4">
-          <div class="w-11 h-11 rounded-xl bg-indigo-500/12 border border-indigo-500/20 flex items-center justify-center text-xl shrink-0 group-hover:bg-indigo-500/22 transition-colors">🎓</div>
+          <div class="w-11 h-11 rounded-xl bg-indigo-500/12 border border-indigo-500/20 flex items-center justify-center text-xl shrink-0">🎓</div>
           <div class="flex-1">
-            <p class="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">Student Portal</p>
-            <p class="text-[11px] text-white/30 mt-0.5">AI chat · Study rooms · Notes</p>
+            <p class="text-sm font-bold t-primary group-hover:text-indigo-400 transition-colors">Student Portal</p>
+            <p class="text-[11px] t-muted mt-0.5">AI chat · Study rooms · Notes</p>
           </div>
-          <svg class="w-4 h-4 text-white/20 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-4 h-4 t-faint group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
         </div>
       </button>
       <button onclick="goLogin('faculty')" class="group w-full glass rounded-2xl p-5 text-left transition-all duration-200 hover:border-violet-500/40 active:scale-[0.98]">
         <div class="flex items-center gap-4">
-          <div class="w-11 h-11 rounded-xl bg-violet-500/12 border border-violet-500/20 flex items-center justify-center text-xl shrink-0 group-hover:bg-violet-500/22 transition-colors">🏛️</div>
+          <div class="w-11 h-11 rounded-xl bg-violet-500/12 border border-violet-500/20 flex items-center justify-center text-xl shrink-0">🏛️</div>
           <div class="flex-1">
-            <p class="text-sm font-bold text-white group-hover:text-violet-300 transition-colors">Faculty Console</p>
-            <p class="text-[11px] text-white/30 mt-0.5">Attendance · Uploads · Broadcast</p>
+            <p class="text-sm font-bold t-primary group-hover:text-violet-400 transition-colors">Faculty Console</p>
+            <p class="text-[11px] t-muted mt-0.5">Attendance · Uploads · Broadcast</p>
           </div>
-          <svg class="w-4 h-4 text-white/20 group-hover:text-violet-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <svg class="w-4 h-4 t-faint group-hover:text-violet-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
         </div>
       </button>
     </div>
-
     <div class="text-center space-y-1">
-      <p class="text-[9px] text-white/20 uppercase tracking-[4px]">Powered by</p>
-      <p class="text-xs font-black text-white/40 tracking-[3px]">NEXT LEvEL</p>
+      <p class="text-[9px] t-faint uppercase tracking-[4px]">Powered by</p>
+      <p class="text-xs font-black t-muted tracking-[3px]">NEXT LEvEL</p>
     </div>
   </div>
 
-  <!-- LOGIN -->
-  <div id="s-login" class="screen s-off flex flex-col h-full pt-12 pb-8 px-6">
-    <button onclick="go('s-login','s-gateway')" class="self-start flex items-center gap-1.5 text-[11px] font-semibold text-white/40 hover:text-white glass px-3 py-2 rounded-xl transition-all mb-6 mt-2">
+  <!-- ══════════════ LOGIN ══════════════ -->
+  <div id="s-login" class="screen s-off flex flex-col h-full pt-12 pb-8 px-6 panel-bg">
+    <button onclick="go('s-login','s-gateway')" class="self-start flex items-center gap-1.5 text-[11px] font-semibold t-muted hover:text-indigo-400 glass px-3 py-2 rounded-xl transition-all mb-6 mt-2">
       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg> Back
     </button>
     <div class="text-center mb-7">
       <div id="l-icon" class="w-14 h-14 rounded-2xl bg-indigo-500/12 border border-indigo-500/20 flex items-center justify-center text-2xl mx-auto mb-3">🎓</div>
-      <h2 id="l-title" class="text-xl font-extrabold text-white">Student Login</h2>
-      <p id="l-sub" class="text-xs text-white/30 mt-1">Enter your campus credentials</p>
+      <h2 id="l-title" class="text-xl font-extrabold t-primary">Student Login</h2>
+      <p id="l-sub" class="text-xs t-muted mt-1">Enter your campus credentials</p>
     </div>
     <div id="sync-row" class="hidden mb-4 flex items-center gap-2">
       <div id="sync-pill" class="pill-ok inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full">
@@ -238,21 +462,21 @@
       </div>
     </div>
     <div id="att-box" class="hidden mb-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3.5 animate-fade-up">
-      <p class="text-[10px] font-black text-amber-300 uppercase tracking-widest mb-1">⚠️ Attendance Warning</p>
-      <p id="att-txt" class="text-xs text-white/75 leading-relaxed"></p>
+      <p class="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1">⚠️ Attendance Warning</p>
+      <p id="att-txt" class="text-xs t-secondary leading-relaxed"></p>
     </div>
     <div class="space-y-4 flex-1">
       <div>
-        <label id="l-lbl" class="block text-[10px] font-bold text-white/35 uppercase tracking-widest mb-2">Roll Number</label>
+        <label id="l-lbl" class="block text-[10px] font-bold t-muted uppercase tracking-widest mb-2">Roll Number</label>
         <input id="l-id" type="text" class="inp w-full rounded-xl px-4 py-3.5 text-sm font-mono tracking-wide" placeholder="e.g. 24WKCSE010"/>
       </div>
       <div>
-        <label class="block text-[10px] font-bold text-white/35 uppercase tracking-widest mb-2">Password</label>
+        <label class="block text-[10px] font-bold t-muted uppercase tracking-widest mb-2">Password</label>
         <div class="relative">
           <input id="l-pwd" type="password" value="password123" class="inp w-full rounded-xl px-4 py-3.5 pr-12 text-sm font-mono"/>
-          <button onclick="togglePwd()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors p-1">
-            <svg id="eye1" class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-            <svg id="eye2" class="w-4.5 h-4.5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+          <button onclick="togglePwd()" class="absolute right-3.5 top-1/2 -translate-y-1/2 t-muted hover:text-indigo-400 transition-colors p-1">
+            <svg id="eye1" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <svg id="eye2" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
           </button>
         </div>
       </div>
@@ -264,112 +488,120 @@
     </div>
   </div>
 
-  <!-- WORKSPACE -->
-  <div id="s-workspace" class="screen s-off flex flex-col h-full pt-9 bg-[#0b0e18]">
+  <!-- ══════════════ WORKSPACE ══════════════ -->
+  <div id="s-workspace" class="screen s-off flex flex-col h-full pt-9 panel-bg">
 
-    <div id="backdrop" class="hidden absolute inset-0 z-30 bg-black/60 backdrop-blur-sm" onclick="closeDrawer()"></div>
+    <div id="backdrop" class="hidden absolute inset-0 z-30 bg-black/50 backdrop-blur-sm" onclick="closeDrawer()"></div>
 
-    <div id="drawer" class="absolute inset-y-0 left-0 w-[272px] bg-[#0e1320] border-r border-white/[0.05] z-40 -translate-x-full transition-transform duration-300 flex flex-col shadow-[4px_0_40px_rgba(0,0,0,0.6)]">
-      <div class="px-5 pt-14 pb-5 border-b border-white/[0.05]">
+    <!-- DRAWER -->
+    <div id="drawer" class="drawer-bg absolute inset-y-0 left-0 w-[272px] border-r border-panel z-40 -translate-x-full transition-transform duration-300 flex flex-col shadow-[4px_0_40px_rgba(0,0,0,0.4)]">
+      <div class="px-5 pt-14 pb-5 border-b border-panel">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <p class="text-xs font-black text-white tracking-wide">EduAgent</p>
+            <p class="text-xs font-black t-primary tracking-wide">EduAgent</p>
             <p id="d-role" class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mt-0.5">Student Console</p>
           </div>
-          <button onclick="closeDrawer()" class="p-2 hover:bg-white/5 rounded-xl text-white/30 hover:text-white transition-all">
+          <button onclick="closeDrawer()" class="p-2 hover:bg-black/5 rounded-xl t-muted hover:text-indigo-400 transition-all">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
         <div class="flex items-center gap-3 glass rounded-xl px-3 py-2.5">
           <div id="d-avatar" class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center text-xs font-bold text-white shrink-0">B</div>
           <div class="min-w-0">
-            <p id="d-name" class="text-xs font-bold text-white truncate">Bharath Kumar</p>
-            <p id="d-id"   class="text-[10px] text-white/30 font-mono truncate">24WKCSE010</p>
+            <p id="d-name" class="text-xs font-bold t-primary truncate">Bharath Kumar</p>
+            <p id="d-id"   class="text-[10px] t-muted font-mono truncate">24WKCSE010</p>
           </div>
           <div class="w-2 h-2 rounded-full bg-emerald-400 animate-glow-pulse shrink-0 ml-auto"></div>
         </div>
       </div>
       <nav class="flex-1 overflow-y-auto thin-scroll px-3 py-4">
         <div id="nav-s" class="space-y-0.5">
-          <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest px-3 pb-2">Student</p>
-          <button onclick="tab('student-profile')" class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>👤</span> Profile</button>
-          <button onclick="tab('direct-chat')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>💬</span> AI Assistant</button>
-          <button onclick="tab('student-vault')"   class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📚</span> Course Vault</button>
-          <button onclick="tab('lobby-creator')"   class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>✨</span> Launch Study Room</button>
-          <button onclick="tab('lobby-join')"      class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔗</span> Join Room</button>
-          <button onclick="tab('student-alerts')"  class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04] relative"><span>🔔</span> Notices &amp; Timetable<span id="alert-dot" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500 animate-ping-slow"></span></button>
-          <button onclick="tab('history')"         class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📜</span> Chat History</button>
+          <p class="text-[9px] font-bold t-faint uppercase tracking-widest px-3 pb-2">Student</p>
+          <button onclick="tab('student-profile')" class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-indigo-500/[0.07]"><span>👤</span> Profile</button>
+          <button onclick="tab('direct-chat')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-indigo-500/[0.07]"><span>💬</span> AI Assistant</button>
+          <button onclick="tab('student-vault')"   class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-indigo-500/[0.07]"><span>📚</span> Course Vault</button>
+          <button onclick="tab('lobby-creator')"   class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-indigo-500/[0.07]"><span>✨</span> Launch Study Room</button>
+          <button onclick="tab('lobby-join')"      class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-indigo-500/[0.07]"><span>🔗</span> Join Room</button>
+          <button onclick="tab('student-alerts')"  class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-indigo-500/[0.07] relative"><span>🔔</span> Notices &amp; Timetable<span id="alert-dot" class="hidden absolute right-3 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500 animate-ping-slow"></span></button>
+          <button onclick="tab('history')"         class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-indigo-500/[0.07]"><span>📜</span> Chat History</button>
         </div>
         <div id="nav-f" class="space-y-0.5 hidden">
-          <p class="text-[9px] font-bold text-white/20 uppercase tracking-widest px-3 pb-2 pt-1">Faculty</p>
-          <button onclick="tab('direct-chat')"       class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>💬</span> AI Assistant</button>
-          <button onclick="tab('faculty-duty')"      class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔄</span> Duty Swaps</button>
-          <button onclick="tab('faculty-classroom')" class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>👥</span> Classroom Hub</button>
-          <button onclick="tab('lobby-creator')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>✨</span> Group Chat Room</button>
-          <button onclick="tab('lobby-join')"        class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>🔗</span> Join Room</button>
-          <button onclick="tab('faculty-upload')"    class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📤</span> Upload Materials</button>
-          <button onclick="tab('history')"           class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent text-white/45 text-xs font-semibold transition-all hover:text-white hover:bg-white/[0.04]"><span>📜</span> Chat History</button>
+          <p class="text-[9px] font-bold t-faint uppercase tracking-widest px-3 pb-2 pt-1">Faculty</p>
+          <button onclick="tab('direct-chat')"       class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-violet-500/[0.07]"><span>💬</span> AI Assistant</button>
+          <button onclick="tab('faculty-duty')"      class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-violet-500/[0.07]"><span>🔄</span> Duty Swaps</button>
+          <button onclick="tab('faculty-classroom')" class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-violet-500/[0.07]"><span>👥</span> Classroom Hub</button>
+          <button onclick="tab('lobby-creator')"     class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-violet-500/[0.07]"><span>✨</span> Group Chat Room</button>
+          <button onclick="tab('lobby-join')"        class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-violet-500/[0.07]"><span>🔗</span> Join Room</button>
+          <button onclick="tab('faculty-upload')"    class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-violet-500/[0.07]"><span>📤</span> Upload Materials</button>
+          <button onclick="tab('history')"           class="nb w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent t-nav text-xs font-semibold transition-all hover:t-primary hover:bg-violet-500/[0.07]"><span>📜</span> Chat History</button>
         </div>
       </nav>
-      <div class="p-3 border-t border-white/[0.05]">
-        <button onclick="logout()" class="w-full bg-red-500/8 border border-red-500/20 hover:bg-red-500/18 py-3 rounded-xl text-center text-red-400 text-xs font-bold uppercase tracking-widest transition-all">🚪 Sign Out</button>
+      <div class="p-3 border-t border-panel">
+        <button onclick="logout()" class="w-full bg-red-500/8 border border-red-500/20 hover:bg-red-500/15 py-3 rounded-xl text-center text-red-400 text-xs font-bold uppercase tracking-widest transition-all">🚪 Sign Out</button>
       </div>
     </div>
 
-    <div class="flex items-center justify-between px-4 py-3 border-b border-white/[0.05] bg-[#0b0e18]/95 backdrop-blur-sm z-20 shrink-0">
+    <!-- TOP BAR -->
+    <div class="header-bg flex items-center justify-between px-4 py-3 border-b border-panel z-20 shrink-0">
       <div class="flex items-center gap-3 min-w-0">
-        <button onclick="openDrawer()" class="p-2 glass rounded-xl text-white/55 hover:text-white transition-all">
+        <button onclick="openDrawer()" class="p-2 glass rounded-xl t-muted hover:text-indigo-400 transition-all">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <div class="truncate">
-          <h2 id="tb-title" class="text-sm font-bold text-white truncate">EduAgent</h2>
-          <p  id="tb-sub"   class="text-[10px] text-white/28 truncate font-mono"></p>
+          <h2 id="tb-title" class="text-sm font-bold t-primary truncate">EduAgent</h2>
+          <p  id="tb-sub"   class="text-[10px] t-sub truncate font-mono"></p>
         </div>
       </div>
       <div class="flex items-center gap-2 shrink-0">
-        <span id="tb-badge" class="text-[9px] font-bold px-2 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/14 uppercase tracking-wider">Chat</span>
+        <!-- Theme toggle -->
+        <button onclick="toggleTheme()" id="theme-btn" class="p-1.5 glass rounded-xl t-muted hover:text-indigo-400 transition-all mr-1" title="Toggle theme">
+          <svg id="icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="icon-moon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+        <span id="tb-badge" class="text-[9px] font-bold px-2 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase tracking-wider">Chat</span>
         <div class="w-2 h-2 rounded-full bg-emerald-400 animate-glow-pulse"></div>
       </div>
     </div>
 
+    <!-- VIEWS CONTAINER -->
     <div class="flex-1 relative overflow-hidden">
 
       <!-- STUDENT PROFILE -->
-      <div id="v-student-profile" class="view hidden absolute inset-0 bg-[#0b0e18] p-5 overflow-y-auto thin-scroll">
-        <div class="glass rounded-3xl p-6 text-center animate-fade-up border border-white/[0.05]">
+      <div id="v-student-profile" class="view hidden absolute inset-0 panel-bg p-5 overflow-y-auto thin-scroll">
+        <div class="glass rounded-3xl p-6 text-center animate-fade-up border border-panel">
           <div class="relative inline-block mb-4">
-            <div id="p-avatar" class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center text-3xl font-black text-white border-4 border-[#0b0e18] shadow-[0_0_20px_rgba(124,58,237,0.3)] mx-auto">B</div>
-            <div class="absolute bottom-0 right-0 w-5 h-5 bg-emerald-400 border-2 border-[#0b0e18] rounded-full animate-ping-slow"></div>
-            <div class="absolute bottom-0 right-0 w-5 h-5 bg-emerald-400 border-2 border-[#0b0e18] rounded-full"></div>
+            <div id="p-avatar" class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 flex items-center justify-center text-3xl font-black text-white shadow-[0_0_20px_rgba(124,58,237,0.3)] mx-auto">B</div>
+            <div class="absolute bottom-0 right-0 w-5 h-5 bg-emerald-400 border-2 border-white rounded-full animate-ping-slow"></div>
+            <div class="absolute bottom-0 right-0 w-5 h-5 bg-emerald-400 border-2 border-white rounded-full"></div>
           </div>
-          <h3 id="p-name" class="text-lg font-bold text-white">Bharath Kumar</h3>
-          <p id="p-id" class="text-xs text-white/40 font-mono mt-1 mb-4 tracking-widest">24WKCSE010</p>
+          <h3 id="p-name" class="text-lg font-bold t-primary">Bharath Kumar</h3>
+          <p id="p-id" class="text-xs t-muted font-mono mt-1 mb-4 tracking-widest">24WKCSE010</p>
           <div class="grid grid-cols-2 gap-3 mt-4 text-left">
-            <div class="glass rounded-xl p-3 border border-white/[0.05]">
+            <div class="glass rounded-xl p-3 border border-panel">
               <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mb-1">Status</p>
-              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><p class="text-white text-xs font-semibold">Active</p></div>
+              <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><p class="t-primary text-xs font-semibold">Active</p></div>
             </div>
-            <div class="glass rounded-xl p-3 border border-white/[0.05]">
+            <div class="glass rounded-xl p-3 border border-panel">
               <p class="text-[10px] text-violet-400 font-bold uppercase tracking-wider mb-1">Program</p>
-              <p id="p-dept" class="text-white text-xs font-semibold">B.Tech CSE</p>
+              <p id="p-dept" class="t-primary text-xs font-semibold">B.Tech CSE</p>
             </div>
           </div>
-          <div class="mt-6 border-t border-white/[0.05] pt-5">
+          <div class="mt-6 border-t border-panel pt-5">
             <button onclick="logout()" class="w-full bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 py-3 rounded-xl text-center text-red-400 text-[11px] font-bold uppercase tracking-widest transition-all">Sign Out Session</button>
           </div>
         </div>
       </div>
 
       <!-- DIRECT CHAT -->
-      <div id="v-direct-chat" class="view absolute inset-0 flex flex-col">
+      <div id="v-direct-chat" class="view absolute inset-0 flex flex-col panel-bg">
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
           <div class="text-center">
-            <p class="text-[52px] font-black text-white/[0.022] tracking-tighter leading-none">EduAgent</p>
-            <p class="text-[10px] font-bold text-indigo-500/[0.04] tracking-[5px] uppercase mt-1">by NEXT LEvEL</p>
+            <p class="text-[52px] font-black tracking-tighter leading-none" style="color:var(--text-primary);opacity:0.022;">EduAgent</p>
+            <p class="text-[10px] font-bold tracking-[5px] uppercase mt-1" style="color:#4f46e5;opacity:0.04;">by NEXT LEvEL</p>
           </div>
         </div>
         <div id="chat-direct" class="thin-scroll flex-1 overflow-y-auto px-4 py-4 space-y-4 z-10"></div>
-        <div class="px-4 py-3 border-t border-white/[0.05] bg-[#0b0e18]/95 backdrop-blur-sm shrink-0">
+        <div class="inputbar-bg px-4 py-3 border-t border-panel shrink-0">
           <div class="flex gap-2">
             <input id="inp-direct" type="text" placeholder="Ask EduAgent anything…" onkeydown="if(event.key==='Enter')sendDirect()" class="inp flex-1 rounded-full px-4 py-3 text-sm"/>
             <button onclick="sendDirect()" class="btn-v w-11 h-11 rounded-full flex items-center justify-center shrink-0">
@@ -380,18 +612,18 @@
       </div>
 
       <!-- LOBBY CREATOR -->
-      <div id="v-lobby-creator" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
+      <div id="v-lobby-creator" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 panel-bg">
         <div class="glass rounded-3xl p-6 w-full max-w-[320px] text-center space-y-5 animate-fade-up">
           <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-violet-500/15 border border-indigo-500/20 flex items-center justify-center text-2xl mx-auto">✨</div>
           <div>
-            <h3 class="text-base font-bold text-white">Create Study Room</h3>
-            <p class="text-xs text-white/30 mt-1 leading-normal">Get a 6-char code and share it with your group.</p>
+            <h3 class="text-base font-bold t-primary">Create Study Room</h3>
+            <p class="text-xs t-muted mt-1 leading-normal">Get a 6-char code and share it with your group.</p>
           </div>
-          <div id="faculty-room-type" class="hidden bg-black/25 border border-white/[0.05] rounded-2xl p-3 text-left space-y-2">
+          <div id="faculty-room-type" class="hidden bg-black/10 border border-panel rounded-2xl p-3 text-left space-y-2">
             <p class="text-[9px] font-bold text-violet-400 uppercase tracking-widest">Room Type</p>
             <div class="grid grid-cols-2 gap-2">
-              <label class="flex items-center gap-2 glass rounded-xl p-2.5 cursor-pointer text-white text-[11px] font-medium"><input type="radio" name="room-type" value="normal" checked class="accent-violet-500"> Study Group</label>
-              <label class="flex items-center gap-2 glass rounded-xl p-2.5 cursor-pointer text-white text-[11px] font-medium"><input type="radio" name="room-type" value="attendance" class="accent-violet-500"> Attendance</label>
+              <label class="flex items-center gap-2 glass rounded-xl p-2.5 cursor-pointer t-primary text-[11px] font-medium"><input type="radio" name="room-type" value="normal" checked class="accent-violet-500"> Study Group</label>
+              <label class="flex items-center gap-2 glass rounded-xl p-2.5 cursor-pointer t-primary text-[11px] font-medium"><input type="radio" name="room-type" value="attendance" class="accent-violet-500"> Attendance</label>
             </div>
           </div>
           <button onclick="createRoom()" class="btn-v w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wider uppercase">Generate Code</button>
@@ -399,12 +631,12 @@
       </div>
 
       <!-- LOBBY JOIN -->
-      <div id="v-lobby-join" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0e18]">
+      <div id="v-lobby-join" class="view hidden absolute inset-0 flex flex-col items-center justify-center p-6 panel-bg">
         <div class="glass rounded-3xl p-6 w-full max-w-[320px] space-y-5 animate-fade-up">
           <div class="text-center">
             <div class="w-14 h-14 rounded-2xl bg-sky-500/12 border border-sky-500/20 flex items-center justify-center text-2xl mx-auto mb-3">🔗</div>
-            <h3 class="text-base font-bold text-white">Join a Room</h3>
-            <p class="text-xs text-white/30 mt-1">Enter the 6-char code from your group.</p>
+            <h3 class="text-base font-bold t-primary">Join a Room</h3>
+            <p class="text-xs t-muted mt-1">Enter the 6-char code from your group.</p>
           </div>
           <div class="flex gap-2">
             <input id="inp-code" type="text" maxlength="6" placeholder="A3F9BC" class="inp flex-1 rounded-xl px-4 py-3 text-center font-mono text-xl font-bold uppercase tracking-widest"/>
@@ -415,36 +647,32 @@
       </div>
 
       <!-- GROUP ROOM -->
-      <div id="v-group-room" class="view hidden absolute inset-0 flex flex-col bg-[#0b0e18]">
-        <div class="px-4 py-2 border-b border-white/[0.05] flex items-center justify-between shrink-0">
+      <div id="v-group-room" class="view hidden absolute inset-0 flex flex-col panel-bg">
+        <div class="header-bg px-4 py-2 border-b border-panel flex items-center justify-between shrink-0">
           <div class="flex items-center gap-2">
             <div id="member-avatars" class="flex -space-x-2"></div>
-            <span id="member-count" class="text-[10px] text-white/35 font-mono ml-2">0 online</span>
+            <span id="member-count" class="text-[10px] t-muted font-mono ml-2">0 online</span>
           </div>
           <button onclick="leaveRoom()" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-3 py-1 rounded-lg text-[10px] text-red-400 font-bold uppercase tracking-widest transition-colors">Leave Room</button>
         </div>
         <div id="chat-group" class="thin-scroll flex-1 overflow-y-auto px-4 py-4 space-y-4"></div>
-        <div class="px-4 py-3 border-t border-white/[0.05] bg-[#0b0e18]/95 backdrop-blur-sm shrink-0">
+        <div class="inputbar-bg px-4 py-3 border-t border-panel shrink-0">
           <div class="flex gap-2">
             <input id="inp-group" type="text" placeholder="Message or /agent question…" onkeydown="if(event.key==='Enter')sendGroup()" class="inp flex-1 rounded-full px-4 py-3 text-sm"/>
             <button onclick="sendGroup()" class="btn-v w-11 h-11 rounded-full flex items-center justify-center shrink-0">
               <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
             </button>
           </div>
-          <p class="text-[10px] text-white/18 text-center mt-1.5 font-mono">Type <span class="text-violet-400">/agent</span> to call EduAgent</p>
+          <p class="text-[10px] t-faint text-center mt-1.5 font-mono">Type <span class="text-violet-400">/agent</span> to call EduAgent</p>
         </div>
       </div>
 
       <!-- STUDENT VAULT -->
-      <div id="v-student-vault" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
+      <div id="v-student-vault" class="view hidden absolute inset-0 panel-bg flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4">
-          <div class="flex justify-between items-start">
-            <div>
-              <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Live Repo</span>
-              <h3 class="text-sm font-bold text-white mt-0.5">Course Vault</h3>
-              <p class="text-[10px] text-white/40 mt-1 leading-normal">Pull uploaded faculty documents.</p>
-            </div>
-          </div>
+          <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest">Live Repo</span>
+          <h3 class="text-sm font-bold t-primary mt-0.5">Course Vault</h3>
+          <p class="text-[10px] t-muted mt-1 leading-normal">Pull uploaded faculty documents.</p>
           <div class="mt-4 flex gap-2">
             <input id="inp-vault-code" type="text" placeholder="Subject Code (e.g. 24ITE01)" class="inp flex-1 rounded-xl px-3 py-2.5 text-xs font-mono tracking-wide"/>
             <button onclick="loadVault()" class="btn-v px-4 rounded-xl text-white text-[10px] font-bold uppercase tracking-wider shrink-0">Fetch</button>
@@ -452,56 +680,56 @@
         </div>
         <div id="vault-loader" class="hidden text-center py-6">
           <div class="w-5 h-5 border-2 border-indigo-500/30 border-t-indigo-400 rounded-full animate-spin-slow mx-auto"></div>
-          <p class="text-[10px] text-white/30 font-mono mt-3">Connecting to ERP...</p>
+          <p class="text-[10px] t-muted font-mono mt-3">Connecting to ERP...</p>
         </div>
         <div id="vault-box" class="space-y-3"></div>
       </div>
 
       <!-- STUDENT ALERTS -->
-      <div id="v-student-alerts" class="view hidden absolute inset-0 bg-[#0b0e18] flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
+      <div id="v-student-alerts" class="view hidden absolute inset-0 panel-bg flex flex-col p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4">
           <div class="flex items-center gap-2 mb-3">
             <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
-            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Faculty Notices</h4>
+            <h4 class="text-xs font-bold t-primary uppercase tracking-wider">Faculty Notices</h4>
           </div>
           <div id="alerts-box" class="space-y-2.5">
-            <p class="text-xs text-white/22 text-center py-2 italic">No notices yet.</p>
+            <p class="text-xs t-faint text-center py-2 italic">No notices yet.</p>
           </div>
         </div>
         <div class="glass rounded-2xl p-4">
           <div class="flex items-center gap-2 mb-3">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Your Timetable</h4>
+            <h4 class="text-xs font-bold t-primary uppercase tracking-wider">Your Timetable</h4>
           </div>
           <div id="tt-box" class="space-y-2 text-xs font-mono">
-            <p class="text-white/25 italic text-xs">Loading from ERP sync…</p>
+            <p class="t-faint italic text-xs">Loading from ERP sync…</p>
           </div>
         </div>
       </div>
 
       <!-- FACULTY DUTY -->
-      <div id="v-faculty-duty" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll space-y-4">
+      <div id="v-faculty-duty" class="view hidden absolute inset-0 panel-bg p-4 overflow-y-auto thin-scroll space-y-4">
         <div class="glass rounded-2xl p-4 space-y-3">
-          <h3 class="text-sm font-bold text-white uppercase tracking-wider">Today's Schedule</h3>
-          <div class="bg-white/[0.025] border border-white/[0.05] rounded-xl p-3.5">
+          <h3 class="text-sm font-bold t-primary uppercase tracking-wider">Today's Schedule</h3>
+          <div class="glass rounded-xl p-3.5 border border-panel">
             <div class="flex items-start justify-between gap-2">
               <div>
                 <span class="text-[9px] font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/15 px-1.5 py-0.5 rounded uppercase tracking-wide">Hour 1 · 09:30</span>
-                <p class="text-xs font-bold text-white mt-1.5">Python Programming — III B.Tech IT</p>
+                <p class="text-xs font-bold t-primary mt-1.5">Python Programming — III B.Tech IT</p>
               </div>
-              <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full shrink-0">Active</span>
+              <span class="text-[10px] text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full shrink-0">Active</span>
             </div>
           </div>
-          <div class="bg-white/[0.025] border border-white/[0.05] rounded-xl p-3.5 space-y-2.5">
+          <div class="glass rounded-xl p-3.5 border border-panel space-y-2.5">
             <div class="flex items-start justify-between gap-2">
               <div>
                 <span class="text-[9px] font-bold text-violet-400 bg-violet-500/10 border border-violet-500/15 px-1.5 py-0.5 rounded uppercase tracking-wide">Hour 3 · 11:30</span>
-                <p class="text-xs font-bold text-white mt-1.5">Computational AI — IV CSE</p>
+                <p class="text-xs font-bold t-primary mt-1.5">Computational AI — IV CSE</p>
               </div>
-              <span class="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full shrink-0">Pending</span>
+              <span class="text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full shrink-0">Pending</span>
             </div>
-            <div class="border-t border-white/[0.05] pt-2.5">
-              <label class="block text-[9px] font-bold text-white/28 uppercase tracking-widest mb-1.5">Emergency Swap</label>
+            <div class="border-t border-panel pt-2.5">
+              <label class="block text-[9px] font-bold t-muted uppercase tracking-widest mb-1.5">Emergency Swap</label>
               <select onchange="doSwap(this)" class="inp w-full rounded-xl px-3 py-2 text-xs">
                 <option value="">— Select available staff —</option>
                 <option>Dr. R. Srinivasan (Hour 3 free)</option>
@@ -514,17 +742,17 @@
       </div>
 
       <!-- FACULTY CLASSROOM -->
-      <div id="v-faculty-classroom" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
+      <div id="v-faculty-classroom" class="view hidden absolute inset-0 panel-bg p-4 flex flex-col">
         <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
-          <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-1">Classroom Hub</h3>
-          <p class="text-[11px] text-white/30 mb-3 leading-normal">Select students, then broadcast a notice.</p>
+          <h3 class="text-sm font-bold t-primary uppercase tracking-wider mb-1">Classroom Hub</h3>
+          <p class="text-[11px] t-muted mb-3 leading-normal">Select students, then broadcast a notice.</p>
           <div class="relative mb-3 shrink-0">
             <input oninput="filterRoster()" type="text" placeholder="Search students…" class="inp w-full rounded-xl pl-4 pr-10 py-2.5 text-xs"/>
-            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 t-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           </div>
-          <div id="roster" class="flex-1 overflow-y-auto thin-scroll space-y-2 bg-black/15 rounded-xl p-2 border border-white/[0.04]"></div>
-          <div class="mt-3 border-t border-white/[0.05] pt-3 space-y-2 shrink-0">
-            <div class="flex justify-between text-[10px] font-bold text-white/28 px-1">
+          <div id="roster" class="flex-1 overflow-y-auto thin-scroll space-y-2 rounded-xl p-2 border border-panel" style="background:var(--bg-roster)"></div>
+          <div class="mt-3 border-t border-panel pt-3 space-y-2 shrink-0">
+            <div class="flex justify-between text-[10px] font-bold t-muted px-1">
               <span>SELECTED</span>
               <span id="sel-count" class="text-violet-400 font-mono">0 targets</span>
             </div>
@@ -537,23 +765,23 @@
       </div>
 
       <!-- FACULTY UPLOAD -->
-      <div id="v-faculty-upload" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 overflow-y-auto thin-scroll">
+      <div id="v-faculty-upload" class="view hidden absolute inset-0 panel-bg p-4 overflow-y-auto thin-scroll">
         <div class="glass rounded-2xl p-4 space-y-4 animate-fade-up">
-          <div class="pb-3 border-b border-white/[0.05]">
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Upload Materials</h3>
-            <p class="text-[10px] text-white/28 mt-0.5">Pushed live into student textbook.</p>
+          <div class="pb-3 border-b border-panel">
+            <h3 class="text-xs font-bold t-primary uppercase tracking-wider">Upload Materials</h3>
+            <p class="text-[10px] t-muted mt-0.5">Pushed live into student textbook.</p>
           </div>
           <div class="space-y-3">
-            <div><label class="block text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">Subject Code</label>
+            <div><label class="block text-[9px] font-bold t-muted uppercase tracking-widest mb-1.5">Subject Code</label>
               <input id="up-subj" type="text" placeholder="e.g. 24ITE01" class="inp w-full rounded-xl px-3 py-2.5 text-xs font-mono uppercase"/>
             </div>
-            <div><label class="block text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">Unit</label>
+            <div><label class="block text-[9px] font-bold t-muted uppercase tracking-widest mb-1.5">Unit</label>
               <input id="up-unit" type="text" placeholder="e.g. Unit III" class="inp w-full rounded-xl px-3 py-2.5 text-xs font-mono"/>
             </div>
-            <div><label class="block text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">Topic Heading</label>
+            <div><label class="block text-[9px] font-bold t-muted uppercase tracking-widest mb-1.5">Topic Heading</label>
               <input id="up-head" type="text" placeholder="e.g. For-Loops & Iterators" class="inp w-full rounded-xl px-3 py-2.5 text-xs"/>
             </div>
-            <div><label class="block text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1.5">Notes Body</label>
+            <div><label class="block text-[9px] font-bold t-muted uppercase tracking-widest mb-1.5">Notes Body</label>
               <textarea id="up-body" rows="5" placeholder="Paste lecture notes here…" class="inp w-full rounded-xl px-3 py-2.5 text-xs resize-none thin-scroll leading-relaxed"></textarea>
             </div>
             <button id="up-btn" onclick="uploadMat()" class="btn-v w-full py-3.5 rounded-xl text-white font-bold text-sm tracking-wider uppercase flex items-center justify-center gap-2">
@@ -565,12 +793,12 @@
       </div>
 
       <!-- HISTORY -->
-      <div id="v-history" class="view hidden absolute inset-0 bg-[#0b0e18] p-4 flex flex-col">
+      <div id="v-history" class="view hidden absolute inset-0 panel-bg p-4 flex flex-col">
         <div class="glass rounded-2xl p-4 flex flex-col flex-1 overflow-hidden">
-          <div class="pb-3 border-b border-white/[0.05] mb-3 flex items-center justify-between">
+          <div class="pb-3 border-b border-panel mb-3 flex items-center justify-between">
             <div>
-              <h3 class="text-xs font-bold text-white uppercase tracking-wider">Chat History</h3>
-              <p class="text-[10px] text-white/25 font-mono mt-0.5">Last 50 from MongoDB</p>
+              <h3 class="text-xs font-bold t-primary uppercase tracking-wider">Chat History</h3>
+              <p class="text-[10px] t-muted font-mono mt-0.5">Last 50 from MongoDB</p>
             </div>
             <button onclick="clearHistory()" class="text-[10px] text-red-400/60 hover:text-red-400 border border-red-500/15 hover:border-red-500/35 px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider transition-all">Clear</button>
           </div>
@@ -590,11 +818,7 @@ const SUB = '24ITE01';
 
 // ── STATE ────────────────────────────────────────────────────────────
 let role = '', userId = '', activeTab = '', activeRoom = '', ws = null;
-let selected = [];
-let syncedTT = null;
-let studentDept = "B.Tech";
-let studentName = "";
-let greetedOnce = false;
+let selected = [], syncedTT = null, studentDept = 'B.Tech', studentName = '', greetedOnce = false;
 
 const ROSTER = [
   {roll:'24WKCSE001',name:'Arun Raj',dept:'CSE'},
@@ -605,60 +829,164 @@ const ROSTER = [
   {roll:'25WKECE015',name:'Anjali Murugan',dept:'ECE'},
 ];
 
-// ── FIX 3: GREETING ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// THEME TOGGLE — uses data-theme on <html>, CSS vars do the rest
+// ══════════════════════════════════════════════════════════════════
+function toggleTheme() {
+  const html = document.documentElement;
+  const isLight = html.getAttribute('data-theme') === 'light';
+  const next = isLight ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('edu_theme', next);
+  document.getElementById('icon-sun').classList.toggle('hidden', next === 'dark');
+  document.getElementById('icon-moon').classList.toggle('hidden', next === 'light');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SMART MARKDOWN RENDERER
+// Converts the AI text response into properly formatted HTML.
+// Detects: ### headings, **bold**, bullet lists (•/-/*), numbered
+// lists, inline `code`, and plain paragraphs.
+// Short single-fact answers (no bullets/headers) stay as plain text.
+// ══════════════════════════════════════════════════════════════════
+function renderMD(raw) {
+  if (!raw) return '';
+
+  const lines = raw.split('\n');
+  let html = '';
+  let inUL = false, inOL = false;
+
+  const closeList = () => {
+    if (inUL) { html += '</ul>'; inUL = false; }
+    if (inOL) { html += '</ol>'; inOL = false; }
+  };
+
+  const inlineFmt = (text) => {
+    return text
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      closeList();
+      continue;
+    }
+
+    // ### Heading
+    if (/^###\s+/.test(trimmed)) {
+      closeList();
+      html += `<h3>${inlineFmt(trimmed.replace(/^###\s+/, ''))}</h3>`;
+      continue;
+    }
+    // ## Heading (treat same)
+    if (/^##\s+/.test(trimmed)) {
+      closeList();
+      html += `<h3>${inlineFmt(trimmed.replace(/^##\s+/, ''))}</h3>`;
+      continue;
+    }
+
+    // Bullet list: lines starting with •, -, *, or unicode bullet
+    const bulletMatch = trimmed.match(/^[•\-\*]\s+(.*)/);
+    if (bulletMatch) {
+      if (!inUL) { html += '<ul>'; inUL = true; }
+      html += `<li>${inlineFmt(bulletMatch[1])}</li>`;
+      continue;
+    }
+
+    // Numbered list: 1. 2. etc
+    const numMatch = trimmed.match(/^\d+[\.\)]\s+(.*)/);
+    if (numMatch) {
+      if (!inOL) { html += '<ol>'; inOL = true; }
+      if (inUL)  { html += '</ul>'; inUL = false; }
+      html += `<li>${inlineFmt(numMatch[1])}</li>`;
+      continue;
+    }
+
+    // Divider
+    if (/^[-—]{3,}$/.test(trimmed)) {
+      closeList();
+      html += '<hr class="ai-divider"/>';
+      continue;
+    }
+
+    // Plain text paragraph
+    closeList();
+    html += `<p style="margin:0.25rem 0;color:var(--text-ai-body);font-size:0.875rem;line-height:1.65;">${inlineFmt(trimmed)}</p>`;
+  }
+
+  closeList();
+  return html;
+}
+
+// Detect if a response needs rich rendering or can stay plain
+function isRichResponse(text) {
+  if (!text) return false;
+  return /^[•\-\*\d]/m.test(text) ||
+         /###/.test(text) ||
+         /\*\*/.test(text) ||
+         (text.split('\n').length > 4);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// GREETING
+// ══════════════════════════════════════════════════════════════════
 function greetOnce() {
   if (greetedOnce) return;
   greetedOnce = true;
   const area = document.getElementById('chat-direct');
   if (!area || area.children.length > 0) return;
-
   const hour = new Date().getHours();
-  const timeGreet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const g = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const name = studentName || userId;
-
   let msg;
   if (role === 'student') {
-    msg = `${timeGreet}, ${name}! 👋\n\nI'm EduAgent — your personal AI assistant. I can instantly tell you your:\n• 📊 Attendance for any subject\n• 📝 Marks & grades\n• 💳 Fee status\n• 📅 Timetable\n\nOr ask me anything academic. What do you need?`;
+    msg = `${g}, ${name}! 👋\n\nI'm EduAgent — your personal AI assistant. I can instantly tell you your:\n• 📊 Attendance for any subject\n• 📝 Marks & grades\n• 💳 Fee status\n• 📅 Timetable\n\nOr ask me anything academic. What do you need?`;
   } else {
-    msg = `${timeGreet}, Professor ${name}! 🏛️\n\nEduAgent Faculty Console is ready. You can:\n• 📢 Broadcast notices to students\n• 📤 Upload study materials\n• 👥 Launch attendance rooms\n• 💬 Ask me anything\n\nHow can I assist you today?`;
+    msg = `${g}, Professor ${name}! 🏛️\n\nEduAgent Faculty Console is ready. You can:\n• 📢 Broadcast notices to students\n• 📤 Upload study materials\n• 👥 Launch attendance rooms\n• 💬 Ask me anything\n\nHow can I assist you today?`;
   }
-
   addAI('chat-direct', msg, { track: 'personal' });
 }
 
-// ── SESSION PERSISTENCE ──────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
 function initApp() {
-  const savedUser = localStorage.getItem("edu_user_id");
-  const savedRole = localStorage.getItem("edu_user_role");
-  const savedName = localStorage.getItem("edu_user_name");
-  const savedDept = localStorage.getItem("edu_user_dept");
+  const saved = localStorage.getItem('edu_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('icon-sun').classList.toggle('hidden', saved === 'dark');
+  document.getElementById('icon-moon').classList.toggle('hidden', saved === 'light');
+
+  const savedUser = localStorage.getItem('edu_user_id');
+  const savedRole = localStorage.getItem('edu_user_role');
+  const savedName = localStorage.getItem('edu_user_name');
+  const savedDept = localStorage.getItem('edu_user_dept');
 
   if (savedUser && savedRole) {
-    userId = savedUser;
-    role   = savedRole;
+    userId = savedUser; role = savedRole;
     if (savedName) studentName = savedName;
     if (savedDept) studentDept = savedDept;
-
     if (role === 'student') {
       fetch(`${API}/student/sync`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
+        method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({roll_number: userId})
-      }).then(r => r.json()).then(d => {
-        if (d.timetable) { syncedTT = d.timetable; loadTimetable(); }
-      }).catch(() => {});
+      }).then(r=>r.json()).then(d=>{ if(d.timetable){syncedTT=d.timetable;loadTimetable();} }).catch(()=>{});
     }
-
     bootWorkspace();
-    document.getElementById('s-workspace').classList.replace('s-off', 's-on');
+    document.getElementById('s-workspace').classList.replace('s-off','s-on');
   } else {
-    document.getElementById('s-gateway').classList.replace('s-off', 's-on');
+    document.getElementById('s-gateway').classList.replace('s-off','s-on');
   }
 }
 
-// ── SCREEN TRANSITION ────────────────────────────────────────────────
+// ── SCREEN TRANSITIONS ───────────────────────────────────────────
 function go(a, b) {
-  document.getElementById(a).classList.replace('s-on', 's-off');
-  setTimeout(() => document.getElementById(b).classList.replace('s-off', 's-on'), 120);
+  document.getElementById(a).classList.replace('s-on','s-off');
+  setTimeout(() => document.getElementById(b).classList.replace('s-off','s-on'), 120);
 }
 
 function goLogin(r) {
@@ -672,444 +1000,412 @@ function goLogin(r) {
   document.getElementById('l-id').placeholder    = s ? 'e.g. 24WKCSE010' : 'e.g. DR_SRINIVASAN_WK';
   document.getElementById('att-box').classList.add('hidden');
   document.getElementById('sync-row').classList.add('hidden');
-  go('s-gateway', 's-login');
+  go('s-gateway','s-login');
 }
 
-// ── LOGIN ────────────────────────────────────────────────────────────
+// ── LOGIN ────────────────────────────────────────────────────────
 async function doLogin() {
   const id  = document.getElementById('l-id').value.trim().toUpperCase();
   const pwd = document.getElementById('l-pwd').value.trim();
   const err = document.getElementById('l-err');
   err.classList.add('hidden');
-  if (!id)  { err.textContent = 'Roll number required.'; err.classList.remove('hidden'); return; }
-  if (!pwd) { err.textContent = 'Password required.';    err.classList.remove('hidden'); return; }
-
+  if (!id)  { err.textContent='Roll number required.'; err.classList.remove('hidden'); return; }
+  if (!pwd) { err.textContent='Password required.';    err.classList.remove('hidden'); return; }
   userId = id;
-  studentName = role === 'student' ? `Student` : userId.replace(/_/g, ' ').replace('WK', '').trim();
-
+  studentName = role === 'student' ? 'Student' : userId.replace(/_/g,' ').replace('WK','').trim();
   document.getElementById('l-btn-txt').textContent = 'Connecting…';
   document.getElementById('l-spin').classList.remove('hidden');
   document.getElementById('l-btn').disabled = true;
-
   if (role === 'student') {
     try {
       const res = await fetch(`${API}/student/sync`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
+        method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({roll_number: id})
       });
       if (res.ok) {
         const d = await res.json();
-        setSyncPill('ok', `Synced · ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`);
-        if (d.warning) {
-          document.getElementById('att-txt').textContent = d.warning;
-          document.getElementById('att-box').classList.remove('hidden');
-        }
+        setSyncPill('ok',`Synced · ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`);
+        if (d.warning) { document.getElementById('att-txt').textContent=d.warning; document.getElementById('att-box').classList.remove('hidden'); }
         if (d.timetable) syncedTT = d.timetable;
-
-        const snapRes = await fetch(`${API}/student/snapshot/${id}`);
-        if (snapRes.ok) {
-          const snapD = await snapRes.json();
-          studentName = snapD.name || studentName;
-          studentDept = snapD.dept || studentDept;
-        }
-      } else {
-        setSyncPill('warn', 'Sync skipped — backend error');
-      }
-    } catch (e) {
-      setSyncPill('err', 'Offline mode — no sync');
-    }
+        const snap = await fetch(`${API}/student/snapshot/${id}`);
+        if (snap.ok) { const sd=await snap.json(); studentName=sd.name||studentName; studentDept=sd.dept||studentDept; }
+      } else { setSyncPill('warn','Sync skipped — backend error'); }
+    } catch(e) { setSyncPill('err','Offline mode — no sync'); }
   }
-
-  localStorage.setItem("edu_user_id",   userId);
-  localStorage.setItem("edu_user_role", role);
-  localStorage.setItem("edu_user_name", studentName);
-  localStorage.setItem("edu_user_dept", studentDept);
-
+  localStorage.setItem('edu_user_id',   userId);
+  localStorage.setItem('edu_user_role', role);
+  localStorage.setItem('edu_user_name', studentName);
+  localStorage.setItem('edu_user_dept', studentDept);
   document.getElementById('l-btn-txt').textContent = 'Authorize';
   document.getElementById('l-spin').classList.add('hidden');
   document.getElementById('l-btn').disabled = false;
-
-  greetedOnce = false; // reset so greeting fires on fresh login
+  greetedOnce = false;
   bootWorkspace();
-  go('s-login', 's-workspace');
+  go('s-login','s-workspace');
 }
 
 function setSyncPill(state, txt) {
-  const row  = document.getElementById('sync-row');
-  const pill = document.getElementById('sync-pill');
-  const dot  = document.getElementById('sync-dot');
-  const span = document.getElementById('sync-txt');
-  row.classList.remove('hidden');
-  span.textContent = txt;
-  const cls = state === 'ok' ? 'pill-ok' : state === 'warn' ? 'pill-warn' : 'pill-err';
-  pill.className = `${cls} inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full`;
-  dot.className  = `w-1.5 h-1.5 rounded-full ${state==='ok'?'bg-emerald-400':state==='warn'?'bg-amber-400':'bg-red-400'}`;
+  const row=document.getElementById('sync-row'), pill=document.getElementById('sync-pill'),
+        dot=document.getElementById('sync-dot'),  span=document.getElementById('sync-txt');
+  row.classList.remove('hidden'); span.textContent=txt;
+  const cls=state==='ok'?'pill-ok':state==='warn'?'pill-warn':'pill-err';
+  pill.className=`${cls} inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full`;
+  dot.className=`w-1.5 h-1.5 rounded-full ${state==='ok'?'bg-emerald-400':state==='warn'?'bg-amber-400':'bg-red-400'}`;
 }
 
-// ── WORKSPACE BOOT ───────────────────────────────────────────────────
+// ── WORKSPACE BOOT ───────────────────────────────────────────────
 function bootWorkspace() {
   const s = role === 'student';
-  document.getElementById('nav-s').classList.toggle('hidden', !s);
-  document.getElementById('nav-f').classList.toggle('hidden',  s);
-  document.getElementById('faculty-room-type').classList.toggle('hidden', s);
-  document.getElementById('d-role').textContent = s ? 'Student Console' : 'Faculty Console';
-  document.getElementById('d-role').className   = `text-[10px] font-bold uppercase tracking-widest mt-0.5 ${s ? 'text-indigo-400' : 'text-violet-400'}`;
-
-  const initials = studentName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || userId.substring(0, 2);
+  document.getElementById('nav-s').classList.toggle('hidden',!s);
+  document.getElementById('nav-f').classList.toggle('hidden', s);
+  document.getElementById('faculty-room-type').classList.toggle('hidden',s);
+  document.getElementById('d-role').textContent = s?'Student Console':'Faculty Console';
+  document.getElementById('d-role').className   = `text-[10px] font-bold uppercase tracking-widest mt-0.5 ${s?'text-indigo-400':'text-violet-400'}`;
+  const initials = studentName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() || userId.substring(0,2);
   document.getElementById('d-avatar').textContent = initials;
   document.getElementById('d-name').textContent   = studentName;
   document.getElementById('d-id').textContent     = userId;
-  document.getElementById('tb-sub').textContent   = `${userId} · ${s ? 'B.Tech Workspace' : 'Professor Hub'}`;
-
+  document.getElementById('tb-sub').textContent   = `${userId} · ${s?'B.Tech Workspace':'Professor Hub'}`;
   if (s) {
     document.getElementById('p-avatar').textContent = initials;
     document.getElementById('p-name').textContent   = studentName;
     document.getElementById('p-id').textContent     = userId;
     document.getElementById('p-dept').textContent   = studentDept;
-    loadTimetable();
-    tab('direct-chat');
-  } else {
-    buildRoster();
-    tab('faculty-duty');
-  }
+    loadTimetable(); tab('direct-chat');
+  } else { buildRoster(); tab('faculty-duty'); }
 }
 
-// ── TABS ─────────────────────────────────────────────────────────────
+// ── TABS ─────────────────────────────────────────────────────────
 const VIEWS = ['direct-chat','lobby-creator','lobby-join','group-room','student-vault','student-alerts','faculty-duty','faculty-classroom','faculty-upload','history','student-profile'];
 function tab(id) {
-  activeTab = id;
-  closeDrawer();
-  let niceTitle = id.replace(/faculty-|student-/g, '').replace(/-/g, ' ');
-  if (id === 'direct-chat') niceTitle = 'AI Assistant';
-  document.getElementById('tb-badge').textContent = niceTitle;
+  activeTab = id; closeDrawer();
+  let nice = id.replace(/faculty-|student-/g,'').replace(/-/g,' ');
+  if (id==='direct-chat') nice='AI Assistant';
+  document.getElementById('tb-badge').textContent = nice;
   VIEWS.forEach(v => {
     const el = document.getElementById(`v-${v}`);
     if (!el) return;
-    if (v === id) {
+    if (v===id) {
       el.classList.remove('hidden');
-      if (v === 'direct-chat') { document.getElementById('inp-direct').focus(); greetOnce(); }
-      if (v === 'group-room')  document.getElementById('inp-group').focus();
-      if (v === 'history')     loadHistory();
-    } else {
-      el.classList.add('hidden');
-    }
+      if (v==='direct-chat') { document.getElementById('inp-direct').focus(); greetOnce(); }
+      if (v==='group-room')  document.getElementById('inp-group').focus();
+      if (v==='history')     loadHistory();
+    } else { el.classList.add('hidden'); }
   });
 }
 
-// ── DRAWER ───────────────────────────────────────────────────────────
 function openDrawer()  { document.getElementById('drawer').classList.remove('-translate-x-full'); document.getElementById('backdrop').classList.remove('hidden'); }
 function closeDrawer() { document.getElementById('drawer').classList.add('-translate-x-full');    document.getElementById('backdrop').classList.add('hidden'); }
 
-// ── DIRECT CHAT ──────────────────────────────────────────────────────
+// ── DIRECT CHAT ──────────────────────────────────────────────────
 async function sendDirect() {
-  const inp = document.getElementById('inp-direct'), q = inp.value.trim();
+  const inp=document.getElementById('inp-direct'), q=inp.value.trim();
   if (!q) return;
-  inp.value = '';
-  addBubble('chat-direct', {roll: userId, text: q}, true);
+  inp.value='';
+  addBubble('chat-direct',{roll:userId,text:q},true);
   addTyping('chat-direct');
   try {
-    const r = await fetch(`${API}/ask-eduagent`, {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({roll_number: userId, subject_code: SUB, student_query: q})
+    const r = await fetch(`${API}/ask-eduagent`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({roll_number:userId,subject_code:SUB,student_query:q})
     });
     removeTyping();
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const d = await r.json();
     addAI('chat-direct', d.answer, d);
-  } catch (e) {
-    removeTyping();
-    addAI('chat-direct', `⚠️ ${e.message}`, {track: 'error'});
-  }
+  } catch(e) { removeTyping(); addAI('chat-direct',`⚠️ ${e.message}`,{track:'error'}); }
 }
 
-// ── GROUP ROOM ───────────────────────────────────────────────────────
+// ── GROUP ROOM ───────────────────────────────────────────────────
 async function createRoom() {
-  let mode = 'normal';
-  if (role === 'faculty') { const sel = document.querySelector('input[name="room-type"]:checked'); if (sel) mode = sel.value; }
+  let mode='normal';
+  if (role==='faculty') { const sel=document.querySelector('input[name="room-type"]:checked'); if(sel) mode=sel.value; }
   try {
-    const r = await fetch(`${API}/room/create`, {method: 'POST'});
-    const d = await r.json();
-    if (mode === 'attendance') alert(`⏱️ Attendance Token: [ ${d.room_code} ] — Active 60s`);
+    const r=await fetch(`${API}/room/create`,{method:'POST'}), d=await r.json();
+    if (mode==='attendance') alert(`⏱️ Attendance Token: [ ${d.room_code} ] — Active 60s`);
     connectWS(d.room_code);
-  } catch (e) { alert(`Could not create room: ${e.message}`); }
+  } catch(e) { alert(`Could not create room: ${e.message}`); }
 }
 
 async function joinRoom() {
-  const code = document.getElementById('inp-code').value.trim().toUpperCase();
-  const err  = document.getElementById('join-err');
-  err.classList.add('hidden');
-  if (!code) { err.textContent = 'Enter room code.'; err.classList.remove('hidden'); return; }
+  const code=document.getElementById('inp-code').value.trim().toUpperCase();
+  const err=document.getElementById('join-err'); err.classList.add('hidden');
+  if (!code) { err.textContent='Enter room code.'; err.classList.remove('hidden'); return; }
   try {
-    const r = await fetch(`${API}/room/${code}/exists`), d = await r.json();
-    if (!d.exists) { err.textContent = 'Room not found.'; err.classList.remove('hidden'); return; }
+    const r=await fetch(`${API}/room/${code}/exists`), d=await r.json();
+    if (!d.exists) { err.textContent='Room not found.'; err.classList.remove('hidden'); return; }
     connectWS(code);
-  } catch (e) { err.textContent = 'Backend offline.'; err.classList.remove('hidden'); }
+  } catch(e) { err.textContent='Backend offline.'; err.classList.remove('hidden'); }
 }
 
 function connectWS(code) {
-  activeRoom = code.toUpperCase();
-  const roll = role === 'student' ? userId : `FACULTY_${userId}`;
-  if (ws) { ws.close(); ws = null; }
-  ws = new WebSocket(`${WS}/ws/chat/${activeRoom}?roll=${roll}&subject=${SUB}`);
-  ws.onmessage = e => {
-    const f = JSON.parse(e.data);
-    if (f.type === 'joined')         { document.getElementById('tb-title').textContent = `Room ${activeRoom}`; tab('group-room'); }
-    else if (f.type === 'history')   { document.getElementById('chat-group').innerHTML = ''; f.messages.forEach(m => addBubble('chat-group', m)); }
-    else if (f.type === 'members')   { updateMembers(f.members); }
-    else if (f.type === 'system')    { addSystem('chat-group', f.text); }
-    else if (f.type === 'chat' || f.type === 'agent_question') { addBubble('chat-group', f); }
-    else if (f.type === 'agent_typing') { addTyping('chat-group'); }
-    else if (f.type === 'agent_reply')  { removeTyping(); addAI('chat-group', f.text, f); }
+  activeRoom=code.toUpperCase();
+  const roll=role==='student'?userId:`FACULTY_${userId}`;
+  if (ws) { ws.close(); ws=null; }
+  ws=new WebSocket(`${WS}/ws/chat/${activeRoom}?roll=${roll}&subject=${SUB}`);
+  ws.onmessage=e=>{
+    const f=JSON.parse(e.data);
+    if      (f.type==='joined')        { document.getElementById('tb-title').textContent=`Room ${activeRoom}`; tab('group-room'); }
+    else if (f.type==='history')       { document.getElementById('chat-group').innerHTML=''; f.messages.forEach(m=>addBubble('chat-group',m)); }
+    else if (f.type==='members')       { updateMembers(f.members); }
+    else if (f.type==='system')        { addSystem('chat-group',f.text); }
+    else if (f.type==='chat'||f.type==='agent_question') { addBubble('chat-group',f); }
+    else if (f.type==='agent_typing')  { addTyping('chat-group'); }
+    else if (f.type==='agent_reply')   { removeTyping(); addAI('chat-group',f.text,f); }
   };
-  // FIX: graceful exit when attendance session expires
-  ws.onclose = e => {
-    if (e.code === 4041) {
-      addSystem('chat-group', '⏱️ Attendance session has ended. You can safely leave this room.');
-      document.getElementById('member-count').textContent = 'Session closed';
-    }
-  };
+  ws.onclose=e=>{ if(e.code===4041){ addSystem('chat-group','⏱️ Attendance session has ended.'); document.getElementById('member-count').textContent='Session closed'; } };
 }
 
-// FIX: proper leave room with cleanup
 function leaveRoom() {
-  if (ws) { ws.close(); ws = null; }
-  activeRoom = '';
-  document.getElementById('chat-group').innerHTML = '';
-  document.getElementById('tb-title').textContent = 'EduAgent';
+  if(ws){ws.close();ws=null;}
+  activeRoom='';
+  document.getElementById('chat-group').innerHTML='';
+  document.getElementById('tb-title').textContent='EduAgent';
   tab('direct-chat');
 }
 
 function sendGroup() {
-  const inp = document.getElementById('inp-group'), txt = inp.value.trim();
-  if (!txt || !ws) return;
-  ws.send(JSON.stringify(txt.startsWith('/agent ') ? {type: 'agent', text: txt.substring(7).trim()} : {type: 'chat', text: txt}));
-  inp.value = ''; inp.focus();
+  const inp=document.getElementById('inp-group'), txt=inp.value.trim();
+  if(!txt||!ws) return;
+  ws.send(JSON.stringify(txt.startsWith('/agent ')?{type:'agent',text:txt.substring(7).trim()}:{type:'chat',text:txt}));
+  inp.value=''; inp.focus();
 }
 
 function updateMembers(m) {
-  document.getElementById('member-avatars').innerHTML = m.slice(0, 4).map(x =>
-    `<div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 border-2 border-[#0b0e18] flex items-center justify-center text-[10px] font-bold text-white z-10" title="${x.name}">${x.name[0]}</div>`
+  document.getElementById('member-avatars').innerHTML=m.slice(0,4).map(x=>
+    `<div class="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-700 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white z-10" title="${x.name}">${x.name[0]}</div>`
   ).join('');
-  document.getElementById('member-count').textContent = `${m.length} online`;
+  document.getElementById('member-count').textContent=`${m.length} online`;
 }
 
-// ── VAULT ─────────────────────────────────────────────────────────────
+// ── VAULT ────────────────────────────────────────────────────────
 async function loadVault() {
-  const scode  = document.getElementById('inp-vault-code').value.trim().toUpperCase() || SUB;
-  const box    = document.getElementById('vault-box');
-  const loader = document.getElementById('vault-loader');
-  box.innerHTML = ''; loader.classList.remove('hidden');
+  const scode=document.getElementById('inp-vault-code').value.trim().toUpperCase()||SUB;
+  const box=document.getElementById('vault-box'), loader=document.getElementById('vault-loader');
+  box.innerHTML=''; loader.classList.remove('hidden');
   try {
-    const res  = await fetch(`${API}/student/materials/${scode}`);
-    loader.classList.add('hidden');
-    if (!res.ok) throw new Error("Could not fetch");
-    const data = await res.json();
-    if (!data.materials || data.materials.length === 0) {
-      box.innerHTML = '<p class="text-xs text-white/30 text-center py-6 font-mono italic">No materials uploaded yet.</p>';
-      return;
-    }
-    data.materials.forEach(n => {
-      const d = document.createElement('div');
-      d.className = 'glass rounded-2xl p-4 space-y-2 animate-fade-up';
-      d.innerHTML = `<div class="flex items-center justify-between pb-2 border-b border-white/[0.05]"><span class="text-[10px] font-bold text-indigo-400 font-mono">${esc(n.unit)} · ${esc(n.subject_code)}</span><span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">Live</span></div><p class="text-xs font-bold text-white">${esc(n.heading)}</p><p class="text-xs text-white/55 leading-relaxed whitespace-pre-wrap">${esc(n.body)}</p>`;
+    const res=await fetch(`${API}/student/materials/${scode}`); loader.classList.add('hidden');
+    if (!res.ok) throw new Error('Could not fetch');
+    const data=await res.json();
+    if (!data.materials||!data.materials.length) { box.innerHTML='<p class="text-xs t-faint text-center py-6 font-mono italic">No materials uploaded yet.</p>'; return; }
+    data.materials.forEach(n=>{
+      const d=document.createElement('div');
+      d.className='glass rounded-2xl p-4 space-y-2 animate-fade-up';
+      d.innerHTML=`<div class="flex items-center justify-between pb-2 border-b border-panel"><span class="text-[10px] font-bold text-indigo-400 font-mono">${esc(n.unit)} · ${esc(n.subject_code)}</span><span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold uppercase">Live</span></div><p class="text-xs font-bold t-primary">${esc(n.heading)}</p><p class="text-xs t-secondary leading-relaxed whitespace-pre-wrap">${esc(n.body)}</p>`;
       box.appendChild(d);
     });
-  } catch (e) {
-    loader.classList.add('hidden');
-    box.innerHTML = `<p class="text-xs text-red-400 text-center py-6 font-mono">Error: ${e.message}</p>`;
-  }
+  } catch(e) { loader.classList.add('hidden'); box.innerHTML=`<p class="text-xs text-red-400 text-center py-6 font-mono">Error: ${e.message}</p>`; }
 }
 
 async function uploadMat() {
-  const subj = document.getElementById('up-subj').value.trim().toUpperCase() || '24ITE01';
-  const unit = document.getElementById('up-unit').value.trim();
-  const head = document.getElementById('up-head').value.trim();
-  const body = document.getElementById('up-body').value.trim();
-  if (!unit || !head || !body) { alert('Fill all fields.'); return; }
-  document.getElementById('up-btn-txt').textContent = "Uploading...";
+  const subj=document.getElementById('up-subj').value.trim().toUpperCase()||'24ITE01';
+  const unit=document.getElementById('up-unit').value.trim();
+  const head=document.getElementById('up-head').value.trim();
+  const body=document.getElementById('up-body').value.trim();
+  if (!unit||!head||!body) { alert('Fill all fields.'); return; }
+  document.getElementById('up-btn-txt').textContent='Uploading...';
   document.getElementById('up-spin').classList.remove('hidden');
   try {
-    const res = await fetch(`${API}/faculty/upload-materials`, {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({subject_code: subj, unit, heading: head, body_text: body})
+    const res=await fetch(`${API}/faculty/upload-materials`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({subject_code:subj,unit,heading:head,body_text:body})
     });
-    if (res.ok) {
-      alert(`✅ "${head}" pushed to student vault.`);
-      document.getElementById('up-unit').value = document.getElementById('up-head').value = document.getElementById('up-body').value = '';
-    } else { alert('Upload failed.'); }
-  } catch (e) { alert("Network error: " + e.message); }
-  document.getElementById('up-btn-txt').textContent = "Upload to ERP";
+    if (res.ok) { alert(`✅ "${head}" pushed to student vault.`); document.getElementById('up-unit').value=document.getElementById('up-head').value=document.getElementById('up-body').value=''; }
+    else alert('Upload failed.');
+  } catch(e) { alert('Network error: '+e.message); }
+  document.getElementById('up-btn-txt').textContent='Upload to ERP';
   document.getElementById('up-spin').classList.add('hidden');
 }
 
-// ── TIMETABLE ─────────────────────────────────────────────────────────
+// ── TIMETABLE ────────────────────────────────────────────────────
 function loadTimetable() {
-  const c = document.getElementById('tt-box'); if (!c) return;
-  const tt = syncedTT || {Monday:'Python, DBMS, AI', Tuesday:'DBMS, AI, Operations Research', Wednesday:'Python, Operations Research, DBMS', Thursday:'AI, Python, DBMS', Friday:'Operations Research, AI, Python'};
-  c.innerHTML = Object.entries(tt).map(([day, subs]) =>
-    `<div class="flex justify-between items-start border-b border-white/[0.05] pb-2 pt-1 last:border-0 last:pb-0"><span class="text-white/32 shrink-0 w-20">${day}</span><span class="text-white/78 text-right text-[11px] font-sans leading-tight">${esc(subs)}</span></div>`
+  const c=document.getElementById('tt-box'); if(!c) return;
+  const tt=syncedTT||{Monday:'Python, DBMS, AI',Tuesday:'DBMS, AI, Operations Research',Wednesday:'Python, Operations Research, DBMS',Thursday:'AI, Python, DBMS',Friday:'Operations Research, AI, Python'};
+  c.innerHTML=Object.entries(tt).map(([day,subs])=>
+    `<div class="flex justify-between items-start border-b border-panel pb-2 pt-1 last:border-0 last:pb-0"><span class="shrink-0 w-20 text-[11px]" style="color:var(--text-tt-day)">${day}</span><span class="text-right text-[11px]" style="color:var(--text-tt-subs)">${esc(subs)}</span></div>`
   ).join('');
 }
 
-// ── ROSTER ────────────────────────────────────────────────────────────
+// ── ROSTER ───────────────────────────────────────────────────────
 function buildRoster() {
-  const c = document.getElementById('roster'); c.innerHTML = '';
-  ROSTER.forEach(s => {
-    const d = document.createElement('div');
-    d.id = `row-${s.roll}`;
-    d.className = 'glass rounded-xl p-3 flex items-center justify-between cursor-pointer transition-all hover:bg-white/[0.06] active:scale-[0.99]';
-    d.onclick = () => selStudent(s.roll);
-    d.innerHTML = `<div><p class="text-xs font-bold text-white">${s.name}</p><p class="text-[10px] text-white/30 font-mono mt-0.5">${s.roll} · ${s.dept}</p></div><div id="chk-${s.roll}" class="w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] text-white transition-all"></div>`;
+  const c=document.getElementById('roster'); c.innerHTML='';
+  ROSTER.forEach(s=>{
+    const d=document.createElement('div');
+    d.id=`row-${s.roll}`;
+    d.className='glass rounded-xl p-3 flex items-center justify-between cursor-pointer transition-all active:scale-[0.99]';
+    d.style.setProperty('--hover-bg','var(--roster-hover)');
+    d.onmouseover=()=>d.style.background='var(--roster-hover)';
+    d.onmouseout=()=>{ if(!selected.includes(s.roll)) d.style.background=''; };
+    d.onclick=()=>selStudent(s.roll);
+    d.innerHTML=`<div><p class="text-xs font-bold t-primary">${s.name}</p><p class="text-[10px] t-muted font-mono mt-0.5">${s.roll} · ${s.dept}</p></div><div id="chk-${s.roll}" class="w-5 h-5 rounded-full border-2 border-panel flex items-center justify-center text-[10px] text-white transition-all"></div>`;
     c.appendChild(d);
   });
 }
 
 function filterRoster() {
-  const t = event.target.value.toLowerCase();
-  ROSTER.forEach(s => { const r = document.getElementById(`row-${s.roll}`); if (r) r.style.display = (s.name.toLowerCase().includes(t) || s.roll.toLowerCase().includes(t)) ? 'flex' : 'none'; });
+  const t=event.target.value.toLowerCase();
+  ROSTER.forEach(s=>{ const r=document.getElementById(`row-${s.roll}`); if(r) r.style.display=(s.name.toLowerCase().includes(t)||s.roll.toLowerCase().includes(t))?'flex':'none'; });
 }
 
 function selStudent(roll) {
-  const idx = selected.indexOf(roll), row = document.getElementById(`row-${roll}`), chk = document.getElementById(`chk-${roll}`);
-  if (idx > -1) {
-    selected.splice(idx, 1);
-    row?.classList.remove('row-sel');
-    if (chk) { chk.className = 'w-5 h-5 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] text-white'; chk.textContent = ''; }
+  const idx=selected.indexOf(roll), row=document.getElementById(`row-${roll}`), chk=document.getElementById(`chk-${roll}`);
+  if (idx>-1) {
+    selected.splice(idx,1); row?.classList.remove('row-sel'); row.style.background='';
+    if(chk){chk.className='w-5 h-5 rounded-full border-2 border-panel flex items-center justify-center text-[10px] text-white'; chk.textContent='';}
   } else {
-    selected.push(roll);
-    row?.classList.add('row-sel');
-    if (chk) { chk.className = 'w-5 h-5 rounded-full bg-violet-600 border-2 border-violet-400 flex items-center justify-center text-[10px] text-white font-bold'; chk.textContent = '✓'; }
+    selected.push(roll); row?.classList.add('row-sel');
+    if(chk){chk.className='w-5 h-5 rounded-full bg-violet-600 border-2 border-violet-400 flex items-center justify-center text-[10px] text-white font-bold'; chk.textContent='✓';}
   }
-  document.getElementById('sel-count').textContent = `${selected.length} targets`;
+  document.getElementById('sel-count').textContent=`${selected.length} targets`;
 }
 
 async function doBroadcast() {
-  const msg = document.getElementById('broadcast-inp').value.trim();
-  if (!selected.length) { alert('Select students first.'); return; }
-  if (!msg) { alert('Enter a message.'); return; }
+  const msg=document.getElementById('broadcast-inp').value.trim();
+  if(!selected.length){alert('Select students first.');return;}
+  if(!msg){alert('Enter a message.');return;}
   try {
-    await fetch(`${API}/faculty/broadcast-mass-notice`, {
-      method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({target_student_rolls: selected, announcement_message: msg})
+    await fetch(`${API}/faculty/broadcast-mass-notice`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({target_student_rolls:selected,announcement_message:msg})
     });
-    alert(`📢 Broadcast sent to ${selected.length} student(s) over live network.`);
-    document.getElementById('broadcast-inp').value = '';
-    selected = []; buildRoster();
-    document.getElementById('sel-count').textContent = '0 targets';
-  } catch (e) { alert('Failed to broadcast.'); }
+    alert(`📢 Broadcast sent to ${selected.length} student(s).`);
+    document.getElementById('broadcast-inp').value='';
+    selected=[]; buildRoster();
+    document.getElementById('sel-count').textContent='0 targets';
+  } catch(e){alert('Failed to broadcast.');}
 }
 
-// ── FIX 2: HISTORY (faculty uses real ID) ────────────────────────────
+// ── HISTORY ──────────────────────────────────────────────────────
 async function loadHistory() {
-  const c = document.getElementById('history-box');
-  c.innerHTML = shimmer(3);
-  // FIX: always use the actual logged-in userId, not hardcoded student roll
-  const histId = role === 'student' ? userId : `FACULTY_${userId}`;
+  const c=document.getElementById('history-box');
+  c.innerHTML=shimmer(3);
+  const histId=role==='student'?userId:`FACULTY_${userId}`;
   try {
-    const r = await fetch(`${API}/history/${histId}`), d = await r.json();
-    c.innerHTML = '';
-    if (!d.messages?.length) { c.innerHTML = '<p class="text-xs text-white/22 text-center py-4">No history yet.</p>'; return; }
-    d.messages.forEach(m => {
-      const row = document.createElement('div');
-      const u = m.role === 'user';
-      row.className = `p-3 rounded-xl border border-white/[0.05] text-xs ${u ? 'bg-white/[0.025] text-white/70' : 'bg-indigo-500/[0.04] text-indigo-300'}`;
-      row.innerHTML = `<p class="text-[10px] font-bold uppercase tracking-widest opacity-35 mb-1">${m.role}</p><p class="leading-relaxed font-mono whitespace-pre-wrap">${esc(m.text)}</p>`;
+    const r=await fetch(`${API}/history/${histId}`), d=await r.json();
+    c.innerHTML='';
+    if(!d.messages?.length){c.innerHTML='<p class="text-xs t-faint text-center py-4">No history yet.</p>';return;}
+    d.messages.forEach(m=>{
+      const row=document.createElement('div');
+      const u=m.role==='user';
+      row.className=`p-3 rounded-xl text-xs ${u?'hist-user-bg':'hist-agent-bg'}`;
+      row.innerHTML=`<p class="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1 ${u?'t-muted':'text-indigo-400'}">${m.role}</p><p class="leading-relaxed font-mono whitespace-pre-wrap ${u?'':'text-indigo-300'}" style="color:${u?'var(--text-history-u)':''}">${esc(m.text)}</p>`;
       c.appendChild(row);
     });
-  } catch (e) { c.innerHTML = `<p class="text-xs text-red-400 text-center py-4">${e.message}</p>`; }
+  } catch(e){c.innerHTML=`<p class="text-xs text-red-400 text-center py-4">${e.message}</p>`;}
 }
 
 function clearHistory() {
-  if (!confirm('Clear your local chat history display?')) return;
-  document.getElementById('history-box').innerHTML = '<p class="text-xs text-white/22 text-center py-4">History cleared.</p>';
-  document.getElementById('chat-direct').innerHTML = '';
-  greetedOnce = false;
-  greetOnce();
+  if(!confirm('Clear chat history display?')) return;
+  document.getElementById('history-box').innerHTML='<p class="text-xs t-faint text-center py-4">History cleared.</p>';
+  document.getElementById('chat-direct').innerHTML='';
+  greetedOnce=false; greetOnce();
 }
 
-// ── BANNER ────────────────────────────────────────────────────────────
+// ── BANNER ───────────────────────────────────────────────────────
 function showBanner(msg) {
-  document.getElementById('banner-text').textContent = msg;
+  document.getElementById('banner-text').textContent=msg;
   document.getElementById('alert-dot').classList.remove('hidden');
   document.getElementById('live-banner').classList.remove('hidden');
-  const c = document.getElementById('alerts-box'), old = c.querySelector('p.italic'); if (old) old.remove();
-  const d = document.createElement('div');
-  d.className = 'glass border-l-4 border-l-indigo-500 rounded-xl p-3 text-xs animate-fade-up';
-  d.innerHTML = `<p class="font-bold text-indigo-400 mb-0.5">Notice · ${fmtTime()}</p><p class="text-white/65">${esc(msg)}</p>`;
+  const c=document.getElementById('alerts-box'), old=c.querySelector('p.italic'); if(old) old.remove();
+  const d=document.createElement('div');
+  d.className='glass border-l-4 border-l-indigo-500 rounded-xl p-3 text-xs animate-fade-up';
+  d.innerHTML=`<p class="font-bold text-indigo-400 mb-0.5">Notice · ${fmtTime()}</p><p class="t-secondary">${esc(msg)}</p>`;
   c.prepend(d);
-  setTimeout(closeBanner, 6000);
+  setTimeout(closeBanner,6000);
 }
-function closeBanner() { document.getElementById('live-banner').classList.add('hidden'); }
+function closeBanner(){document.getElementById('live-banner').classList.add('hidden');}
 
-// ── MISC ──────────────────────────────────────────────────────────────
-function doSwap(sel) { if (!sel.value) return; if (confirm(`Reassign Hour 3 to ${sel.value}?`)) alert(`✅ Swap confirmed.`); sel.value = ''; }
-function togglePwd() { const i = document.getElementById('l-pwd'), a = document.getElementById('eye1'), b = document.getElementById('eye2'), h = i.type === 'password'; i.type = h ? 'text' : 'password'; a.classList.toggle('hidden', h); b.classList.toggle('hidden', !h); }
+// ── MISC ─────────────────────────────────────────────────────────
+function doSwap(sel){if(!sel.value)return;if(confirm(`Reassign Hour 3 to ${sel.value}?`))alert('✅ Swap confirmed.');sel.value='';}
+function togglePwd(){const i=document.getElementById('l-pwd'),a=document.getElementById('eye1'),b=document.getElementById('eye2'),h=i.type==='password';i.type=h?'text':'password';a.classList.toggle('hidden',h);b.classList.toggle('hidden',!h);}
 
 function logout() {
-  if (ws) { ws.close(); ws = null; }
-  role = ''; userId = ''; activeRoom = ''; selected = []; studentName = ''; studentDept = ''; greetedOnce = false; syncedTT = null;
-  localStorage.removeItem("edu_user_id");
-  localStorage.removeItem("edu_user_role");
-  localStorage.removeItem("edu_user_name");
-  localStorage.removeItem("edu_user_dept");
-  document.getElementById('chat-direct').innerHTML = '';
-  document.getElementById('chat-group').innerHTML  = '';
-  document.getElementById('l-id').value = '';
+  if(ws){ws.close();ws=null;}
+  role='';userId='';activeRoom='';selected=[];studentName='';studentDept='';greetedOnce=false;syncedTT=null;
+  localStorage.removeItem('edu_user_id'); localStorage.removeItem('edu_user_role');
+  localStorage.removeItem('edu_user_name'); localStorage.removeItem('edu_user_dept');
+  document.getElementById('chat-direct').innerHTML='';
+  document.getElementById('chat-group').innerHTML='';
+  document.getElementById('l-id').value='';
   document.getElementById('alert-dot').classList.add('hidden');
-  document.getElementById('tb-title').textContent = 'EduAgent';
-  go('s-workspace', 's-gateway');
+  document.getElementById('tb-title').textContent='EduAgent';
+  go('s-workspace','s-gateway');
 }
 
-// ── BUBBLE HELPERS ────────────────────────────────────────────────────
-function addBubble(aId, msg, me = false) {
-  const area = document.getElementById(aId);
-  if (msg.type === 'agent_reply') { addAI(aId, msg.text, msg); return; }
-  const bind = role === 'student' ? userId : `FACULTY_${userId}`;
-  const isMe = me || msg.roll === bind || (msg.roll || '').startsWith('FACULTY_');
-  const name = isMe ? 'You' : (msg.roll?.startsWith('FACULTY_') ? '🏛️ Professor' : (msg.name || 'Peer'));
-  const isAgent = (msg.text || '').startsWith('/agent');
-  const w = document.createElement('div');
-  w.className = `flex ${isMe ? 'justify-end' : 'justify-start'} animate-fade-up`;
-  w.innerHTML = `<div class="${isMe ? 'bub-me' : 'bub-peer'} max-w-[82%] rounded-2xl ${isMe ? 'rounded-tr-md' : 'rounded-tl-md'} px-4 py-3 shadow-lg"><p class="text-[9px] font-bold mb-1 ${isMe ? 'text-white/50' : 'text-indigo-400'}">${esc(name)}</p><p class="text-sm ${isAgent ? 'text-amber-300 font-semibold' : 'text-white/90'} leading-relaxed break-words whitespace-pre-wrap">${esc(msg.text || '')}</p><span class="text-[9px] text-white/22 mt-1.5 block ${isMe ? 'text-right' : 'text-left'}">${fmtTime()}</span></div>`;
+// ══════════════════════════════════════════════════════════════════
+// BUBBLE HELPERS
+// ══════════════════════════════════════════════════════════════════
+function addBubble(aId, msg, me=false) {
+  const area=document.getElementById(aId);
+  if(msg.type==='agent_reply'){addAI(aId,msg.text,msg);return;}
+  const bind=role==='student'?userId:`FACULTY_${userId}`;
+  const isMe=me||msg.roll===bind||(msg.roll||'').startsWith('FACULTY_');
+  const name=isMe?'You':(msg.roll?.startsWith('FACULTY_')?'🏛️ Professor':(msg.name||'Peer'));
+  const isAgent=(msg.text||'').startsWith('/agent');
+  const w=document.createElement('div');
+  w.className=`flex ${isMe?'justify-end':'justify-start'} animate-fade-up`;
+  w.innerHTML=`<div class="${isMe?'bub-me':'bub-peer'} max-w-[82%] rounded-2xl ${isMe?'rounded-tr-md':'rounded-tl-md'} px-4 py-3 shadow-lg">
+    <p class="text-[9px] font-bold mb-1 ${isMe?'text-white/60':'text-indigo-400'}">${esc(name)}</p>
+    <p class="text-sm leading-relaxed break-words whitespace-pre-wrap peer-msg-body ${isAgent?'text-amber-400 font-semibold':''}">${esc(msg.text||'')}</p>
+    <span class="text-[9px] mt-1.5 block t-faint ${isMe?'text-right':'text-left'}">${fmtTime()}</span>
+  </div>`;
   area.appendChild(w); scrollBot(aId);
 }
 
 function addAI(aId, text, pkt) {
-  const area = document.getElementById(aId), track = pkt?.track || 'academic';
-  const badge = track === 'personal' ? '<span class="text-[9px] bg-emerald-500/14 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-lg font-bold">⚡ Instant</span>'
-              : track === 'error'    ? '<span class="text-[9px] bg-red-500/14 text-red-400 border border-red-500/25 px-2 py-0.5 rounded-lg font-bold">⚠️ Error</span>'
-              :                        '<span class="text-[9px] bg-violet-500/14 text-violet-300 border border-violet-500/25 px-2 py-0.5 rounded-lg font-bold">🧠 Judge</span>';
-  const lat = pkt?.latency_ms ? ` · ${Math.round(pkt.latency_ms)}ms` : '';
-  const w = document.createElement('div');
-  w.className = 'flex justify-start animate-fade-up';
-  w.innerHTML = `<div class="bub-ai max-w-[88%] rounded-2xl rounded-tl-md px-4 py-3.5 shadow-xl"><div class="flex items-center gap-2 mb-2"><div class="w-5 h-5 rounded-lg bg-violet-500/18 flex items-center justify-center"><svg class="w-3 h-3 text-violet-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg></div><p class="text-[10px] text-violet-400 font-black uppercase tracking-widest">EduAgent</p></div><p class="text-sm text-white/88 leading-relaxed whitespace-pre-wrap break-words">${esc(text)}</p><div class="flex items-center gap-2 mt-3 pt-2 border-t border-white/[0.05]">${badge}<span class="text-[9px] text-white/22 font-mono">${fmtTime()}${lat}</span></div></div>`;
+  const area=document.getElementById(aId);
+  const track=pkt?.track||'academic';
+  const badge=track==='personal'
+    ?'<span class="text-[9px] bg-emerald-500/14 text-emerald-400 border border-emerald-500/25 px-2 py-0.5 rounded-lg font-bold">⚡ Instant</span>'
+    :track==='error'
+    ?'<span class="text-[9px] bg-red-500/14 text-red-400 border border-red-500/25 px-2 py-0.5 rounded-lg font-bold">⚠️ Error</span>'
+    :'<span class="text-[9px] bg-violet-500/14 text-violet-300 border border-violet-500/25 px-2 py-0.5 rounded-lg font-bold">🧠 Judge</span>';
+  const lat=pkt?.latency_ms?` · ${Math.round(pkt.latency_ms)}ms`:'';
+
+  // Smart render: rich markdown or plain text
+  const rich = isRichResponse(text);
+  const bodyHtml = rich
+    ? `<div class="ai-md mt-1">${renderMD(text)}</div>`
+    : `<p class="ai-msg-body mt-1">${esc(text)}</p>`;
+
+  const w=document.createElement('div');
+  w.className='flex justify-start animate-fade-up';
+  w.innerHTML=`<div class="bub-ai max-w-[90%] rounded-2xl rounded-tl-md px-4 py-3.5 shadow-xl">
+    <div class="flex items-center gap-2 mb-1">
+      <div class="w-5 h-5 rounded-lg bg-violet-500/18 flex items-center justify-center">
+        <svg class="w-3 h-3 text-violet-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+      </div>
+      <p class="text-[10px] text-violet-400 font-black uppercase tracking-widest">EduAgent</p>
+    </div>
+    ${bodyHtml}
+    <div class="flex items-center gap-2 mt-2.5 pt-2 border-t border-panel">${badge}<span class="text-[9px] t-faint font-mono">${fmtTime()}${lat}</span></div>
+  </div>`;
   area.appendChild(w); scrollBot(aId);
 }
 
 function addTyping(aId) {
   removeTyping();
-  const area = document.getElementById(aId), w = document.createElement('div');
-  w.id = 'typing'; w.className = 'flex justify-start animate-fade-up';
-  w.innerHTML = `<div class="bub-ai rounded-2xl rounded-tl-md px-4 py-3 shadow-xl"><div class="flex items-center gap-2"><span class="text-xs text-white/38 font-mono mr-1">EduAgent</span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
+  const area=document.getElementById(aId), w=document.createElement('div');
+  w.id='typing'; w.className='flex justify-start animate-fade-up';
+  w.innerHTML=`<div class="bub-ai rounded-2xl rounded-tl-md px-4 py-3 shadow-xl"><div class="flex items-center gap-2"><span class="text-xs t-muted font-mono mr-1">EduAgent</span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>`;
   area.appendChild(w); scrollBot(aId);
 }
-function removeTyping() { const e = document.getElementById('typing'); if (e) e.remove(); }
+function removeTyping(){const e=document.getElementById('typing');if(e)e.remove();}
 
-function addSystem(aId, txt) {
-  const area = document.getElementById(aId), d = document.createElement('div');
-  d.className = 'text-center text-[10px] text-white/28 glass py-1.5 px-4 rounded-full mx-auto max-w-[85%] animate-fade-up mt-2 mb-2';
-  d.textContent = txt; area.appendChild(d); scrollBot(aId);
+function addSystem(aId,txt){
+  const area=document.getElementById(aId), d=document.createElement('div');
+  d.className='text-center text-[10px] t-muted glass py-1.5 px-4 rounded-full mx-auto max-w-[85%] animate-fade-up mt-2 mb-2';
+  d.textContent=txt; area.appendChild(d); scrollBot(aId);
 }
 
-function shimmer(n) { return Array(n).fill(`<div class="space-y-2 p-3 glass rounded-xl"><div class="shimmer-line h-3 w-1/3"></div><div class="shimmer-line h-3 w-full"></div><div class="shimmer-line h-3 w-4/5"></div></div>`).join(''); }
+function shimmer(n){return Array(n).fill(`<div class="space-y-2 p-3 glass rounded-xl"><div class="shimmer-line h-3 w-1/3"></div><div class="shimmer-line h-3 w-full"></div><div class="shimmer-line h-3 w-4/5"></div></div>`).join('');}
 
-// ── UTILS ─────────────────────────────────────────────────────────────
-function scrollBot(id) { const a = document.getElementById(id); if (a) a.scrollTop = a.scrollHeight; }
-function fmtTime()     { return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
-function esc(s)        { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+// ── UTILS ────────────────────────────────────────────────────────
+function scrollBot(id){const a=document.getElementById(id);if(a)a.scrollTop=a.scrollHeight;}
+function fmtTime(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
 
-// ── PWA ───────────────────────────────────────────────────────────────
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
 </body>
 </html>
