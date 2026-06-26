@@ -968,7 +968,7 @@ function initApp() {
 
   if (savedUser && savedRole) {
     userId = savedUser; role = savedRole;
-    if (savedName) studentName = savedName;
+    if (savedName && savedName !== 'Student') studentName = savedName;
     if (savedDept) studentDept = savedDept;
     if (role === 'student') {
       fetch(`${API}/student/sync`, {
@@ -1034,12 +1034,13 @@ async function doLogin() {
   }
   localStorage.setItem('edu_user_id',   userId);
   localStorage.setItem('edu_user_role', role);
-  localStorage.setItem('edu_user_name', studentName);
+ if (studentName && studentName !== 'Student') localStorage.setItem('edu_user_name', studentName); 
   localStorage.setItem('edu_user_dept', studentDept);
   document.getElementById('l-btn-txt').textContent = 'Authorize';
   document.getElementById('l-spin').classList.add('hidden');
   document.getElementById('l-btn').disabled = false;
   greetedOnce = false;
+  updateNameUI();
   bootWorkspace();
   go('s-login','s-workspace');
 }
@@ -1404,6 +1405,18 @@ function shimmer(n){return Array(n).fill(`<div class="space-y-2 p-3 glass rounde
 function scrollBot(id){const a=document.getElementById(id);if(a)a.scrollTop=a.scrollHeight;}
 function fmtTime(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+
+function updateNameUI() {
+  const initials = studentName && studentName !== 'Student'
+    ? studentName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase()
+    : userId.substring(0,2);
+  document.getElementById('d-avatar').textContent = initials;
+  document.getElementById('d-name').textContent   = studentName || userId;
+  document.getElementById('p-avatar').textContent = initials;
+  document.getElementById('p-name').textContent   = studentName || userId;
+}
+
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
